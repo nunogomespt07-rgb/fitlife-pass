@@ -166,13 +166,21 @@ export default function DashboardPage() {
           <DashboardCard
             title="Créditos"
             subtitle="Saldo disponível"
-            className="bg-[radial-gradient(circle_at_0%_0%,rgba(96,165,250,0.32),transparent_55%),linear-gradient(135deg,#1D4ED8,#2563EB)] border-white/[0.22] shadow-[0_26px_70px_rgba(37,99,235,0.55)]"
+            className="relative overflow-hidden bg-[linear-gradient(135deg,rgba(37,99,235,0.95),rgba(59,130,246,0.85))] border-white/[0.22] shadow-[0_10px_40px_rgba(37,99,235,0.35)]"
           >
-            <p className="text-5xl sm:text-6xl font-semibold tracking-tight text-white tabular-nums">
+            <div
+              className="pointer-events-none absolute inset-x-0 -top-10 h-28 opacity-90"
+              style={{
+                background:
+                  "radial-gradient(circle_at_10% 0%, rgba(191,219,254,0.55), transparent 60%)",
+              }}
+              aria-hidden
+            />
+            <p className="relative text-5xl sm:text-6xl font-semibold tracking-tight text-white tabular-nums">
               {credits}
             </p>
-            <p className="mt-1 text-xs font-medium uppercase tracking-[0.22em] text-white/70">
-              créditos restantes
+            <p className="relative mt-1 text-[11px] font-semibold uppercase tracking-[0.26em] text-white/80">
+              CRÉDITOS DISPONÍVEIS
             </p>
             {credits === 0 && (
               <p className="mt-3 text-sm text-white/80">
