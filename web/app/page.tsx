@@ -88,7 +88,7 @@ export default function LandingPage() {
         {/* Content – tight 3 zones: TEXT → RUNNER → LOGIN – premium SaaS flow */}
         <div className="relative z-10 mx-auto grid min-h-[70vh] max-w-7xl grid-cols-1 gap-8 px-4 py-10 sm:px-6 lg:min-h-[min(92vh,920px)] lg:grid-cols-[minmax(0,480px)_2.2fr_minmax(0,380px)] lg:items-center lg:gap-6 lg:px-8 lg:py-10 xl:gap-8 xl:px-10">
           {/* LEFT ZONE: headline + supporting text – editorial max-width */}
-          <div className="flex flex-col justify-center pb-4 sm:pb-6 lg:max-w-[520px] lg:pr-3 lg:pb-0 xl:max-w-[520px]">
+          <div className="order-1 flex flex-col justify-center pb-4 sm:pb-6 lg:max-w-[520px] lg:pr-3 lg:pb-0 xl:max-w-[520px]">
             <p className="text-[11px] font-semibold uppercase tracking-[0.36em] text-white/55">
               FitLife Pass
             </p>
@@ -108,20 +108,20 @@ export default function LandingPage() {
           </div>
 
           {/* CENTER ZONE: runner – visual anchor between text and card */}
-          <div className="relative flex min-h-[260px] items-center justify-center py-6 sm:min-h-[360px] lg:min-h-[min(92vh,900px)] lg:-translate-x-16 lg:justify-start lg:pb-[4%] lg:pt-6 lg:px-0 xl:-translate-x-20">
+          <div className="order-3 relative flex min-h-[200px] max-h-[260px] items-center justify-center overflow-hidden py-4 sm:min-h-[320px] sm:max-h-[420px] lg:order-2 lg:min-h-[min(92vh,900px)] lg:max-h-none lg:-translate-x-16 lg:justify-start lg:pb-[4%] lg:pt-6 lg:px-0 xl:-translate-x-20">
             <Image
               src="/images/runner-hero.png"
               alt="Runner"
               width={1500}
               height={2000}
-              className="pointer-events-none max-h-[100vh] w-auto scale-[1.6] object-contain object-center"
+              className="pointer-events-none max-h-56 w-auto scale-[1.1] object-contain object-center sm:max-h-[70vh] sm:scale-[1.3] lg:scale-[1.6]"
               priority
               unoptimized
             />
           </div>
 
           {/* RIGHT ZONE: login card – alinhado com o runner para melhor balanço */}
-          <div className="flex items-center justify-center pt-6 lg:justify-center lg:pl-0 lg:pt-0">
+          <div className="order-2 flex items-center justify-center pt-6 lg:order-3 lg:justify-center lg:pl-0 lg:pt-0">
             <Suspense fallback={null}>
               <PremiumAuthCard />
             </Suspense>
