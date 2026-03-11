@@ -127,30 +127,30 @@ export default function LandingPage() {
             <p className="text-[11px] font-semibold uppercase tracking-[0.36em] text-white/55">
               FitLife Pass
             </p>
-            <h1 className="mt-6 text-[2.1rem] font-bold leading-[1.18] tracking-tight text-white sm:text-4xl lg:text-5xl xl:text-[3.25rem] xl:leading-[1.16]">
+            <h1 className="mt-5 text-[2.1rem] font-bold leading-[1.12] tracking-tight text-white sm:text-4xl lg:text-5xl xl:text-[3.25rem] xl:leading-[1.12]">
               <span className="block">Um só passe.</span>
               <span className="block">Todos os teus</span>
               <span className="block">treinos.</span>
             </h1>
-            <p className="mt-4 max-w-md text-[0.95rem] leading-[1.7] text-white/88 sm:text-base">
+            <p className="mt-3 max-w-md text-[0.95rem] leading-[1.7] text-white/88 sm:text-base">
               <span className="block">Ginásio, yoga, padel, crossfit</span>
               <span className="block">e estúdios premium</span>
               <span className="block">numa só experiência.</span>
             </p>
-            <p className="mt-6 text-sm font-medium text-white/55">
+            <p className="mt-5 text-[13px] font-medium text-white/65">
               Uma conta. Vários parceiros. Sem fidelização.
             </p>
           </div>
 
           {/* CENTER ZONE: runner – mobile: normal flow; desktop: full-body image, no crop */}
-          <div className="order-2 mt-8 mb-4 flex justify-center lg:order-2 lg:mt-0 lg:mb-0 lg:flex lg:min-h-0 lg:items-center lg:justify-center lg:px-2">
-            <div className="relative flex w-full max-w-[95%] justify-center pointer-events-none lg:max-w-full">
+          <div className="order-2 mt-5 mb-3 flex justify-center lg:order-2 lg:mt-0 lg:mb-0 lg:flex lg:min-h-0 lg:items-center lg:justify-center lg:px-2">
+            <div className="relative flex w-full max-w-full justify-center pointer-events-none lg:max-w-full">
               {/* Glow: mobile uses radial behind athlete; desktop subtle */}
               <div
-                className="pointer-events-none absolute inset-0 -z-10 blur-3xl lg:blur-[64px]"
+                className="pointer-events-none absolute inset-[-8%] -z-10 blur-3xl lg:blur-[72px]"
                 style={{
                   background:
-                    "radial-gradient(circle at center, rgba(96,165,250,0.38) 0%, rgba(37,99,235,0.22) 35%, transparent 70%)",
+                    "radial-gradient(circle at center, rgba(96,165,250,0.38) 0%, rgba(37,99,235,0.22) 38%, rgba(15,23,42,0) 74%)",
                 }}
                 aria-hidden
               />
@@ -159,7 +159,7 @@ export default function LandingPage() {
                 alt="Runner"
                 width={1500}
                 height={2000}
-                className="h-[410px] w-auto max-w-[95%] object-contain object-center drop-shadow-[0_0_60px_rgba(59,130,246,0.28)] lg:h-[700px] lg:max-h-[700px] lg:w-auto lg:max-w-full lg:object-contain lg:object-center"
+                className="h-[460px] w-auto max-w-[96%] object-contain object-center drop-shadow-[0_0_72px_rgba(59,130,246,0.34)] lg:h-[760px] lg:max-h-[760px] lg:w-auto lg:max-w-full lg:object-contain lg:object-center"
                 priority
                 unoptimized
               />
@@ -167,7 +167,7 @@ export default function LandingPage() {
           </div>
 
           {/* RIGHT ZONE: login card – directly below runner on mobile; right column on desktop */}
-          <div className="order-3 relative z-20 flex items-center justify-center mt-0 pt-0 sm:pt-4 lg:order-3 lg:mt-0 lg:pt-0 lg:justify-center lg:pl-0">
+          <div className="order-3 relative z-20 flex items-center justify-center mt-0 pt-0 sm:pt-3 lg:order-3 lg:mt-0 lg:pt-0 lg:justify-center lg:pl-0">
             <Suspense fallback={null}>
               <PremiumAuthCard />
             </Suspense>
@@ -179,7 +179,7 @@ export default function LandingPage() {
         {/* Partner logos */}
         <section>
           <div className="flex items-baseline justify-between gap-2">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/55">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-white/60">
               Parceiros em destaque
             </p>
             <span className="hidden text-[11px] font-medium text-white/50 sm:inline">
@@ -194,11 +194,11 @@ export default function LandingPage() {
                 variant="dark"
                 padding="sm"
                 as="article"
-                className="min-w-[240px] rounded-2xl border-white/18 bg-white/[0.05] shadow-[0_16px_40px_rgba(15,23,42,0.7)] sm:min-w-0"
+                className="min-w-[240px] rounded-[20px] border-white/18 bg-white/[0.04] shadow-[0_16px_44px_rgba(15,23,42,0.78)] sm:min-w-0"
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[conic-gradient(from_140deg_at_30%_20%,#38bdf8,#6366f1,#22c55e,#38bdf8)]">
-                    <span className="h-8 w-8 rounded-full bg-slate-950/80" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[radial-gradient(circle_at_0%_0%,rgba(56,189,248,0.75),transparent_55%),radial-gradient(circle_at_100%_100%,rgba(129,140,248,0.8),transparent_55%)]">
+                    <span className="h-8 w-8 rounded-xl bg-slate-950/80" />
                   </div>
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-white">{p.name}</p>
@@ -208,11 +208,11 @@ export default function LandingPage() {
                   </div>
                 </div>
                 <div className="mt-3 flex items-center justify-between text-[11px] text-white/70">
-                  <span className="rounded-full bg-white/10 px-2 py-1">{p.credits}</span>
-                  <span>{p.distance}</span>
+                  <span className="rounded-full bg-white/12 px-2.5 py-1 text-white/85">{p.credits}</span>
+                  <span className="text-white/60">{p.distance}</span>
                 </div>
                 <div className="mt-3 flex items-center justify-between">
-                  <span className="inline-flex items-center rounded-full bg-emerald-400/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-200">
+                  <span className="inline-flex items-center rounded-full bg-emerald-400/16 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-200">
                     {p.badge}
                   </span>
                   <span className="text-[10px] text-white/55">Reservas flexíveis</span>
@@ -249,7 +249,7 @@ export default function LandingPage() {
               key={step}
               variant="dark"
               padding="lg"
-              className="rounded-2xl border border-white/[0.09] bg-white/[0.05] text-left shadow-[0_14px_36px_rgba(15,23,42,0.75)] backdrop-blur-[14px] transition-all duration-200 hover:bg-white/[0.08] hover:shadow-[0_18px_48px_rgba(15,23,42,0.85)]"
+              className="rounded-[22px] border border-white/[0.12] bg-white/[0.04] text-left shadow-[0_16px_48px_rgba(15,23,42,0.82)] backdrop-blur-[20px] transition-all duration-200 hover:bg-white/[0.07] hover:shadow-[0_20px_56px_rgba(15,23,42,0.9)]"
             >
               <div className="flex items-start gap-3">
                 <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white/80">
@@ -276,7 +276,7 @@ export default function LandingPage() {
           variant="dark"
           padding="lg"
           as="section"
-          className="mt-10 rounded-3xl border-white/20 bg-white/[0.06] text-left shadow-[0_20px_60px_rgba(15,23,42,0.8)]"
+          className="mt-10 rounded-3xl border-white/20 bg-white/[0.06] text-left shadow-[0_22px_64px_rgba(15,23,42,0.9)]"
         >
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>

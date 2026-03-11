@@ -362,7 +362,7 @@ export default function PremiumAuthCard() {
   }
 
   return (
-    <div className="w-full max-w-sm rounded-[24px] border border-white/[0.1] bg-white/[0.05] p-5 shadow-[0_16px_48px_rgba(0,0,0,0.35)] backdrop-blur-[18px] sm:rounded-[28px] sm:p-7">
+    <div className="w-full max-w-sm rounded-[26px] border border-white/[0.16] bg-white/[0.06] p-5 shadow-[0_18px_56px_rgba(15,23,42,0.78)] backdrop-blur-[22px] sm:rounded-[30px] sm:p-7">
       <div className="mt-1">
         <div className="flex items-center justify-between">
           {screen === "email" ? (
