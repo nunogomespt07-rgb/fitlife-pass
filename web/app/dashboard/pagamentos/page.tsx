@@ -8,7 +8,6 @@ import { getStoredUser, setStoredUser } from "@/lib/storedUser";
 import {
   MOCK_CREDIT_PACKS,
   SUBSCRIPTION_PLANS,
-  MOCK_PAYMENT_METHODS,
   type PaymentMethod,
   type PaymentMethodType,
   type SubscriptionPlan,
@@ -19,7 +18,7 @@ export default function DashboardPagamentosPage() {
   const { addPurchasedCredits } = useMockReservations();
   const [activePlanId, setActivePlanId] = useState<string | null>(null);
   const [purchaseSuccess, setPurchaseSuccess] = useState<string | null>(null);
-  const [methods, setMethods] = useState<PaymentMethod[]>(MOCK_PAYMENT_METHODS);
+  const [methods, setMethods] = useState<PaymentMethod[]>([]);
   const [methodModalOpen, setMethodModalOpen] = useState(false);
   const [methodStep, setMethodStep] = useState<"type" | "details">("type");
   const [selectedType, setSelectedType] = useState<PaymentMethodType | null>(null);
