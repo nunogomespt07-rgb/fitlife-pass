@@ -33,7 +33,10 @@
     margin: 0;
     padding: 0;
     min-height: 100vh;
-    background-color: var(--ref-blue-dark);
+    background:
+      radial-gradient(circle at 30% 20%, rgba(96, 165, 250, 0.18), transparent 45%),
+      radial-gradient(circle at 80% 70%, rgba(37, 99, 235, 0.12), transparent 50%),
+      linear-gradient(180deg, #0f1f45 0%, #1e3a8a 40%, #1e40af 100%);
     color: var(--ref-text-primary);
   }
 }
