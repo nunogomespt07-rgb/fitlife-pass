@@ -143,7 +143,7 @@ export default function LandingPage() {
           </div>
 
           {/* CENTER ZONE: runner – visual anchor between text and card (mobile: entre texto e card) */}
-          <div className="order-2 relative z-10 mt-4 -mb-4 flex min-h-[235px] items-center justify-center sm:mt-7 sm:-mb-3 sm:min-h-[300px] lg:order-2 lg:z-auto lg:mt-0 lg:mb-0 lg:min-h-[min(92vh,900px)] lg:-translate-x-16 lg:justify-start lg:pb-[4%] lg:pt-6 lg:px-0 xl:-translate-x-20">
+          <div className="order-2 relative z-10 mt-4 -mb-2 flex h-[258px] items-center justify-center sm:mt-7 sm:-mb-2 sm:h-[310px] lg:order-2 lg:z-auto lg:mt-0 lg:mb-0 lg:h-auto lg:min-h-[min(92vh,900px)] lg:-translate-x-16 lg:justify-start lg:pb-[4%] lg:pt-6 lg:px-0 xl:-translate-x-20">
             <div
               className="pointer-events-none absolute inset-0 -z-10 blur-3xl"
               style={{
@@ -164,7 +164,7 @@ export default function LandingPage() {
           </div>
 
           {/* RIGHT ZONE: login card – alinhado com o runner para melhor balanço */}
-          <div className="order-3 relative z-20 flex items-center justify-center -mt-1 pt-0 sm:z-auto sm:mt-0 sm:pt-3 lg:order-3 lg:justify-center lg:pl-0 lg:pt-0">
+          <div className="order-3 relative z-20 flex items-center justify-center -mt-2 pt-0 sm:z-auto sm:mt-0 sm:pt-3 lg:order-3 lg:justify-center lg:pl-0 lg:pt-0">
             <Suspense fallback={null}>
               <PremiumAuthCard />
             </Suspense>
