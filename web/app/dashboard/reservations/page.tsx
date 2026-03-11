@@ -1,18 +1,18 @@
 "use client";
 
-import { useEffect, useState } from \"react\";
-import Link from \"next/link\";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
   getMe,
   getApiBookings,
   type MeUser,
   type ApiBooking,
-} from \"@/lib/api\";
-import GlassCard from \"../../components/ui/GlassCard\";
-import DashboardCard from \"../../components/ui/DashboardCard\";
-import SectionHeader from \"../../components/ui/SectionHeader\";
+} from "@/lib/api";
+import GlassCard from "../../components/ui/GlassCard";
+import DashboardCard from "../../components/ui/DashboardCard";
+import SectionHeader from "../../components/ui/SectionHeader";
 
-type BookingStatusFilter = \"upcoming\" | \"past\" | \"cancelled\";
+type BookingStatusFilter = "upcoming" | "past" | "cancelled";
 
 function parseActivityDate(booking: ApiBooking): Date | null {
   const raw =
@@ -34,13 +34,13 @@ function classifyStatus(booking: ApiBooking): BookingStatusFilter {
 }
 
 function formatDateTime(raw: string | undefined): string {
-  if (!raw) return \"—\";
+  if (!raw) return "—";
   try {
     const d = new Date(raw);
     if (Number.isNaN(d.getTime())) return raw;
-    return d.toLocaleString(\"pt-PT\", {
-      dateStyle: \"short\",
-      timeStyle: \"short\",
+    return d.toLocaleString("pt-PT", {
+      dateStyle: "short",
+      timeStyle: "short",
     });
   } catch {
     return raw;
@@ -106,7 +106,7 @@ export default function ReservationsHistoryPage() {
     };
   }, []);
 
-  const firstName = user?.name?.split(/\\s+/)[0] ?? \"Utilizador\";
+  const firstName = user?.name?.split(/\s+/)[0] ?? "Utilizador";
 
   const enriched = bookings
     .map((b) => ({
