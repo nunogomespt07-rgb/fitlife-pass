@@ -6,6 +6,41 @@ import GlassCard from "./components/ui/GlassCard";
 import SectionHeader from "./components/ui/SectionHeader";
 import PremiumAuthCard from "./components/PremiumAuthCard";
 
+const FEATURED_PARTNERS = [
+  {
+    name: "FitClub Lisboa",
+    category: "Ginásio",
+    location: "Chiado, Lisboa",
+    distance: "750 m",
+    credits: "2–4 créditos",
+    badge: "Premium",
+  },
+  {
+    name: "Zen Yoga Studio",
+    category: "Yoga",
+    location: "Príncipe Real, Lisboa",
+    distance: "1,2 km",
+    credits: "1–3 créditos",
+    badge: "Signature",
+  },
+  {
+    name: "Clube Padel Lisboa",
+    category: "Padel",
+    location: "Monsanto, Lisboa",
+    distance: "15 min",
+    credits: "3–5 créditos",
+    badge: "Popular",
+  },
+  {
+    name: "Aqua Lisboa Club",
+    category: "Piscina & Wellness",
+    location: "Parque das Nações",
+    distance: "20 min",
+    credits: "2–4 créditos",
+    badge: "Wellness",
+  },
+];
+
 export default function LandingPage() {
   return (
     <div className="page-bg text-white font-sans">
@@ -131,18 +166,47 @@ export default function LandingPage() {
 
       <div className="mx-auto max-w-6xl px-4 pb-24 pt-16 sm:px-6 lg:px-10">
         {/* Partner logos */}
-        <section className="text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/50">
-            Parceiros
-          </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-6 sm:gap-10">
-            {["FitClub Lisboa", "Zen Yoga Studio", "Clube Padel Lisboa", "Aqua Lisboa Club"].map((name) => (
-              <div
-                key={name}
-                className="rounded-[28px] border border-white/[0.12] bg-white/[0.04] px-7 py-4 text-sm font-medium text-white/70 backdrop-blur-[48px]"
+        <section>
+          <div className="flex items-baseline justify-between gap-2">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/55">
+              Parceiros em destaque
+            </p>
+            <span className="hidden text-[11px] font-medium text-white/50 sm:inline">
+              +50 espaços em Lisboa e Porto
+            </span>
+          </div>
+          {/* Mobile: carrossel horizontal · Desktop: grelha */}
+          <div className="mt-6 flex gap-4 overflow-x-auto pb-3 -mx-4 px-4 sm:mt-8 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 lg:grid-cols-4">
+            {FEATURED_PARTNERS.map((p) => (
+              <GlassCard
+                key={p.name}
+                variant="dark"
+                padding="sm"
+                as="article"
+                className="min-w-[240px] rounded-2xl border-white/18 bg-white/[0.05] shadow-[0_16px_40px_rgba(15,23,42,0.7)] sm:min-w-0"
               >
-                {name}
-              </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[conic-gradient(from_140deg_at_30%_20%,#38bdf8,#6366f1,#22c55e,#38bdf8)]">
+                    <span className="h-8 w-8 rounded-full bg-slate-950/80" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-white">{p.name}</p>
+                    <p className="mt-0.5 text-[11px] text-white/60">
+                      {p.category} · {p.location}
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center justify-between text-[11px] text-white/70">
+                  <span className="rounded-full bg-white/10 px-2 py-1">{p.credits}</span>
+                  <span>{p.distance}</span>
+                </div>
+                <div className="mt-3 flex items-center justify-between">
+                  <span className="inline-flex items-center rounded-full bg-emerald-400/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-200">
+                    {p.badge}
+                  </span>
+                  <span className="text-[10px] text-white/55">Reservas flexíveis</span>
+                </div>
+              </GlassCard>
             ))}
           </div>
         </section>
@@ -154,19 +218,40 @@ export default function LandingPage() {
         />
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {[
-            { step: "1", title: "Regista-te", desc: "Cria conta em segundos." },
-            { step: "2", title: "Escolhe a aula", desc: "Pesquisa por tipo, local e data." },
-            { step: "3", title: "Reserva", desc: "Usa créditos e aparece na aula." },
+            {
+              step: "Passo 1",
+              title: "Cria a tua conta",
+              desc: "Em menos de 1 minuto, ficas pronto a reservar.",
+            },
+            {
+              step: "Passo 2",
+              title: "Explora espaços premium",
+              desc: "Filtra por zona, modalidade e horário ideal para ti.",
+            },
+            {
+              step: "Passo 3",
+              title: "Reserva com créditos",
+              desc: "Confirma em segundos e aparece na aula — sem fidelização.",
+            },
           ].map(({ step, title, desc }) => (
             <GlassCard
               key={step}
               variant="dark"
               padding="lg"
-              className="text-center rounded-2xl border border-white/[0.08] bg-white/[0.07] shadow-[0_12px_32px_rgba(0,0,0,0.25)] backdrop-blur-[12px] transition-all duration-200 hover:bg-white/[0.09] hover:shadow-[0_16px_40px_rgba(0,0,0,0.28)]"
+              className="rounded-2xl border border-white/[0.09] bg-white/[0.05] text-left shadow-[0_14px_36px_rgba(15,23,42,0.75)] backdrop-blur-[14px] transition-all duration-200 hover:bg-white/[0.08] hover:shadow-[0_18px_48px_rgba(15,23,42,0.85)]"
             >
-              <span className="text-3xl font-bold text-white/60">{step}</span>
-              <p className="mt-4 font-semibold text-white">{title}</p>
-              <p className="mt-2 text-sm text-white/70">{desc}</p>
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white/80">
+                  <span className="text-xs font-semibold">{step.replace("Passo ", "")}</span>
+                </div>
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/45">
+                    {step}
+                  </p>
+                  <p className="mt-2 text-sm font-semibold text-white">{title}</p>
+                  <p className="mt-1.5 text-[13px] leading-relaxed text-white/70">{desc}</p>
+                </div>
+              </div>
             </GlassCard>
           ))}
         </div>
@@ -176,12 +261,38 @@ export default function LandingPage() {
           subtitle="Queres listar as tuas aulas na FitLife Pass? Contacta-nos para parceria e mais visibilidade."
           className="mt-32"
         />
-        <a
-          href="mailto:parcerias@fitpass.pt"
-          className="mt-8 inline-block rounded-[28px] border border-white/[0.14] bg-white/[0.06] px-7 py-4 text-sm font-medium text-white transition hover:bg-white/[0.1] backdrop-blur-xl"
+        <GlassCard
+          variant="dark"
+          padding="lg"
+          as="section"
+          className="mt-10 rounded-3xl border-white/20 bg-white/[0.06] text-left shadow-[0_20px_60px_rgba(15,23,42,0.8)]"
         >
-          Contactar parcerias
-        </a>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/60">
+                Para ginásios & estúdios
+              </p>
+              <h3 className="mt-3 text-xl font-semibold tracking-tight text-white sm:text-2xl">
+                Liga o teu espaço à próxima geração de membros
+              </h3>
+              <p className="mt-2 text-sm text-white/70">
+                Recebe novas reservas, aumenta a taxa de ocupação e mantém o controlo total da
+                tua grelha de aulas.
+              </p>
+            </div>
+            <div className="mt-2 flex flex-col items-start gap-3 sm:mt-0 sm:items-end">
+              <a
+                href="mailto:parcerias@fitpass.pt"
+                className="inline-flex items-center justify-center rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-slate-950 shadow-[0_14px_40px_rgba(15,23,42,0.5)] transition hover:bg-white/95"
+              >
+                Falar com a equipa
+              </a>
+              <p className="text-[11px] text-white/55">
+                Parcerias sem exclusividade · Onboarding em poucos dias
+              </p>
+            </div>
+          </div>
+        </GlassCard>
       </div>
     </div>
   );
