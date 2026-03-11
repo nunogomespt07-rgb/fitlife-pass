@@ -1,0 +1,107 @@
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Premium blue fitness system – Apple Fitness+ / ClassPass style */
+:root {
+  --ref-blue-dark: #0b1e4d; /* primary dark */
+  --ref-blue-primary: #1d4ed8; /* primary blue */
+  --ref-blue-electric: #2563eb; /* electric blue */
+  --ref-blue-bright: #3b82f6; /* bright accent */
+  --ref-blue-glow-highlight: #60a5fa; /* glow highlight */
+
+  --ref-glass-surface: rgba(255, 255, 255, 0.08);
+  --ref-glass-border: rgba(255, 255, 255, 0.14);
+
+  --ref-text-primary: #ffffff;
+  --ref-text-secondary: rgba(255, 255, 255, 0.75);
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    background-color: var(--ref-blue-dark);
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+  }
+  body {
+    @apply antialiased;
+    font-family: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-color: var(--ref-blue-dark);
+    color: var(--ref-text-primary);
+  }
+}
+
+@layer utilities {
+  /* Premium glass utilities (used in skeletons / generic cards) */
+  .glass {
+    @apply rounded-[28px] shadow-2xl backdrop-blur-[48px];
+    border: 1px solid var(--ref-glass-border);
+    background-color: var(--ref-glass-surface);
+    box-shadow:
+      0 20px 60px rgba(37, 99, 235, 0.25),
+      0 8px 30px rgba(0, 0, 0, 0.25);
+  }
+  .glass-dark {
+    @apply rounded-[28px] shadow-2xl backdrop-blur-[48px];
+    border: 1px solid var(--ref-glass-border);
+    background-color: rgba(5, 12, 32, 0.7);
+    box-shadow:
+      0 20px 60px rgba(37, 99, 235, 0.25),
+      0 8px 30px rgba(0, 0, 0, 0.25);
+  }
+  .animate-in {
+    animation: animate-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .hover-lift {
+    @apply transition-all duration-200 ease-out;
+  }
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.22);
+    box-shadow:
+      0 24px 48px rgba(37, 99, 235, 0.28),
+      0 8px 24px rgba(0, 0, 0, 0.2);
+  }
+  .active-scale:active {
+    transform: scale(0.98);
+  }
+  /* Page background: premium layered blue gradient */
+  .page-bg {
+    min-height: 100vh;
+    background-color: var(--ref-blue-dark);
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.35), transparent 45%),
+      radial-gradient(circle at 80% 0%, rgba(37, 99, 235, 0.25), transparent 50%),
+      linear-gradient(180deg, #0b1e4d 0%, #1d4ed8 60%, #2563eb 100%);
+  }
+  /* Dashboard: layered premium blue gradient (Apple/Airbnb/Stripe-inspired) */
+  .page-bg-dashboard {
+    background-color: #0f172a;
+    background-image:
+      radial-gradient(circle at 20% 20%, #3b82f6 0%, transparent 40%),
+      radial-gradient(circle at 80% 0%, #2563eb 0%, transparent 45%),
+      linear-gradient(180deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%);
+  }
+  /* Section spacing scale – elegant, Apple-like */
+  .section-spacing {
+    @apply pb-24 pt-20 sm:pt-24;
+  }
+}
+
+@keyframes animate-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
