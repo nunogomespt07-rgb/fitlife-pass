@@ -77,8 +77,12 @@ export default function RegisterPage() {
       }
       setError("Não foi possível criar a conta. Tenta novamente.");
     } catch (e) {
-      const isNetwork = e instanceof TypeError && (e.message === "Failed to fetch" || e.message.includes("fetch"));
-      setError(isNetwork ? "Não foi possível criar a conta. Tenta novamente." : (e instanceof Error ? e.message : "Erro no registo"));
+      const msg = e instanceof Error ? e.message : "";
+      const isNetwork =
+        (e instanceof TypeError && (e.message === "Failed to fetch" || e.message.includes("fetch"))) ||
+        msg === "Load failed" ||
+        (typeof msg === "string" && msg.includes("Load failed"));
+      setError(isNetwork ? "Não foi possível criar a conta. Tenta novamente." : (msg || "Erro no registo"));
     } finally {
       setLoading(false);
     }
