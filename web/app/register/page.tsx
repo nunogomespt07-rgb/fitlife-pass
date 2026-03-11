@@ -40,10 +40,14 @@ export default function RegisterPage() {
         const msg = data && typeof data === "object" && typeof (data as { message?: string }).message === "string"
           ? (data as { message: string }).message
           : "";
-        if (res.status === 409 || /já está|already|duplicate|exist|registado/i.test(msg)) {
+        const safeMsg =
+          /failed to fetch|load failed|fetch failed|network error|connection refused/i.test(msg)
+            ? "Não foi possível criar a conta. Tenta novamente."
+            : msg;
+        if (res.status === 409 || /já está|already|duplicate|exist|registado/i.test(safeMsg)) {
           setError("Este email já está em utilização.");
-        } else if (msg) {
-          setError(msg);
+        } else if (safeMsg) {
+          setError(safeMsg);
         } else {
           setError("Não foi possível criar a conta. Tenta novamente.");
         }

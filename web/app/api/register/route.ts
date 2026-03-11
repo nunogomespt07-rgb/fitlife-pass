@@ -44,14 +44,9 @@ export async function POST(req: NextRequest) {
     }
     return Response.json({ success: true }, { status: upstreamRes.status });
   } catch (err) {
-    const message =
-      err instanceof Error && err.message
-        ? err.message
-        : "Não foi possível comunicar com o servidor. Tenta novamente.";
+    console.error("[api/register] upstream request failed:", err);
     return Response.json(
-      {
-        message,
-      },
+      { message: "Não foi possível criar a conta. Tenta novamente." },
       { status: 502 }
     );
   }

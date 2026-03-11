@@ -187,14 +187,11 @@ export default function PremiumAuthCard() {
     const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/auth/register`, {
+      const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          // Backward compatible + new fields (backend should store first/last).
           name: fullName,
-          firstName: firstName.trim(),
-          lastName: lastName.trim(),
           email: emailVal,
           password,
         }),
@@ -204,7 +201,12 @@ export default function PremiumAuthCard() {
         | { message?: string }
         | null;
       if (!res.ok) {
-        setError((data as { message?: string }).message ?? "Erro no registo");
+        const msg = (data as { message?: string }).message ?? "";
+        const safeMsg =
+          /failed to fetch|load failed|fetch failed|network error|connection refused/i.test(msg)
+            ? "Não foi possível criar a conta. Tenta novamente."
+            : msg || "Erro no registo";
+        setError(safeMsg);
         setLoading(false);
         return;
       }
@@ -234,7 +236,12 @@ export default function PremiumAuthCard() {
       }
       router.push("/onboarding/preferences");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Erro no registo");
+      const msg = e instanceof Error ? e.message : "";
+      const isNetwork =
+        (e instanceof TypeError && (e.message === "Failed to fetch" || e.message.includes("fetch"))) ||
+        msg === "Load failed" ||
+        /failed to fetch|load failed|fetch failed/i.test(String(msg));
+      setError(isNetwork ? "Não foi possível criar a conta. Tenta novamente." : (msg || "Erro no registo"));
     } finally {
       setLoading(false);
     }
