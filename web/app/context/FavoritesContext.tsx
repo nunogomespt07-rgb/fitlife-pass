@@ -42,9 +42,20 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
 
   const addFavorite = useCallback((item: FavoriteItem) => {
     setFavorites((prev) => {
-      const key = item.type === "activity" ? `activity:${item.categorySlug}:${item.partnerId}` : `restaurant:${item.restaurantId}`;
-      if (prev.some((f) => (f.type === "activity" ? `activity:${f.categorySlug}:${f.partnerId}` : `restaurant:${f.restaurantId}`) === key))
+      const key =
+        item.type === "activity"
+          ? `activity:${item.categorySlug}:${item.partnerId}`
+          : `restaurant:${item.restaurantId}`;
+      if (
+        prev.some(
+          (f) =>
+            (f.type === "activity"
+              ? `activity:${f.categorySlug}:${f.partnerId}`
+              : `restaurant:${f.restaurantId}`) === key
+        )
+      ) {
         return prev;
+      }
       const next = [...prev, item];
       setStoredFavorites(next);
       return next;
@@ -57,10 +68,18 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
         item.type === "activity"
           ? prev.filter(
               (f) =>
-                !(f.type === "activity" && f.categorySlug === item.categorySlug && f.partnerId === item.partnerId)
+                !(
+                  f.type === "activity" &&
+                  f.categorySlug === item.categorySlug &&
+                  f.partnerId === item.partnerId
+                )
             )
           : prev.filter(
-              (f) => !(f.type === "restaurant" && f.restaurantId === item.restaurantId)
+              (f) =>
+                !(
+                  f.type === "restaurant" &&
+                  f.restaurantId === item.restaurantId
+                )
             );
       setStoredFavorites(next);
       return next;
@@ -68,15 +87,37 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const toggleActivityPartner = useCallback(
-    (categorySlug: string, partnerId: string, categoryLabel: string, partnerName: string) => {
-      setFavorites((prev) => {
-        const isFav = isActivityPartnerFavorited(prev, categorySlug, partnerId);
-        const next = isFav
+    (
+      categorySlug: string,
+      partnerId: string,
+      categoryLabel: string,
+      partnerName: string
+    ) => {
+      setFavorites((prev): FavoriteItem[] => {
+        const isFav = isActivityPartnerFavorited(
+          prev,
+          categorySlug,
+          partnerId
+        );
+        const next: FavoriteItem[] = isFav
           ? prev.filter(
               (f) =>
-                !(f.type === "activity" && f.categorySlug === categorySlug && f.partnerId === partnerId)
+                !(
+                  f.type === "activity" &&
+                  f.categorySlug === categorySlug &&
+                  f.partnerId === partnerId
+                )
             )
-          : [...prev, { type: "activity", partnerId, categorySlug, categoryLabel, partnerName }];
+          : [
+              ...prev,
+              {
+                type: "activity",
+                partnerId,
+                categorySlug,
+                categoryLabel,
+                partnerName,
+              } as FavoriteItem,
+            ];
         setStoredFavorites(next);
         return next;
       });
@@ -84,18 +125,32 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
     []
   );
 
-  const toggleRestaurant = useCallback((restaurantId: string, restaurantName: string) => {
-    setFavorites((prev) => {
-      const isFav = isRestaurantFavorited(prev, restaurantId);
-      const next = isFav
-        ? prev.filter(
-            (f) => !(f.type === "restaurant" && f.restaurantId === restaurantId)
-          )
-        : [...prev, { type: "restaurant", restaurantId, restaurantName }];
-      setStoredFavorites(next);
-      return next;
-    });
-  }, []);
+  const toggleRestaurant = useCallback(
+    (restaurantId: string, restaurantName: string) => {
+      setFavorites((prev): FavoriteItem[] => {
+        const isFav = isRestaurantFavorited(prev, restaurantId);
+        const next: FavoriteItem[] = isFav
+          ? prev.filter(
+              (f) =>
+                !(
+                  f.type === "restaurant" &&
+                  f.restaurantId === restaurantId
+                )
+            )
+          : [
+              ...prev,
+              {
+                type: "restaurant",
+                restaurantId,
+                restaurantName,
+              } as FavoriteItem,
+            ];
+        setStoredFavorites(next);
+        return next;
+      });
+    },
+    []
+  );
 
   const isActivityPartnerFavorite = useCallback(
     (categorySlug: string, partnerId: string) =>

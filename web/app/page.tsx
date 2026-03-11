@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import Image from "next/image";
 import GlassCard from "./components/ui/GlassCard";
 import SectionHeader from "./components/ui/SectionHeader";
@@ -121,7 +122,9 @@ export default function LandingPage() {
 
           {/* RIGHT ZONE: login card – alinhado com o runner para melhor balanço */}
           <div className="flex items-center justify-center pt-6 lg:justify-center lg:pl-0 lg:pt-0">
-            <PremiumAuthCard />
+            <Suspense fallback={null}>
+              <PremiumAuthCard />
+            </Suspense>
           </div>
         </div>
       </section>

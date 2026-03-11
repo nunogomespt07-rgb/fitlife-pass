@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import GlassCard from "../../components/ui/GlassCard";
 import PrimaryButton from "../../components/ui/PrimaryButton";
@@ -8,7 +8,7 @@ import { useMockReservations } from "@/app/context/MockReservationsContext";
 import { getStoredUser, setStoredUser, StoredUser } from "@/lib/storedUser";
 import { changePassword } from "@/lib/api";
 
-function renderValue(value: string | null | undefined): JSX.Element {
+function renderValue(value: string | null | undefined): ReactNode {
   const t = value?.trim();
   const isEmpty = !t;
   return (
