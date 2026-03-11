@@ -144,13 +144,13 @@ export default function LandingPage() {
 
           {/* CENTER ZONE: runner – mobile: normal flow; desktop: full-body image, no crop */}
           <div className="order-2 mt-8 mb-4 flex justify-center lg:order-2 lg:mt-0 lg:mb-0 lg:flex lg:min-h-0 lg:items-center lg:justify-center lg:px-2">
-            <div className="relative flex w-full max-w-[90%] justify-center pointer-events-none lg:max-w-full">
+            <div className="relative flex w-full max-w-[95%] justify-center pointer-events-none lg:max-w-full">
               {/* Glow: mobile uses radial behind athlete; desktop subtle */}
               <div
                 className="pointer-events-none absolute inset-0 -z-10 blur-3xl lg:blur-[64px]"
                 style={{
                   background:
-                    "radial-gradient(circle at center, rgba(96,165,250,0.30) 0%, rgba(37,99,235,0.18) 35%, transparent 72%)",
+                    "radial-gradient(circle at center, rgba(96,165,250,0.38) 0%, rgba(37,99,235,0.22) 35%, transparent 70%)",
                 }}
                 aria-hidden
               />
@@ -159,7 +159,7 @@ export default function LandingPage() {
                 alt="Runner"
                 width={1500}
                 height={2000}
-                className="h-[340px] w-auto max-w-[90%] object-contain object-center drop-shadow-[0_0_60px_rgba(59,130,246,0.28)] lg:h-[620px] lg:max-h-[620px] lg:w-auto lg:max-w-full lg:object-contain lg:object-center"
+                className="h-[410px] w-auto max-w-[95%] object-contain object-center drop-shadow-[0_0_60px_rgba(59,130,246,0.28)] lg:h-[700px] lg:max-h-[700px] lg:w-auto lg:max-w-full lg:object-contain lg:object-center"
                 priority
                 unoptimized
               />
