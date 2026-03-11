@@ -148,12 +148,12 @@ export default function DashboardPage() {
   const hasPlan = Boolean(getStoredUser()?.subscriptionPlanId);
 
   return (
-    <div className="mx-auto max-w-4xl px-4 pb-12 pt-2 sm:px-6 lg:px-10">
-      <header className="mb-10">
+    <div className="mx-auto max-w-4xl px-4 pb-12 pt-20 sm:px-6 lg:px-10">
+      <header className="mb-8 sm:mb-10">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/75">
           FitLife Pass · Área pessoal
         </p>
-        <h1 className="mt-4 text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+        <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-5xl">
           Olá, {firstName}
         </h1>
         <p className="mt-3 text-sm text-white/70">
@@ -162,7 +162,7 @@ export default function DashboardPage() {
       </header>
 
         {/* Resumo principal */}
-        <div className="mt-14 grid gap-8 sm:grid-cols-2">
+        <div className="mt-10 grid gap-6 sm:mt-14 sm:grid-cols-2">
           <DashboardCard
             title="Créditos"
             subtitle="Saldo disponível"

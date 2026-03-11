@@ -177,8 +177,8 @@ export default function Nav() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/[0.05] bg-white/[0.03] shadow-[0_1px_0_0_rgba(255,255,255,0.03)] backdrop-blur-2xl supports-[backdrop-filter]:bg-white/[0.02]">
-      <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-8 px-5 sm:px-8 lg:px-10">
-        <div className="flex items-center gap-3 sm:gap-4">
+      <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4 sm:h-16 sm:gap-6 sm:px-6 lg:px-10">
+        <div className="flex items-center gap-2.5 sm:gap-4 min-w-0">
           <Link
             href={showAuthenticatedUI ? "/dashboard" : "/"}
             className="flex items-center rounded-full text-white/90 transition hover:text-white focus:outline-none focus:ring-2 focus:ring-white/15 focus:ring-offset-2 focus:ring-offset-transparent"
@@ -192,7 +192,7 @@ export default function Nav() {
           </Link>
 
           {showAuthenticatedUI && (
-            <div className="relative hidden max-w-xs flex-1 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/90 shadow-sm backdrop-blur-md sm:flex">
+            <div className="relative hidden flex-1 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/90 shadow-sm backdrop-blur-md sm:flex">
               <svg
                 className="mr-2 mt-[2px] h-4 w-4 shrink-0 text-white/50"
                 viewBox="0 0 24 24"
@@ -272,17 +272,17 @@ export default function Nav() {
           )}
         </div>
 
-        <div className="flex items-center gap-3 sm:gap-4">
+        <div className="flex items-center gap-2.5 sm:gap-4">
           {!isOnboardingOrRegister && !isAuthRoute && (
             <Link
               href="/activities"
-              className={`${navLinkBase} ${isActive("/activities") ? navLinkActive : ""}`}
+              className={`hidden md:inline-flex ${navLinkBase} ${isActive("/activities") ? navLinkActive : ""}`}
             >
               Atividades
             </Link>
           )}
           {showAuthenticatedUI && (
-            <>
+            <div className="hidden items-center gap-2.5 md:flex">
               <Link
                 href="/dashboard/reservas"
                 className={`${navLinkBase} ${isActive("/dashboard/reservas") ? navLinkActive : ""}`}
@@ -295,7 +295,7 @@ export default function Nav() {
               >
                 Check-in
               </Link>
-            </>
+            </div>
           )}
           {showAuthenticatedUI ? (
             <div className="relative ml-1 sm:ml-2" ref={dropdownRef}>

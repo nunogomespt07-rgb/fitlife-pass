@@ -10,7 +10,7 @@ export default function LandingPage() {
   return (
     <div className="page-bg text-white font-sans">
       {/* ========== PREMIUM HERO – One continuous composition ========== */}
-      <section className="relative min-h-[min(88vh,840px)] w-full overflow-hidden">
+      <section className="relative min-h-[80vh] w-full overflow-hidden">
         {/* Background – directional energy: left darker → runner zone glow → right softer */}
         <div className="absolute inset-0 bg-[#0a0f1e]" aria-hidden />
         <div className="absolute inset-0 bg-gradient-to-r from-[#070c18] via-[#0f172a] to-[#0f172a]" aria-hidden />
@@ -86,18 +86,18 @@ export default function LandingPage() {
         />
 
         {/* Content – tight 3 zones: TEXT → RUNNER → LOGIN – premium SaaS flow */}
-        <div className="relative z-10 mx-auto grid min-h-[min(92vh,920px)] max-w-7xl grid-cols-1 gap-0 px-6 py-8 lg:grid-cols-[minmax(0,480px)_2.2fr_minmax(0,380px)] lg:items-center lg:gap-6 lg:px-8 lg:py-10 xl:gap-8 xl:px-10">
+        <div className="relative z-10 mx-auto grid min-h-[70vh] max-w-7xl grid-cols-1 gap-8 px-4 py-10 sm:px-6 lg:min-h-[min(92vh,920px)] lg:grid-cols-[minmax(0,480px)_2.2fr_minmax(0,380px)] lg:items-center lg:gap-6 lg:px-8 lg:py-10 xl:gap-8 xl:px-10">
           {/* LEFT ZONE: headline + supporting text – editorial max-width */}
-          <div className="flex flex-col justify-center pb-6 lg:max-w-[520px] lg:pr-3 lg:pb-0 xl:max-w-[520px]">
+          <div className="flex flex-col justify-center pb-4 sm:pb-6 lg:max-w-[520px] lg:pr-3 lg:pb-0 xl:max-w-[520px]">
             <p className="text-[11px] font-semibold uppercase tracking-[0.36em] text-white/55">
               FitLife Pass
             </p>
-            <h1 className="mt-6 text-[2.6rem] font-bold leading-[1.18] tracking-tight text-white sm:text-5xl lg:text-5xl xl:text-[3.25rem] xl:leading-[1.16]">
+            <h1 className="mt-6 text-[2.1rem] font-bold leading-[1.18] tracking-tight text-white sm:text-4xl lg:text-5xl xl:text-[3.25rem] xl:leading-[1.16]">
               <span className="block">Um só passe.</span>
               <span className="block">Todos os teus</span>
               <span className="block">treinos.</span>
             </h1>
-            <p className="mt-5 max-w-md text-lg leading-[1.6] text-white/88 sm:text-xl">
+            <p className="mt-4 max-w-md text-[0.95rem] leading-[1.7] text-white/88 sm:text-base">
               <span className="block">Ginásio, yoga, padel, crossfit</span>
               <span className="block">e estúdios premium</span>
               <span className="block">numa só experiência.</span>
@@ -108,7 +108,7 @@ export default function LandingPage() {
           </div>
 
           {/* CENTER ZONE: runner – visual anchor between text and card */}
-          <div className="relative flex min-h-[560px] items-center justify-center py-4 lg:min-h-[min(92vh,900px)] lg:-translate-x-16 lg:justify-start lg:pb-[4%] lg:pt-6 lg:px-0 xl:-translate-x-20">
+          <div className="relative flex min-h-[260px] items-center justify-center py-6 sm:min-h-[360px] lg:min-h-[min(92vh,900px)] lg:-translate-x-16 lg:justify-start lg:pb-[4%] lg:pt-6 lg:px-0 xl:-translate-x-20">
             <Image
               src="/images/runner-hero.png"
               alt="Runner"
@@ -129,13 +129,13 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-6xl px-5 pb-32 pt-20 sm:px-6 lg:px-10">
+      <div className="mx-auto max-w-6xl px-4 pb-24 pt-16 sm:px-6 lg:px-10">
         {/* Partner logos */}
         <section className="text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/50">
             Parceiros
           </p>
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-8 sm:gap-12">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-6 sm:gap-10">
             {["FitClub Lisboa", "Zen Yoga Studio", "Clube Padel Lisboa", "Aqua Lisboa Club"].map((name) => (
               <div
                 key={name}
@@ -150,9 +150,9 @@ export default function LandingPage() {
         <SectionHeader
           title="Como Funciona"
           subtitle="Cria conta grátis, recebe créditos e reserva aulas em ginásios e estúdios parceiros. Uma única app para todas as tuas atividades."
-          className="mt-32"
+          className="mt-20"
         />
-        <div className="mt-12 grid gap-8 sm:grid-cols-3">
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {[
             { step: "1", title: "Regista-te", desc: "Cria conta em segundos." },
             { step: "2", title: "Escolhe a aula", desc: "Pesquisa por tipo, local e data." },

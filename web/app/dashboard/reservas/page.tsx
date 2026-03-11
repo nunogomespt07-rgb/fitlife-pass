@@ -106,7 +106,7 @@ export default function DashboardReservasPage() {
 
   return (
     <div className="page-bg text-white font-sans min-h-screen">
-      <div className="mx-auto max-w-4xl px-4 pb-24 pt-24 sm:px-6 lg:px-10">
+      <div className="mx-auto max-w-4xl px-4 pb-20 pt-20 sm:px-6 lg:px-10">
         <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
           Reservas
         </h1>

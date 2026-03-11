@@ -218,7 +218,7 @@ export default function DashboardPerfilPage() {
 
   return (
     <div className="page-bg min-h-screen font-sans text-white">
-      <div className="mx-auto max-w-2xl px-4 pb-24 pt-24 sm:px-6 lg:px-10">
+      <div className="mx-auto max-w-2xl px-4 pb-20 pt-20 sm:px-6 lg:px-10">
         <Link
           href="/dashboard"
           className="inline-flex items-center gap-1.5 text-sm font-medium text-white/80 transition hover:text-white"

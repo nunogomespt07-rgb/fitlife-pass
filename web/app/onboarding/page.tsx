@@ -73,7 +73,7 @@ function OnboardingContent() {
         {step === 1 && (
           <div className="animate-in">
             <SectionHeader title={current.title} subtitle={current.subtitle} />
-            <div className="mt-10 grid grid-cols-2 gap-4">
+            <div className="mt-10 grid gap-4 sm:grid-cols-2">
               {current.icons?.map(({ label, type }) => {
                 let IconComp: React.ElementType = Dumbbell;
                 if (type === "yoga") IconComp = Flower2;
