@@ -3,41 +3,42 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 const app = require("./src/app");
 
-const PORT = process.env.PORT || 3002;
-const MONGODB_URI =
-  process.env.MONGODB_URI ||
-  process.env.MONGO_URI ||
-  process.env.DATABASE_URL ||
-  "";
+const PORT = process.env.PORT || 8000;
+const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI || process.env.DATABASE_URL || "";
+
+const connectDB = async () => {
+  if (!MONGODB_URI || !MONGODB_URI.trim()) {
+    console.error("❌ MONGODB_URI (or MONGO_URI / DATABASE_URL) is not set.");
+    console.error("   Set it in Railway Environment Variables to your MongoDB connection string.");
+    console.error("   Example: mongodb+srv://user:pass@cluster.mongodb.net/dbname");
+    process.exit(1);
+  }
+  const uri = MONGODB_URI.trim();
+  if (process.env.NODE_ENV === "production" && (/127\.0\.0\.1|localhost(?::27017)?(\/|$)/i.test(uri))) {
+    console.error("❌ MONGODB_URI must not point to localhost in production.");
+    console.error("   Use a cloud MongoDB (e.g. MongoDB Atlas) and set MONGODB_URI in Railway.");
+    process.exit(1);
+  }
+  try {
+    mongoose.set("strictQuery", true);
+    await mongoose.connect(uri, {
+      family: 4,
+      serverSelectionTimeoutMS: 30000,
+      socketTimeoutMS: 45000,
+    });
+    console.log("MongoDB connected");
+  } catch (err) {
+    console.error("MongoDB connection error:", err);
+    process.exit(1);
+  }
+};
 
 async function start() {
-  if (!MONGODB_URI) {
-    console.error("❌ Falta a variável MONGODB_URI no .env");
-    console.error("   Exemplo: MONGODB_URI=mongodb+srv://USER:PASS@cluster...");
-    process.exit(1);
-  }
+  await connectDB();
 
-  try {
-    // garante ligação inicializada só uma vez
-    if (mongoose.connection.readyState === 0) {
-      mongoose.set("strictQuery", true);
-      await mongoose.connect(MONGODB_URI, {
-        family: 4,
-        serverSelectionTimeoutMS: 30000,
-        socketTimeoutMS: 45000,
-      });
-    }
-
-    console.log("✅ MongoDB ligado");
-
-    app.listen(PORT, () => {
-      console.log(`🚀 API a correr em http://localhost:${PORT}`);
-    });
-  } catch (err) {
-    console.error("❌ Erro a ligar ao MongoDB:");
-    console.error(err?.message || err);
-    process.exit(1);
-  }
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`API a correr na porta ${PORT}`);
+  });
 }
 
 process.on("unhandledRejection", (err) => {

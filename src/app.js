@@ -16,8 +16,11 @@ const apiBookingRoutes = require("./routes/apiBookingRoutes");
 const app = express();
 
 // middlewares
+const corsOrigin = process.env.CORS_ORIGIN || process.env.FRONTEND_URL || "http://localhost:3000";
 const corsOptions = {
-  origin: "http://localhost:3000",
+  origin: corsOrigin.split(",").map((o) => o.trim()).filter(Boolean).length
+    ? corsOrigin.split(",").map((o) => o.trim())
+    : "http://localhost:3000",
   credentials: true,
 };
 app.use(cors(corsOptions));
