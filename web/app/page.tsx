@@ -120,6 +120,29 @@ export default function LandingPage() {
           aria-hidden
         />
 
+        {/* MOBILE RUNNER LAYER – absolute, centered, unconstrained by text container */}
+        <div className="pointer-events-none absolute inset-x-0 top-[48%] flex -translate-y-1/2 justify-center lg:hidden">
+          <div className="relative h-[320px]">
+            <div
+              className="pointer-events-none absolute inset-0 -z-10 blur-3xl"
+              style={{
+                background:
+                  "radial-gradient(circle at 50% 25%, rgba(59,130,246,0.5), transparent 65%)",
+              }}
+              aria-hidden
+            />
+            <Image
+              src="/images/runner-hero.png"
+              alt="Runner"
+              width={1500}
+              height={2000}
+              className="h-[320px] w-auto object-contain drop-shadow-[0_0_60px_rgba(59,130,246,0.45)]"
+              priority
+              unoptimized
+            />
+          </div>
+        </div>
+
         {/* Content – tight 3 zones: TEXT → RUNNER → LOGIN – premium SaaS flow */}
         <div className="relative z-10 mx-auto grid min-h-[70vh] max-w-7xl grid-cols-1 gap-8 px-4 py-10 sm:px-6 lg:min-h-[min(92vh,920px)] lg:grid-cols-[minmax(0,480px)_2.2fr_minmax(0,380px)] lg:items-center lg:gap-6 lg:px-8 lg:py-10 xl:gap-8 xl:px-10">
           {/* LEFT ZONE: headline + supporting text – editorial max-width */}
@@ -142,13 +165,13 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* CENTER ZONE: runner – visual anchor between text and card (mobile: entre texto e card) */}
-          <div className="order-2 relative z-10 mt-4 -mb-2 flex h-[258px] items-center justify-center sm:mt-7 sm:-mb-2 sm:h-[310px] lg:order-2 lg:z-auto lg:mt-0 lg:mb-0 lg:h-auto lg:min-h-[min(92vh,900px)] lg:-translate-x-16 lg:justify-start lg:pb-[4%] lg:pt-6 lg:px-0 xl:-translate-x-20">
+          {/* CENTER ZONE: runner – desktop anchor between text and card */}
+          <div className="hidden lg:flex lg:order-2 lg:mt-0 lg:mb-0 lg:min-h-[min(92vh,900px)] lg:-translate-x-16 lg:items-center lg:justify-start lg:pb-[4%] lg:pt-6 lg:px-0 xl:-translate-x-20">
             <div
               className="pointer-events-none absolute inset-0 -z-10 blur-3xl"
               style={{
                 background:
-                  "radial-gradient(circle at 50% 30%, rgba(59,130,246,0.45), transparent 65%)",
+                  "radial-gradient(ellipse 70% 82% at 55% 50%, rgba(59,130,246,0.12) 0%, rgba(59,130,246,0.04) 25%, rgba(34,211,238,0.025) 48%, transparent 78%)",
               }}
               aria-hidden
             />
@@ -157,14 +180,14 @@ export default function LandingPage() {
               alt="Runner"
               width={1500}
               height={2000}
-              className="pointer-events-none max-h-56 w-auto scale-[1.05] object-contain object-center drop-shadow-[0_0_40px_rgba(59,130,246,0.35)] sm:max-h-[70vh] sm:scale-[1.25] lg:scale-[1.6]"
+              className="pointer-events-none max-h-[100vh] w-auto scale-[1.6] object-contain object-center drop-shadow-[0_0_60px_rgba(59,130,246,0.45)]"
               priority
               unoptimized
             />
           </div>
 
           {/* RIGHT ZONE: login card – alinhado com o runner para melhor balanço */}
-          <div className="order-3 relative z-20 flex items-center justify-center -mt-2 pt-0 sm:z-auto sm:mt-0 sm:pt-3 lg:order-3 lg:justify-center lg:pl-0 lg:pt-0">
+          <div className="order-3 relative z-30 flex items-center justify-center mt-[260px] pt-0 sm:mt-[280px] sm:pt-3 lg:order-3 lg:mt-0 lg:justify-center lg:pl-0 lg:pt-0">
             <Suspense fallback={null}>
               <PremiumAuthCard />
             </Suspense>
