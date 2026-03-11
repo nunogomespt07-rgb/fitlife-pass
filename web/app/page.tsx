@@ -121,7 +121,7 @@ export default function LandingPage() {
         />
 
         {/* Content – mobile: normal flow TEXT → RUNNER → CARD; desktop: 3-column grid */}
-        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-0 px-4 py-10 sm:px-6 lg:min-h-[min(92vh,920px)] lg:grid-cols-[minmax(0,480px)_2.2fr_minmax(0,380px)] lg:items-center lg:gap-6 lg:px-8 lg:py-10 xl:gap-8 xl:px-10">
+        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-0 px-4 py-10 sm:px-6 lg:min-h-[min(92vh,920px)] lg:grid-cols-[minmax(0,480px)_1.4fr_minmax(0,380px)] lg:items-center lg:gap-8 lg:px-8 lg:py-10 xl:gap-10 xl:px-10">
           {/* LEFT ZONE: headline + supporting text – editorial max-width */}
           <div className="order-1 flex flex-col justify-center pb-0 sm:pb-4 lg:max-w-[520px] lg:pr-3 lg:pb-0 xl:max-w-[520px]">
             <p className="text-[11px] font-semibold uppercase tracking-[0.36em] text-white/55">
@@ -142,14 +142,15 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* CENTER ZONE: runner – mobile: normal flow between text and card; desktop: grid cell */}
-          <div className="order-2 mt-6 flex justify-center pb-0 -mb-5 lg:order-2 lg:mt-0 lg:mb-0 lg:pb-0 lg:min-h-[min(92vh,900px)] lg:-translate-x-16 lg:justify-start lg:pt-6 lg:px-0 xl:-translate-x-20">
-            <div className="relative flex w-full max-w-[90%] justify-center pointer-events-none">
+          {/* CENTER ZONE: runner – mobile: normal flow; desktop: full-body image, no crop */}
+          <div className="order-2 mt-8 mb-4 flex justify-center lg:order-2 lg:mt-0 lg:mb-0 lg:flex lg:min-h-0 lg:items-center lg:justify-center lg:px-2">
+            <div className="relative flex w-full max-w-[90%] justify-center pointer-events-none lg:max-w-full">
+              {/* Glow: mobile uses radial behind athlete; desktop subtle */}
               <div
-                className="pointer-events-none absolute inset-0 -z-10 blur-3xl scale-150"
+                className="pointer-events-none absolute inset-0 -z-10 blur-3xl lg:blur-[64px]"
                 style={{
                   background:
-                    "radial-gradient(circle at center, rgba(96,165,250,0.35) 0%, rgba(29,78,216,0.25) 35%, transparent 70%)",
+                    "radial-gradient(circle at center, rgba(96,165,250,0.30) 0%, rgba(37,99,235,0.18) 35%, transparent 72%)",
                 }}
                 aria-hidden
               />
@@ -158,15 +159,15 @@ export default function LandingPage() {
                 alt="Runner"
                 width={1500}
                 height={2000}
-                className="h-[340px] w-auto max-w-[90%] object-contain object-center drop-shadow-[0_0_60px_rgba(59,130,246,0.35)] lg:h-auto lg:max-h-[100vh] lg:max-w-none lg:scale-[1.6]"
+                className="h-[300px] w-auto max-w-[90%] object-contain object-center drop-shadow-[0_0_60px_rgba(59,130,246,0.28)] lg:h-[520px] lg:max-h-[560px] lg:w-auto lg:max-w-full lg:object-contain lg:object-center"
                 priority
                 unoptimized
               />
             </div>
           </div>
 
-          {/* RIGHT ZONE: login card – floats just below athlete on mobile */}
-          <div className="order-3 relative z-20 flex items-center justify-center -mt-2.5 pt-0 sm:pt-4 lg:order-3 lg:mt-0 lg:pt-0 lg:justify-center lg:pl-0">
+          {/* RIGHT ZONE: login card – directly below runner on mobile; right column on desktop */}
+          <div className="order-3 relative z-20 flex items-center justify-center mt-0 pt-0 sm:pt-4 lg:order-3 lg:mt-0 lg:pt-0 lg:justify-center lg:pl-0">
             <Suspense fallback={null}>
               <PremiumAuthCard />
             </Suspense>
