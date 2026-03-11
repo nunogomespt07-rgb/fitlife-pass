@@ -148,8 +148,8 @@ export default function DashboardPage() {
   const hasPlan = Boolean(getStoredUser()?.subscriptionPlanId);
 
   return (
-    <div className="mx-auto max-w-4xl px-4 pb-12 pt-20 sm:px-6 lg:px-10">
-      <header className="mb-8 sm:mb-10">
+    <div className="mx-auto max-w-4xl px-4 pb-16 pt-20 sm:px-6 lg:px-10">
+      <header className="mb-9 sm:mb-12">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/75">
           FitLife Pass · Área pessoal
         </p>
@@ -162,16 +162,18 @@ export default function DashboardPage() {
       </header>
 
         {/* Resumo principal */}
-        <div className="mt-10 grid gap-6 sm:mt-14 sm:grid-cols-2">
+        <div className="mt-12 grid gap-6 sm:mt-16 sm:grid-cols-2">
           <DashboardCard
             title="Créditos"
             subtitle="Saldo disponível"
             className="bg-[radial-gradient(circle_at_0%_0%,rgba(96,165,250,0.32),transparent_55%),linear-gradient(135deg,#1D4ED8,#2563EB)] border-white/[0.22] shadow-[0_26px_70px_rgba(37,99,235,0.55)]"
           >
-            <p className="text-4xl font-semibold text-white">
+            <p className="text-5xl sm:text-6xl font-semibold tracking-tight text-white tabular-nums">
               {credits}
             </p>
-            <p className="mt-2 text-sm text-white/60">créditos restantes</p>
+            <p className="mt-1 text-xs font-medium uppercase tracking-[0.22em] text-white/70">
+              créditos restantes
+            </p>
             {credits === 0 && (
               <p className="mt-3 text-sm text-white/80">
                 Sem plano ativo. Escolhe um plano para começar a usar créditos.
