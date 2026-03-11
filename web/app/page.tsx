@@ -187,7 +187,7 @@ export default function LandingPage() {
                 alt="Runner"
                 width={1500}
                 height={2000}
-                className="h-[490px] w-auto max-w-[96%] object-contain object-center drop-shadow-[0_0_72px_rgba(59,130,246,0.34)] md:h-[820px] md:max-h-[820px] md:w-auto md:max-w-full md:object-contain md:object-center"
+                className="h-[500px] w-auto max-w-[96%] object-contain object-center drop-shadow-[0_0_72px_rgba(59,130,246,0.34)] md:h-[820px] md:max-h-[820px] md:w-auto md:max-w-full md:object-contain md:object-center"
                 priority
                 unoptimized
               />
