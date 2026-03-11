@@ -120,33 +120,10 @@ export default function LandingPage() {
           aria-hidden
         />
 
-        {/* MOBILE RUNNER LAYER – absolute, centered, unconstrained by text container */}
-        <div className="pointer-events-none absolute inset-x-0 top-[48%] flex -translate-y-1/2 justify-center lg:hidden">
-          <div className="relative h-[320px]">
-            <div
-              className="pointer-events-none absolute inset-0 -z-10 blur-3xl"
-              style={{
-                background:
-                  "radial-gradient(circle at 50% 25%, rgba(59,130,246,0.5), transparent 65%)",
-              }}
-              aria-hidden
-            />
-            <Image
-              src="/images/runner-hero.png"
-              alt="Runner"
-              width={1500}
-              height={2000}
-              className="h-[320px] w-auto object-contain drop-shadow-[0_0_60px_rgba(59,130,246,0.45)]"
-              priority
-              unoptimized
-            />
-          </div>
-        </div>
-
-        {/* Content – tight 3 zones: TEXT → RUNNER → LOGIN – premium SaaS flow */}
-        <div className="relative z-10 mx-auto grid min-h-[70vh] max-w-7xl grid-cols-1 gap-8 px-4 py-10 sm:px-6 lg:min-h-[min(92vh,920px)] lg:grid-cols-[minmax(0,480px)_2.2fr_minmax(0,380px)] lg:items-center lg:gap-6 lg:px-8 lg:py-10 xl:gap-8 xl:px-10">
+        {/* Content – mobile: normal flow TEXT → RUNNER → CARD; desktop: 3-column grid */}
+        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-0 px-4 py-10 sm:px-6 lg:min-h-[min(92vh,920px)] lg:grid-cols-[minmax(0,480px)_2.2fr_minmax(0,380px)] lg:items-center lg:gap-6 lg:px-8 lg:py-10 xl:gap-8 xl:px-10">
           {/* LEFT ZONE: headline + supporting text – editorial max-width */}
-          <div className="order-1 flex flex-col justify-center pb-1 sm:pb-4 lg:max-w-[520px] lg:pr-3 lg:pb-0 xl:max-w-[520px]">
+          <div className="order-1 flex flex-col justify-center pb-0 sm:pb-4 lg:max-w-[520px] lg:pr-3 lg:pb-0 xl:max-w-[520px]">
             <p className="text-[11px] font-semibold uppercase tracking-[0.36em] text-white/55">
               FitLife Pass
             </p>
@@ -165,29 +142,31 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* CENTER ZONE: runner – desktop anchor between text and card */}
-          <div className="hidden lg:flex lg:order-2 lg:mt-0 lg:mb-0 lg:min-h-[min(92vh,900px)] lg:-translate-x-16 lg:items-center lg:justify-start lg:pb-[4%] lg:pt-6 lg:px-0 xl:-translate-x-20">
-            <div
-              className="pointer-events-none absolute inset-0 -z-10 blur-3xl"
-              style={{
-                background:
-                  "radial-gradient(ellipse 70% 82% at 55% 50%, rgba(59,130,246,0.12) 0%, rgba(59,130,246,0.04) 25%, rgba(34,211,238,0.025) 48%, transparent 78%)",
-              }}
-              aria-hidden
-            />
-            <Image
-              src="/images/runner-hero.png"
-              alt="Runner"
-              width={1500}
-              height={2000}
-              className="pointer-events-none max-h-[100vh] w-auto scale-[1.6] object-contain object-center drop-shadow-[0_0_60px_rgba(59,130,246,0.45)]"
-              priority
-              unoptimized
-            />
+          {/* CENTER ZONE: runner – mobile: normal flow between text and card; desktop: grid cell */}
+          <div className="order-2 mt-6 flex justify-center pb-8 lg:order-2 lg:mt-0 lg:mb-0 lg:pb-0 lg:min-h-[min(92vh,900px)] lg:-translate-x-16 lg:justify-start lg:pt-6 lg:px-0 xl:-translate-x-20">
+            <div className="relative pointer-events-none">
+              <div
+                className="pointer-events-none absolute inset-0 -z-10 blur-3xl"
+                style={{
+                  background:
+                    "radial-gradient(circle at 50% 25%, rgba(59,130,246,0.45), transparent 65%)",
+                }}
+                aria-hidden
+              />
+              <Image
+                src="/images/runner-hero.png"
+                alt="Runner"
+                width={1500}
+                height={2000}
+                className="h-[290px] w-auto object-contain object-center drop-shadow-[0_0_60px_rgba(59,130,246,0.35)] lg:h-auto lg:max-h-[100vh] lg:scale-[1.6]"
+                priority
+                unoptimized
+              />
+            </div>
           </div>
 
-          {/* RIGHT ZONE: login card – alinhado com o runner para melhor balanço */}
-          <div className="order-3 relative z-30 flex items-center justify-center mt-[260px] pt-0 sm:mt-[280px] sm:pt-3 lg:order-3 lg:mt-0 lg:justify-center lg:pl-0 lg:pt-0">
+          {/* RIGHT ZONE: login card – directly below runner on mobile, no overlap */}
+          <div className="order-3 relative z-20 flex items-center justify-center pt-4 sm:pt-6 lg:order-3 lg:pt-0 lg:justify-center lg:pl-0">
             <Suspense fallback={null}>
               <PremiumAuthCard />
             </Suspense>
