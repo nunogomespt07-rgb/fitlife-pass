@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import GlassCard from "./components/ui/GlassCard";
 import SectionHeader from "./components/ui/SectionHeader";
@@ -42,6 +42,34 @@ const FEATURED_PARTNERS = [
 ];
 
 export default function LandingPage() {
+  const partnersRef = useRef<HTMLElement | null>(null);
+  const howItWorksRef = useRef<HTMLDivElement | null>(null);
+  const gymsRef = useRef<HTMLDivElement | null>(null);
+  const [partnersVisible, setPartnersVisible] = useState(false);
+  const [howItWorksVisible, setHowItWorksVisible] = useState(false);
+  const [gymsVisible, setGymsVisible] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          if (entry.target === partnersRef.current) setPartnersVisible(true);
+          if (entry.target === howItWorksRef.current) setHowItWorksVisible(true);
+          if (entry.target === gymsRef.current) setGymsVisible(true);
+        }
+      },
+      { threshold: 0.12 }
+    );
+
+    if (partnersRef.current) observer.observe(partnersRef.current);
+    if (howItWorksRef.current) observer.observe(howItWorksRef.current);
+    if (gymsRef.current) observer.observe(gymsRef.current);
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="page-bg text-white font-sans">
       {/* ========== PREMIUM HERO – One continuous composition ========== */}
@@ -57,10 +85,10 @@ export default function LandingPage() {
           }}
           aria-hidden
         />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_100%_80%_at_50%_50%,rgba(59,130,246,0.06),transparent_50%)]" aria-hidden />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_60%,rgba(99,102,241,0.04),transparent_40%)]" aria-hidden />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/25 to-transparent" aria-hidden />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_50%,transparent_55%,rgba(0,0,0,0.12)_100%)]" aria-hidden />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_120%_90%_at_50%_40%,rgba(59,130,246,0.10),transparent_55%)] opacity-80 animate-pulse" aria-hidden />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_60%,rgba(129,140,248,0.06),transparent_38%)]" aria-hidden />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/28 via-slate-950/5 to-transparent" aria-hidden />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_60%,transparent_52%,rgba(0,0,0,0.16)_100%)]" aria-hidden />
 
         {/* Motion trail – soft energy behind runner, dissolves into background */}
         <div
@@ -127,30 +155,30 @@ export default function LandingPage() {
             <p className="text-[11px] font-semibold uppercase tracking-[0.36em] text-white/55">
               FitLife Pass
             </p>
-            <h1 className="mt-5 text-[2.1rem] font-bold leading-[1.12] tracking-tight text-white sm:text-4xl lg:text-5xl xl:text-[3.25rem] xl:leading-[1.12]">
+            <h1 className="mt-5 text-[2.1rem] font-bold leading-[1.12] tracking-tight text-white sm:text-4xl lg:text-5xl xl:text-[3.25rem] xl:leading-[1.1]">
               <span className="block">Um só passe.</span>
               <span className="block">Todos os teus</span>
               <span className="block">treinos.</span>
             </h1>
-            <p className="mt-3 max-w-md text-[0.95rem] leading-[1.7] text-white/88 sm:text-base">
+            <p className="mt-3 max-w-md text-[0.95rem] leading-[1.7] text-white/80 sm:text-base">
               <span className="block">Ginásio, yoga, padel, crossfit</span>
               <span className="block">e estúdios premium</span>
               <span className="block">numa só experiência.</span>
             </p>
-            <p className="mt-5 text-[13px] font-medium text-white/65">
+            <p className="mt-5 text-[13px] font-medium text-white/70">
               Uma conta. Vários parceiros. Sem fidelização.
             </p>
           </div>
 
           {/* CENTER ZONE: runner – mobile: normal flow; desktop: full-body image, no crop */}
-          <div className="order-2 mt-5 mb-3 flex justify-center lg:order-2 lg:mt-0 lg:mb-0 lg:flex lg:min-h-0 lg:items-center lg:justify-center lg:px-2">
+          <div className="order-2 mt-4 mb-3 flex justify-center lg:order-2 lg:mt-0 lg:mb-0 lg:flex lg:min-h-0 lg:items-center lg:justify-center lg:px-2">
             <div className="relative flex w-full max-w-full justify-center pointer-events-none lg:max-w-full">
               {/* Glow: mobile uses radial behind athlete; desktop subtle */}
               <div
-                className="pointer-events-none absolute inset-[-8%] -z-10 blur-3xl lg:blur-[72px]"
+                className="pointer-events-none absolute inset-[-10%] -z-10 blur-3xl lg:blur-[80px]"
                 style={{
                   background:
-                    "radial-gradient(circle at center, rgba(96,165,250,0.38) 0%, rgba(37,99,235,0.22) 38%, rgba(15,23,42,0) 74%)",
+                    "radial-gradient(circle at center, rgba(96,165,250,0.42) 0%, rgba(37,99,235,0.22) 40%, rgba(15,23,42,0) 75%)",
                 }}
                 aria-hidden
               />
@@ -159,7 +187,7 @@ export default function LandingPage() {
                 alt="Runner"
                 width={1500}
                 height={2000}
-                className="h-[460px] w-auto max-w-[96%] object-contain object-center drop-shadow-[0_0_72px_rgba(59,130,246,0.34)] lg:h-[760px] lg:max-h-[760px] lg:w-auto lg:max-w-full lg:object-contain lg:object-center"
+                className="h-[470px] w-auto max-w-[96%] object-contain object-center drop-shadow-[0_0_72px_rgba(59,130,246,0.34)] md:h-[760px] md:max-h-[760px] md:w-auto md:max-w-full md:object-contain md:object-center"
                 priority
                 unoptimized
               />
@@ -177,7 +205,12 @@ export default function LandingPage() {
 
       <div className="mx-auto max-w-6xl px-4 pb-24 pt-16 sm:px-6 lg:px-10">
         {/* Partner logos */}
-        <section>
+        <section
+          ref={partnersRef}
+          className={`transition-all duration-300 ${
+            partnersVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+          }`}
+        >
           <div className="flex items-baseline justify-between gap-2">
             <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-white/60">
               Parceiros em destaque
@@ -194,7 +227,7 @@ export default function LandingPage() {
                 variant="dark"
                 padding="sm"
                 as="article"
-                className="min-w-[240px] rounded-[20px] border-white/18 bg-white/[0.04] shadow-[0_16px_44px_rgba(15,23,42,0.78)] sm:min-w-0"
+                className="min-w-[240px] rounded-[20px] border-white/18 bg-white/[0.04] shadow-[0_16px_44px_rgba(15,23,42,0.78)] sm:min-w-0 transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_20px_56px_rgba(15,23,42,0.9)]"
               >
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[radial-gradient(circle_at_0%_0%,rgba(56,189,248,0.75),transparent_55%),radial-gradient(circle_at_100%_100%,rgba(129,140,248,0.8),transparent_55%)]">
@@ -222,11 +255,18 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <SectionHeader
-          title="Como Funciona"
-          subtitle="Cria conta grátis, recebe créditos e reserva aulas em ginásios e estúdios parceiros. Uma única app para todas as tuas atividades."
-          className="mt-20"
-        />
+        <div
+          ref={howItWorksRef}
+          className={`transition-all duration-300 ${
+            howItWorksVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+          }`}
+        >
+          <SectionHeader
+            title="Como Funciona"
+            subtitle="Cria conta grátis, recebe créditos e reserva aulas em ginásios e estúdios parceiros. Uma única app para todas as tuas atividades."
+            className="mt-20"
+          />
+        </div>
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {[
             {
@@ -267,17 +307,23 @@ export default function LandingPage() {
           ))}
         </div>
 
-        <SectionHeader
-          title="Para Ginásios"
-          subtitle="Queres listar as tuas aulas na FitLife Pass? Contacta-nos para parceria e mais visibilidade."
-          className="mt-32"
-        />
-        <GlassCard
-          variant="dark"
-          padding="lg"
-          as="section"
-          className="mt-10 rounded-3xl border-white/20 bg-white/[0.06] text-left shadow-[0_22px_64px_rgba(15,23,42,0.9)]"
+        <div
+          ref={gymsRef}
+          className={`transition-all duration-300 ${
+            gymsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+          }`}
         >
+          <SectionHeader
+            title="Para Ginásios"
+            subtitle="Queres listar as tuas aulas na FitLife Pass? Contacta-nos para parceria e mais visibilidade."
+            className="mt-32"
+          />
+          <GlassCard
+            variant="dark"
+            padding="lg"
+            as="section"
+            className="mt-10 rounded-3xl border-white/20 bg-white/[0.06] text-left shadow-[0_22px_64px_rgba(15,23,42,0.9)]"
+          >
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/60">
@@ -303,7 +349,8 @@ export default function LandingPage() {
               </p>
             </div>
           </div>
-        </GlassCard>
+          </GlassCard>
+        </div>
       </div>
     </div>
   );
