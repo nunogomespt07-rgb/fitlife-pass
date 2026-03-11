@@ -143,13 +143,13 @@ export default function LandingPage() {
           </div>
 
           {/* CENTER ZONE: runner – mobile: normal flow between text and card; desktop: grid cell */}
-          <div className="order-2 mt-6 flex justify-center pb-8 lg:order-2 lg:mt-0 lg:mb-0 lg:pb-0 lg:min-h-[min(92vh,900px)] lg:-translate-x-16 lg:justify-start lg:pt-6 lg:px-0 xl:-translate-x-20">
-            <div className="relative pointer-events-none">
+          <div className="order-2 mt-6 flex justify-center pb-0 -mb-5 lg:order-2 lg:mt-0 lg:mb-0 lg:pb-0 lg:min-h-[min(92vh,900px)] lg:-translate-x-16 lg:justify-start lg:pt-6 lg:px-0 xl:-translate-x-20">
+            <div className="relative flex w-full max-w-[90%] justify-center pointer-events-none">
               <div
-                className="pointer-events-none absolute inset-0 -z-10 blur-3xl"
+                className="pointer-events-none absolute inset-0 -z-10 blur-3xl scale-150"
                 style={{
                   background:
-                    "radial-gradient(circle at 50% 25%, rgba(59,130,246,0.45), transparent 65%)",
+                    "radial-gradient(circle at center, rgba(96,165,250,0.35) 0%, rgba(29,78,216,0.25) 35%, transparent 70%)",
                 }}
                 aria-hidden
               />
@@ -158,15 +158,15 @@ export default function LandingPage() {
                 alt="Runner"
                 width={1500}
                 height={2000}
-                className="h-[290px] w-auto object-contain object-center drop-shadow-[0_0_60px_rgba(59,130,246,0.35)] lg:h-auto lg:max-h-[100vh] lg:scale-[1.6]"
+                className="h-[340px] w-auto max-w-[90%] object-contain object-center drop-shadow-[0_0_60px_rgba(59,130,246,0.35)] lg:h-auto lg:max-h-[100vh] lg:max-w-none lg:scale-[1.6]"
                 priority
                 unoptimized
               />
             </div>
           </div>
 
-          {/* RIGHT ZONE: login card – directly below runner on mobile, no overlap */}
-          <div className="order-3 relative z-20 flex items-center justify-center pt-4 sm:pt-6 lg:order-3 lg:pt-0 lg:justify-center lg:pl-0">
+          {/* RIGHT ZONE: login card – floats just below athlete on mobile */}
+          <div className="order-3 relative z-20 flex items-center justify-center -mt-2.5 pt-0 sm:pt-4 lg:order-3 lg:mt-0 lg:pt-0 lg:justify-center lg:pl-0">
             <Suspense fallback={null}>
               <PremiumAuthCard />
             </Suspense>
