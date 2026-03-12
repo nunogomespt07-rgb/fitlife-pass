@@ -127,13 +127,13 @@
       font-size: var(--text-hero-desktop);
     }
   }
-  /* Desktop: hero runner image scale 1.6x (mobile unchanged) */
+  /* Desktop only: hero runner image ~60% larger, shifted right for balance */
   .hero-runner-scale {
-    transform: scale(1);
+    transform: none;
   }
   @media (min-width: 1024px) {
     .hero-runner-scale {
-      transform: scale(1.6);
+      transform: scale(1.6) translateX(10%);
     }
   }
   /* Auth card floating above hero scene */

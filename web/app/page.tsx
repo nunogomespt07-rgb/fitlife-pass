@@ -154,9 +154,9 @@ export default function LandingPage() {
                   }}
                 />
               </div>
-              {/* Athlete container – desktop: scale 1.6x and reposition to the side */}
+              {/* Athlete container – desktop: larger scale + shift right (mobile unchanged) */}
               <div
-                className="relative flex justify-center items-end w-full lg:translate-x-[8%]"
+                className="relative flex justify-center items-end w-full"
                 style={{ filter: 'drop-shadow(0 0 88px rgba(90,140,255,0.28))' }}
               >
                 <div className="relative w-full flex justify-center hero-runner-scale">
