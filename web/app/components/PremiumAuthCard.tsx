@@ -15,7 +15,7 @@ function splitFullName(fullName: string): { firstName: string; lastName: string 
 }
 
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
+  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const HAS_NUMBER_OR_SYMBOL = /[0-9]|[^a-zA-Z0-9]/;
@@ -187,6 +187,11 @@ export default function PremiumAuthCard() {
     const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
     setLoading(true);
     try {
+      if (!API_BASE) {
+        setError("Não foi possível criar a conta. Configuração da API em falta (NEXT_PUBLIC_API_URL).");
+        setLoading(false);
+        return;
+      }
       const res = await fetch(`${API_BASE}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

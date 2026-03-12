@@ -1,10 +1,13 @@
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
+  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "";
 
 export async function apiFetch<T = unknown>(
   path: string,
   init?: RequestInit
 ): Promise<T> {
+  if (!API_BASE) {
+    throw new Error("NEXT_PUBLIC_API_URL não está definida. Configura a URL do backend.");
+  }
   const url = `${API_BASE}${path.startsWith("/") ? path : `/${path}`}`;
 
   const res = await fetch(url, {
