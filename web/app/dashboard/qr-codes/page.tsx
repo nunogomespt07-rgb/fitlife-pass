@@ -89,37 +89,37 @@ export default function QRCodesPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 pb-12 pt-2 sm:px-6 lg:px-10">
+    <div className="mx-auto max-w-4xl px-4 pb-28 pt-6 sm:px-6 lg:px-10">
       <header className="mb-10">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/75">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/65">
           FitLife Pass · QR Codes
         </p>
-        <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+        <h1 className="app-hero-title mt-4 text-white sm:text-4xl">
           Reservas com QR Code
         </h1>
-        <p className="mt-3 max-w-xl text-sm text-white/70">
+        <p className="mt-3 max-w-xl text-[15px] text-white/65">
           Acesso rápido às reservas ativas. Apresenta o QR code no parceiro para fazer check-in.
         </p>
       </header>
 
       {successMessage && (
-        <div className="mb-6 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-5 py-3.5 text-sm text-emerald-100">
+        <div className="mb-6 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-5 py-3.5 text-[15px] text-emerald-100">
           {successMessage}
         </div>
       )}
 
       {activityReservations.length === 0 ? (
         <GlassCard
-          variant="dark"
+          variant="app"
           padding="lg"
-          className="flex min-h-[260px] flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-center backdrop-blur-xl"
+          className="flex min-h-[260px] flex-col items-center justify-center text-center"
         >
-          <p className="font-medium text-white/80">Não tens reservas ativas com QR code.</p>
-          <p className="mt-2 text-sm text-white/60">
+          <p className="font-medium text-white/90">Não tens reservas ativas com QR code.</p>
+          <p className="mt-2 text-[15px] text-white/65">
             Faz uma reserva em Atividades para ver os teus QR codes aqui.
           </p>
           <Link href="/activities" className="mt-6">
-            <PrimaryButton variant="secondary" className="py-3.5">
+            <PrimaryButton variant="appSecondary" className="py-3.5">
               Ver atividades →
             </PrimaryButton>
           </Link>
@@ -129,18 +129,19 @@ export default function QRCodesPage() {
           {activityReservations.map((r) => (
             <li key={r.id}>
               <GlassCard
-                variant="dark"
+                variant="app"
                 padding="md"
                 hover
                 active
-                className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl transition-all hover:border-white/20 hover:bg-white/10 hover:shadow-xl sm:flex-row sm:items-center sm:justify-between"
+                activityStyle
+                className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-white">
+                  <p className="app-card-title text-white">
                     {r.activityTitle ?? r.partnerName}
                   </p>
-                  <p className="mt-1 text-sm text-white/60">{r.partnerName}</p>
-                  <p className="mt-0.5 text-xs text-white/50">
+                  <p className="mt-1 text-[15px] text-white/65">{r.partnerName}</p>
+                  <p className="mt-0.5 text-xs text-white/55">
                     {r.date} · {r.time}
                     {r.location ? ` · ${r.location}` : ""}
                   </p>
@@ -149,7 +150,7 @@ export default function QRCodesPage() {
                   <button
                     type="button"
                     onClick={() => setQrModalReservation(r)}
-                    className="rounded-xl border border-white/[0.2] bg-white/[0.08] px-4 py-2.5 text-sm font-medium text-white/90 transition hover:bg-white/[0.12] hover:text-white active:scale-[0.98]"
+                    className="app-btn-primary rounded-xl px-4 py-2.5 text-sm font-semibold"
                   >
                     Ver QR Code
                   </button>
@@ -157,7 +158,7 @@ export default function QRCodesPage() {
                     type="button"
                     onClick={() => handleCancel(r.id)}
                     disabled={cancelLoadingId === r.id}
-                    className="rounded-xl border border-white/[0.2] bg-white/[0.06] px-4 py-2.5 text-sm font-medium text-white/90 transition hover:bg-white/[0.1] hover:text-white disabled:opacity-60 active:scale-[0.98]"
+                    className="app-btn-secondary rounded-xl px-4 py-2.5 text-sm font-medium disabled:opacity-60"
                   >
                     {cancelLoadingId === r.id ? "A cancelar…" : "Cancelar reserva"}
                   </button>

@@ -155,30 +155,24 @@ export default function ReservationsHistoryPage() {
   }
 
   return (
-    <div className="page-bg text-white font-sans">
-      <div className="mx-auto max-w-4xl px-4 pb-24 pt-24 sm:px-6 lg:px-10">
+    <div className="text-white font-sans min-h-screen">
+      <div className="mx-auto max-w-4xl px-4 pb-24 pt-6 sm:px-6 lg:px-10">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/55">
           FitLife Pass · Histórico
         </p>
-        <h1 className="mt-5 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+        <h1 className="app-hero-title mt-5 text-white">
           Reservas de {firstName}
         </h1>
 
         <div className="mt-10 grid gap-6 sm:grid-cols-2">
-          <DashboardCard
-            title="Total de reservas"
-            subtitle="Inclui futuras, passadas e canceladas"
-          >
+          <DashboardCard title="Total de reservas" subtitle="Inclui futuras, passadas e canceladas">
             <p className="text-3xl font-semibold text-white">
               {bookings.length}
             </p>
           </DashboardCard>
-          <DashboardCard
-            title="Navegar"
-            subtitle="Voltar ao dashboard"
-          >
+          <DashboardCard title="Navegar" subtitle="Voltar ao dashboard">
             <Link href="/dashboard">
-              <span className="inline-flex items-center text-sm font-medium text-blue-100 underline-offset-2 hover:underline">
+              <span className="inline-flex items-center text-[15px] font-medium text-white/90 underline-offset-2 hover:underline">
                 ← Voltar ao dashboard
               </span>
             </Link>
@@ -186,13 +180,14 @@ export default function ReservationsHistoryPage() {
         </div>
 
         <SectionHeader
+          variant="app"
           title="Histórico de reservas"
           subtitle="Consulta as tuas reservas passadas, futuras e canceladas."
           className="mt-16"
         />
 
         {/* Filtros de estado */}
-        <div className="mt-6 inline-flex rounded-full bg-white/[0.06] p-1.5">
+        <div className="mt-6 inline-flex rounded-xl bg-white/[0.06] p-1.5 border border-white/[0.06]">
             {([
             { id: "upcoming", label: "Próximas" },
             { id: "past", label: "Passadas" },
@@ -216,18 +211,18 @@ export default function ReservationsHistoryPage() {
         {/* Lista de reservas filtradas */}
         {filtered.length === 0 ? (
           <GlassCard
-            variant="dark"
+            variant="app"
             padding="lg"
-            className="mt-8 flex min-h-[220px] flex-col items-center justify-center text-center rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl"
+            className="mt-8 flex min-h-[220px] flex-col items-center justify-center text-center"
           >
-            <p className="font-medium text-white/80">
+            <p className="font-medium text-white/90">
               Sem reservas neste filtro
             </p>
-            <p className="mt-2 text-sm text-white/55">
+            <p className="mt-2 text-[15px] text-white/65">
               Altera o filtro acima ou explora atividades para fazer uma nova reserva.
             </p>
             <Link href="/activities">
-              <span className="mt-5 inline-flex items-center text-sm font-medium text-blue-100 underline-offset-2 hover:underline">
+              <span className="mt-5 inline-flex items-center text-sm font-medium text-white/90 underline-offset-2 hover:underline">
                 Ver atividades →
               </span>
             </Link>
@@ -247,20 +242,21 @@ export default function ReservationsHistoryPage() {
               return (
                 <li key={booking._id}>
                   <GlassCard
-                    variant="dark"
+                    variant="app"
                     padding="md"
                     hover
+                    activityStyle
                     className="flex flex-col gap-3"
                   >
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
-                        <p className="font-semibold text-white">
+                        <p className="app-card-title text-white">
                           {activity?.title ?? "Atividade"}
                         </p>
-                        <p className="mt-1 text-xs text-white/60">
+                        <p className="mt-1 text-[13px] text-white/65">
                           {activity?.sportType ?? "—"} · {partnerName}
                         </p>
-                        <p className="mt-0.5 text-xs text-white/50">
+                        <p className="mt-0.5 text-xs text-white/55">
                           {formatDateTime(when)}
                         </p>
                       </div>

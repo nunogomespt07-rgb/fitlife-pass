@@ -23,7 +23,7 @@ export default function ActivityCategoryPage() {
     return (
       <div className="page-bg text-white font-sans min-h-screen">
         <div className="mx-auto max-w-4xl px-4 pb-24 pt-24 sm:px-6 lg:px-10">
-          <GlassCard variant="dark" padding="lg">
+          <GlassCard variant="app" padding="lg">
             <p className="text-sm font-medium text-white">Categoria não encontrada.</p>
             <Link
               href="/activities"
@@ -38,7 +38,7 @@ export default function ActivityCategoryPage() {
   }
 
   return (
-    <div className="page-bg text-white font-sans min-h-screen">
+    <div className="text-white font-sans min-h-screen">
       <div className="mx-auto max-w-6xl px-4 pb-24 pt-24 sm:px-6 lg:px-10">
         <Link
           href="/activities"
@@ -49,6 +49,7 @@ export default function ActivityCategoryPage() {
 
         <div className="mt-8">
           <SectionHeader
+            variant="app"
             title={category.label}
             subtitle="Escolhe um parceiro para ver as atividades disponíveis."
           />
@@ -58,10 +59,11 @@ export default function ActivityCategoryPage() {
           {category.partners.map((partner) => (
             <GlassCard
               key={partner.id}
-              variant="dark"
+              variant="app"
               padding="none"
               hover
-              className="flex flex-col overflow-hidden rounded-3xl border-white/12 bg-white/5 backdrop-blur-xl transition-all hover:bg-white/10 hover:border-white/20"
+              activityStyle
+              className="flex flex-col overflow-hidden transition duration-[180ms] hover:translate-y-[-2px]"
             >
               <div className="relative h-40 w-full overflow-hidden">
                 <Image
@@ -80,16 +82,16 @@ export default function ActivityCategoryPage() {
                 </div>
               </div>
               <div className="flex flex-1 flex-col p-6">
-                <h3 className="text-lg font-bold tracking-tight text-white">
+                <h3 className="app-card-title text-white">
                   {partner.name}
                 </h3>
-                <p className="mt-1 text-sm font-medium text-white/70">
+                <p className="mt-1 text-[15px] font-medium text-white/70">
                   {partner.location}
                 </p>
-                <p className="mt-3 flex-1 text-xs text-white/75">
+                <p className="mt-3 flex-1 text-[13px] text-white/75">
                   {partner.description}
                 </p>
-                <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-white/80">
+                <div className="mt-4 flex flex-wrap items-center gap-3 text-[13px] text-white/80">
                   <span>{partner.activitiesCount} atividades</span>
                   <span className="text-white/50">·</span>
                   <span>Desde {partner.minCredits} crédito{partner.minCredits !== 1 ? "s" : ""}</span>
@@ -99,7 +101,7 @@ export default function ActivityCategoryPage() {
                   className="mt-5 block"
                 >
                   <PrimaryButton
-                    variant="secondary"
+                    variant="appSecondary"
                     className="w-full justify-center"
                   >
                     Ver atividades

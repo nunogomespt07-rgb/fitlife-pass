@@ -193,8 +193,8 @@ export default function DashboardPerfilPage() {
   }
 
   const inputClass =
-    "w-full rounded-xl border border-white/[0.2] bg-white/[0.06] px-4 py-3 text-sm text-white placeholder:text-white/40 outline-none focus:ring-2 focus:ring-white/30 focus:border-white/30";
-  const labelClass = "block text-xs font-semibold uppercase tracking-wider text-white/60 mb-1.5";
+    "w-full rounded-xl border border-white/[0.12] bg-white/[0.06] px-4 py-3 text-[15px] text-white placeholder:text-white/40 outline-none focus:ring-2 focus:ring-white/30 focus:border-white/30 transition duration-[180ms]";
+  const labelClass = "block text-xs font-semibold uppercase tracking-wider text-white/65 mb-1.5";
 
   const completedActivities = reservations.filter(
     (r) => r.type === "activity" && r.status === "completed"
@@ -217,8 +217,8 @@ export default function DashboardPerfilPage() {
   }
 
   return (
-    <div className="page-bg min-h-screen font-sans text-white">
-      <div className="mx-auto max-w-2xl px-4 pb-20 pt-20 sm:px-6 lg:px-10">
+    <div className="min-h-screen font-sans text-white">
+      <div className="mx-auto max-w-2xl px-4 pb-28 pt-6 sm:px-6 lg:px-10">
         <Link
           href="/dashboard"
           className="inline-flex items-center gap-1.5 text-sm font-medium text-white/80 transition hover:text-white"
@@ -226,23 +226,24 @@ export default function DashboardPerfilPage() {
           ← Voltar à conta
         </Link>
 
-        <h1 className="mt-8 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+        <h1 className="app-hero-title mt-8 text-white">
           Perfil
         </h1>
-        <p className="mt-2 text-sm text-white/70">
+        <p className="mt-2 text-[15px] text-white/65">
           Os teus dados pessoais e preferências.
         </p>
 
         {savedMessage && (
-          <div className="mt-6 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-5 py-3.5 text-sm text-emerald-100">
+          <div className="mt-6 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-5 py-3.5 text-[15px] text-emerald-100">
             {savedMessage}
           </div>
         )}
 
+        {/* Personal info */}
         <GlassCard
-          variant="dark"
+          variant="app"
           padding="lg"
-          className="mt-8 rounded-2xl border-white/12 bg-white/5 backdrop-blur-xl"
+          className="mt-10"
         >
           <div className="space-y-6">
             <div>
@@ -282,7 +283,7 @@ export default function DashboardPerfilPage() {
             </div>
 
             {/* Compact two-column info layout */}
-            <div className="border-t border-white/10 pt-6 space-y-4">
+            <div className="border-t border-white/10 pt-8 mt-6 space-y-6">
               {/* Row 1 */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
@@ -425,30 +426,31 @@ export default function DashboardPerfilPage() {
           <div className="mt-10 flex flex-wrap items-center gap-3">
             {isEditing ? (
               <>
-                <PrimaryButton variant="primary" onClick={handleSave}>
+                <PrimaryButton variant="appPrimary" onClick={handleSave}>
                   Guardar
                 </PrimaryButton>
-                <PrimaryButton variant="secondary" onClick={handleCancel}>
+                <PrimaryButton variant="appSecondary" onClick={handleCancel}>
                   Cancelar
                 </PrimaryButton>
               </>
             ) : (
-              <PrimaryButton variant="primary" onClick={handleStartEdit}>
+              <PrimaryButton variant="appPrimary" onClick={handleStartEdit}>
                 Editar perfil
               </PrimaryButton>
             )}
           </div>
         </GlassCard>
 
+        {/* Security */}
         <GlassCard
-          variant="dark"
+          variant="app"
           padding="lg"
-          className="mt-8 rounded-2xl border-white/12 bg-white/5 backdrop-blur-xl"
+          className="mt-12"
         >
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-white/60">
+          <h2 className="app-card-title text-white/90">
             Segurança
           </h2>
-          <p className="mt-1 text-xs text-white/50">Altera a tua palavra-passe.</p>
+          <p className="mt-1 text-[13px] text-white/55">Altera a tua palavra-passe.</p>
           <form onSubmit={handleChangePassword} className="mt-6 space-y-4">
             <div>
               <label htmlFor="current-password" className={labelClass}>Palavra-passe atual</label>
@@ -499,7 +501,7 @@ export default function DashboardPerfilPage() {
             )}
             <PrimaryButton
               type="submit"
-              variant="primary"
+              variant="appPrimary"
               loading={passwordLoading}
               disabled={passwordLoading}
               loadingLabel="A alterar…"
@@ -509,20 +511,21 @@ export default function DashboardPerfilPage() {
           </form>
         </GlassCard>
 
+        {/* Stats */}
         <GlassCard
-          variant="dark"
+          variant="app"
           padding="lg"
-          className="mt-8 rounded-2xl border-white/12 bg-white/5 backdrop-blur-xl"
+          className="mt-12"
         >
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-white/60">
+          <h2 className="app-card-title text-white/90">
             Estatísticas
           </h2>
-          <div className="mt-4 grid gap-4 text-sm text-white/85 sm:grid-cols-2">
+          <div className="mt-6 grid gap-6 text-[15px] text-white/90 sm:grid-cols-2">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-white/55">
                 Atividades realizadas
               </p>
-              <p className="mt-1 text-lg font-semibold text-white">
+              <p className="mt-1 text-xl font-semibold text-white">
                 {completedActivities.length}
               </p>
             </div>
@@ -530,7 +533,7 @@ export default function DashboardPerfilPage() {
               <p className="text-xs font-semibold uppercase tracking-wider text-white/55">
                 Créditos utilizados
               </p>
-              <p className="mt-1 text-lg font-semibold text-white">
+              <p className="mt-1 text-xl font-semibold text-white">
                 {usedCredits}
               </p>
             </div>
@@ -538,7 +541,7 @@ export default function DashboardPerfilPage() {
               <p className="text-xs font-semibold uppercase tracking-wider text-white/55">
                 Parceiros visitados
               </p>
-              <p className="mt-1 text-lg font-semibold text-white">
+              <p className="mt-1 text-xl font-semibold text-white">
                 {uniquePartners}
               </p>
             </div>
@@ -546,7 +549,7 @@ export default function DashboardPerfilPage() {
               <p className="text-xs font-semibold uppercase tracking-wider text-white/55">
                 Restaurantes visitados
               </p>
-              <p className="mt-1 text-lg font-semibold text-white">
+              <p className="mt-1 text-xl font-semibold text-white">
                 {visitedRestaurants}
               </p>
             </div>
@@ -554,7 +557,7 @@ export default function DashboardPerfilPage() {
               <p className="text-xs font-semibold uppercase tracking-wider text-white/55">
                 Reservas totais
               </p>
-              <p className="mt-1 text-lg font-semibold text-white">
+              <p className="mt-1 text-xl font-semibold text-white">
                 {totalReservations}
               </p>
             </div>

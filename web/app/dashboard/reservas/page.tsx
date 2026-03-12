@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useMockReservations } from "@/app/context/MockReservationsContext";
 import GlassCard from "../../components/ui/GlassCard";
+import PrimaryButton from "../../components/ui/PrimaryButton";
 import type { UnifiedReservation } from "@/lib/unifiedReservations";
 
 function todayYMD(): string {
@@ -61,15 +62,15 @@ export default function DashboardReservasPage() {
     return (
       <GlassCard
         key={r.id}
-        variant="dark"
+        variant="app"
         padding="lg"
-        className="rounded-2xl border border-white/12 bg-white/5 backdrop-blur-xl"
+        className="transition duration-[180ms] hover:translate-y-[-2px]"
       >
-        <p className="font-semibold text-white">{r.partnerName}</p>
-        <p className="mt-1 text-white/90">
+        <p className="app-card-title text-white">{r.partnerName}</p>
+        <p className="mt-1 text-[15px] text-white/90">
           {formatDate(r.date)} — {r.time}
         </p>
-        <p className="mt-2 text-xs font-semibold uppercase tracking-wider text-white/60">
+        <p className="mt-2 text-xs font-semibold uppercase tracking-wider text-white/65">
           {isRestaurant
             ? r.bookingMode === "credits"
               ? "Reserva com créditos"
@@ -87,7 +88,7 @@ export default function DashboardReservasPage() {
           </p>
         )}
         {r.creditsUsed > 0 && (
-          <p className="mt-1 text-xs text-white/60">
+          <p className="mt-1 text-xs text-white/65">
             {r.creditsUsed} crédito{r.creditsUsed !== 1 ? "s" : ""}
           </p>
         )}
@@ -95,7 +96,7 @@ export default function DashboardReservasPage() {
           <button
             type="button"
             onClick={() => handleCancelClick(r.id)}
-            className="mt-4 rounded-xl border border-white/20 bg-white/6 px-4 py-2.5 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-white active:scale-[0.98]"
+            className="mt-4 app-btn-secondary rounded-xl px-4 py-2.5 text-sm font-medium"
           >
             Cancelar reserva
           </button>
@@ -105,12 +106,12 @@ export default function DashboardReservasPage() {
   }
 
   return (
-    <div className="page-bg text-white font-sans min-h-screen">
-      <div className="mx-auto max-w-4xl px-4 pb-20 pt-20 sm:px-6 lg:px-10">
-        <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+    <div className="text-white font-sans min-h-screen">
+      <div className="mx-auto max-w-4xl px-4 pb-24 pt-6 sm:px-6 lg:px-10">
+        <h1 className="app-hero-title text-white">
           Reservas
         </h1>
-        <p className="mt-3 text-sm text-white/70">
+        <p className="mt-3 text-[15px] text-white/65">
           As tuas reservas ativas e histórico.
         </p>
 
@@ -121,17 +122,17 @@ export default function DashboardReservasPage() {
         )}
 
         {/* Próximas */}
-        <section className="mt-8">
-          <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-white/60">
+        <section className="mt-10">
+          <h2 className="app-section-title mb-4 text-white/90">
             Próximas
           </h2>
           {proximas.length === 0 ? (
             <GlassCard
-              variant="dark"
+              variant="app"
               padding="lg"
-              className="rounded-2xl border border-white/12 bg-white/5 backdrop-blur-xl text-center text-white/70"
+              className="text-center text-white/65"
             >
-              <p className="text-sm">Não tens reservas futuras.</p>
+              <p className="text-[15px]">Não tens reservas futuras.</p>
             </GlassCard>
           ) : (
             <div className="space-y-4">
@@ -141,17 +142,17 @@ export default function DashboardReservasPage() {
         </section>
 
         {/* Passadas */}
-        <section className="mt-10">
-          <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-white/60">
+        <section className="mt-12">
+          <h2 className="app-section-title mb-4 text-white/90">
             Passadas
           </h2>
           {passadas.length === 0 ? (
             <GlassCard
-              variant="dark"
+              variant="app"
               padding="lg"
-              className="rounded-2xl border border-white/12 bg-white/5 backdrop-blur-xl text-center text-white/60"
+              className="text-center text-white/60"
             >
-              <p className="text-sm">Ainda não há reservas passadas.</p>
+              <p className="text-[15px]">Ainda não há reservas passadas.</p>
             </GlassCard>
           ) : (
             <div className="space-y-4">
@@ -161,26 +162,26 @@ export default function DashboardReservasPage() {
         </section>
 
         {/* Canceladas */}
-        <section className="mt-10">
-          <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-white/60">
+        <section className="mt-12">
+          <h2 className="app-section-title mb-4 text-white/90">
             Canceladas
           </h2>
           {canceladas.length === 0 ? (
             <GlassCard
-              variant="dark"
+              variant="app"
               padding="lg"
-              className="rounded-2xl border border-white/12 bg-white/5 backdrop-blur-xl text-center text-white/60"
+              className="text-center text-white/60"
             >
-              <p className="text-sm">Nenhuma reserva cancelada.</p>
+              <p className="text-[15px]">Nenhuma reserva cancelada.</p>
             </GlassCard>
           ) : (
             <div className="space-y-4">
               {canceladas.map((r) => (
                 <GlassCard
                   key={r.id}
-                  variant="dark"
+                  variant="app"
                   padding="lg"
-                  className="rounded-2xl border border-white/12 bg-white/5 backdrop-blur-xl opacity-90"
+                  className="opacity-90"
                 >
                   <p className="font-semibold text-white">{r.partnerName}</p>
                   <p className="mt-1 text-white/80">
@@ -205,19 +206,18 @@ export default function DashboardReservasPage() {
 
         {proximas.length === 0 && passadas.length === 0 && canceladas.length === 0 && (
           <GlassCard
-            variant="dark"
+            variant="app"
             padding="lg"
-            className="mt-8 rounded-2xl border-white/12 bg-white/5 text-sm text-white/80 backdrop-blur-xl"
+            className="mt-10 text-center"
           >
-            <p className="font-medium text-white">Ainda não tens reservas</p>
-            <p className="mt-2 text-sm text-white/70">
+            <p className="app-card-title text-white">Ainda não tens reservas</p>
+            <p className="mt-2 text-[15px] text-white/65">
               Reserva atividades em Atividades ou uma mesa em Healthy Food.
             </p>
-            <Link
-              href="/activities"
-              className="mt-4 inline-flex rounded-full border border-white/22 bg-white/6 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-            >
-              Explorar atividades
+            <Link href="/activities">
+              <PrimaryButton variant="appPrimary" className="mt-6">
+                Explorar atividades
+              </PrimaryButton>
             </Link>
           </GlassCard>
         )}
@@ -239,15 +239,20 @@ export default function DashboardReservasPage() {
           aria-labelledby="cancel-reservation-title"
         >
           <div
-            className="absolute inset-0 bg-[#0b1e4d]/80 backdrop-blur-sm"
+            className="absolute inset-0 bg-[#070f2b]/85 backdrop-blur-sm"
             onClick={() => setCancelId(null)}
             aria-hidden
           />
-          <div className="relative z-10 w-full max-w-sm rounded-2xl border border-white/12 bg-white/[0.08] p-6 shadow-2xl backdrop-blur-xl">
-            <h2 id="cancel-reservation-title" className="text-lg font-semibold text-white">
+          <div
+            className="relative z-10 w-full max-w-sm rounded-2xl border border-white/[0.06] p-6 shadow-[0_24px_64px_rgba(0,0,0,0.5)] backdrop-blur-xl"
+            style={{
+              background: "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))",
+            }}
+          >
+            <h2 id="cancel-reservation-title" className="app-section-title text-white">
               Cancelar esta reserva?
             </h2>
-            <p className="mt-2 text-sm text-white/70">
+            <p className="mt-2 text-[15px] text-white/65">
               Se cancelares com pelo menos 12 horas de antecedência, os créditos serão devolvidos.
             </p>
             <p className="mt-1 text-xs text-white/55">
@@ -257,14 +262,14 @@ export default function DashboardReservasPage() {
               <button
                 type="button"
                 onClick={handleConfirmCancel}
-                className="rounded-xl border border-red-400/30 bg-red-500/20 px-4 py-2.5 text-sm font-medium text-red-100 transition hover:bg-red-500/30"
+                className="rounded-xl border border-red-400/30 bg-red-500/20 px-4 py-2.5 text-sm font-medium text-red-100 transition hover:bg-red-500/30 active:scale-[0.98]"
               >
                 Confirmar cancelamento
               </button>
               <button
                 type="button"
                 onClick={() => setCancelId(null)}
-                className="rounded-xl border border-white/22 bg-white/6 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                className="app-btn-secondary rounded-xl px-4 py-2.5 text-sm font-semibold"
               >
                 Voltar
               </button>

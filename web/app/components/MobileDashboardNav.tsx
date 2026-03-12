@@ -26,20 +26,31 @@ export default function MobileDashboardNav() {
 
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center md:hidden">
-      <nav className="pointer-events-auto mb-3 w-full max-w-md px-4">
+      <nav
+        className="pointer-events-auto mb-3 w-full max-w-md px-4"
+        style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom, 0px))" }}
+      >
         <div
-          className="mx-auto flex items-center justify-between rounded-2xl border border-white/10 bg-[rgba(10,20,40,0.8)] px-5 py-2.5 shadow-[0_10px_30px_rgba(0,0,0,0.45)] backdrop-blur-2xl supports-[backdrop-filter]:bg-[rgba(10,20,40,0.8)]"
-          style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom, 0px))" }}
+          className="mx-auto flex items-center justify-between rounded-2xl border border-white/[0.05] px-5 py-2.5 shadow-[0_12px_40px_rgba(0,0,0,0.4)]"
+          style={{
+            background: "rgba(10, 18, 38, 0.75)",
+            backdropFilter: "blur(18px)",
+            WebkitBackdropFilter: "blur(18px)",
+          }}
         >
           {/* Home */}
           <Link
             href="/dashboard"
-            className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl px-2.5 py-1.5 text-[11px] font-medium transition-all ${
+            className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl px-2.5 py-1.5 text-xs font-medium transition-all duration-[180ms] ${
               isActive("home")
-                ? "text-white shadow-[0_0_0_1px_rgba(255,255,255,0.18)] bg-white/10"
+                ? "text-white bg-white/10"
                 : "text-white/60"
             }`}
-            style={isActive("home") ? { textShadow: "0 0 10px rgba(120,160,255,0.6)" } : undefined}
+            style={
+              isActive("home")
+                ? { filter: "drop-shadow(0 0 8px rgba(120, 150, 255, 0.5))" }
+                : undefined
+            }
           >
             <svg
               className={`h-5 w-5 ${isActive("home") ? "text-white" : "text-white/65"}`}
@@ -61,14 +72,14 @@ export default function MobileDashboardNav() {
           {/* Atividades */}
           <Link
             href="/activities"
-            className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl px-2.5 py-1.5 text-[11px] font-medium transition-all ${
+            className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl px-2.5 py-1.5 text-xs font-medium transition-all duration-[180ms] ${
               isActive("activities")
-                ? "text-white shadow-[0_0_0_1px_rgba(255,255,255,0.18)] bg-white/10"
+                ? "text-white bg-white/10"
                 : "text-white/60"
             }`}
             style={
               isActive("activities")
-                ? { textShadow: "0 0 10px rgba(120,160,255,0.6)" }
+                ? { filter: "drop-shadow(0 0 8px rgba(120, 150, 255, 0.5))" }
                 : undefined
             }
           >
@@ -100,14 +111,14 @@ export default function MobileDashboardNav() {
           {/* Reservas */}
           <Link
             href="/dashboard/reservas"
-            className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl px-2.5 py-1.5 text-[11px] font-medium transition-all ${
+            className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl px-2.5 py-1.5 text-xs font-medium transition-all duration-[180ms] ${
               isActive("reservas")
-                ? "text-white shadow-[0_0_0_1px_rgba(255,255,255,0.18)] bg-white/10"
+                ? "text-white bg-white/10"
                 : "text-white/60"
             }`}
             style={
               isActive("reservas")
-                ? { textShadow: "0 0 10px rgba(120,160,255,0.6)" }
+                ? { filter: "drop-shadow(0 0 8px rgba(120, 150, 255, 0.5))" }
                 : undefined
             }
           >
@@ -140,14 +151,14 @@ export default function MobileDashboardNav() {
           {/* Check-in */}
           <Link
             href="/dashboard/qr-codes"
-            className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl px-2.5 py-1.5 text-[11px] font-medium transition-all ${
+            className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl px-2.5 py-1.5 text-xs font-medium transition-all duration-[180ms] ${
               isActive("checkin")
-                ? "text-white shadow-[0_0_0_1px_rgba(255,255,255,0.18)] bg-white/10"
+                ? "text-white bg-white/10"
                 : "text-white/60"
             }`}
             style={
               isActive("checkin")
-                ? { textShadow: "0 0 10px rgba(120,160,255,0.6)" }
+                ? { filter: "drop-shadow(0 0 8px rgba(120, 150, 255, 0.5))" }
                 : undefined
             }
           >
@@ -200,14 +211,14 @@ export default function MobileDashboardNav() {
           {/* Perfil */}
           <Link
             href="/dashboard/perfil"
-            className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl px-2.5 py-1.5 text-[11px] font-medium transition-all ${
+            className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl px-2.5 py-1.5 text-xs font-medium transition-all duration-[180ms] ${
               isActive("perfil")
-                ? "text-white shadow-[0_0_0_1px_rgba(255,255,255,0.18)] bg-white/10"
+                ? "text-white bg-white/10"
                 : "text-white/60"
             }`}
             style={
               isActive("perfil")
-                ? { textShadow: "0 0 10px rgba(120,160,255,0.6)" }
+                ? { filter: "drop-shadow(0 0 8px rgba(120, 150, 255, 0.5))" }
                 : undefined
             }
           >

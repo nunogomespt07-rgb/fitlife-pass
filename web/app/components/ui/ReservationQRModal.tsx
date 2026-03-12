@@ -37,21 +37,25 @@ export default function ReservationQRModal({ reservation, onClose }: Reservation
       aria-labelledby="qr-modal-title"
     >
       <div
-        className="absolute inset-0 bg-[#0b1e4d]/80 backdrop-blur-sm"
+        className="absolute inset-0 bg-[#070f2b]/90 backdrop-blur-sm"
         onClick={onClose}
         aria-hidden
       />
       <GlassCard
         variant="dark"
         padding="lg"
-        className="relative z-10 w-full max-w-md rounded-3xl border-white/20 bg-white/10 shadow-2xl"
+        className="relative z-10 w-full max-w-md rounded-2xl border-white/[0.06] shadow-[0_24px_64px_rgba(0,0,0,0.5)]"
+        style={{
+          background: "linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))",
+          backdropFilter: "blur(16px)",
+        }}
       >
-        <h2 id="qr-modal-title" className="text-xl font-semibold tracking-tight text-white">
+        <h2 id="qr-modal-title" className="app-section-title text-white">
           Código QR da reserva
         </h2>
-        <p className="mt-1 text-sm text-white/70">{title}</p>
-        <p className="mt-0.5 text-xs text-white/60">{reservation.partnerName}</p>
-        <p className="mt-2 text-xs text-white/50">
+        <p className="mt-1 text-[15px] text-white/65">{title}</p>
+        <p className="mt-0.5 text-xs text-white/55">{reservation.partnerName}</p>
+        <p className="mt-2 text-xs text-white/55">
           {reservation.date} · {reservation.time}
         </p>
         <p className="mt-1">
@@ -73,14 +77,14 @@ export default function ReservationQRModal({ reservation, onClose }: Reservation
             title={`Check-in: ${title}`}
           />
         </div>
-        <p className="mt-4 text-center text-sm font-medium text-white/90">
+        <p className="mt-6 text-center text-[15px] font-medium text-white/90">
           Apresenta este QR code no parceiro para fazer check-in.
         </p>
 
         <button
           type="button"
           onClick={onClose}
-          className="mt-8 w-full rounded-xl border border-white/20 bg-white/10 py-3.5 text-sm font-semibold text-white transition hover:bg-white/15 active:scale-[0.98]"
+          className="mt-8 w-full app-btn-secondary py-3.5 text-sm font-semibold rounded-xl"
         >
           Fechar
         </button>

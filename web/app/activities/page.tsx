@@ -71,15 +71,15 @@ function NearbyPartnerCard({
       className="group block h-full"
     >
       <GlassCard
-        variant="dark"
+        variant="app"
         padding="md"
         hover
-        className="flex h-full flex-col rounded-2xl border border-white/12 bg-white/5 backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10 hover:border-white/20 hover:shadow-xl"
+        className="flex h-full flex-col transition duration-[180ms] hover:translate-y-[-2px]"
       >
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
-            <p className="font-semibold text-white">{p.name}</p>
-            <p className="mt-1 text-sm text-white/60">
+            <p className="app-card-title text-white">{p.name}</p>
+            <p className="mt-1 text-[15px] text-white/65">
               {formatDistance(km)} de distância
             </p>
           </div>
@@ -109,8 +109,8 @@ export default function ActivitiesPage() {
     maxResults: 4,
   });
   return (
-    <div className="page-bg text-white font-sans min-h-screen">
-      {/* Hero: premium fitness-hero background – integrated with blue UI */}
+    <div className="text-white font-sans min-h-screen">
+      {/* Hero: premium fitness-hero background */}
       <div className="pt-20 sm:pt-24 px-4 sm:px-6 lg:px-10">
         <div className="mx-auto max-w-6xl">
           <div className="relative h-[320px] sm:h-[340px] md:h-[360px] w-full overflow-hidden rounded-3xl shadow-xl">
@@ -122,19 +122,16 @@ export default function ActivitiesPage() {
               priority
               sizes="(max-width: 1280px) 100vw, 1280px"
             />
-            {/* Main cinematic gradient – Apple Fitness+ / Nike feel */}
             <div
-              className="absolute inset-0 bg-gradient-to-r from-[#07122b]/70 via-[#0b1f52]/40 to-transparent"
+              className="absolute inset-0 bg-gradient-to-r from-[#070f2b]/70 via-[#0a1435]/40 to-transparent"
               aria-hidden
             />
-            {/* Bottom fade – blends hero into section background */}
             <div
-              className="absolute inset-0 bg-gradient-to-t from-[#07122b]/80 to-transparent"
+              className="absolute inset-0 bg-gradient-to-t from-[#070f2b]/80 to-transparent"
               aria-hidden
             />
-            {/* Subtle radial blue glow behind athlete – depth & integration */}
             <div
-              className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(59,130,246,0.25),transparent_60%)] blur-[120px]"
+              className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(58,108,255,0.2),transparent_60%)] blur-[120px]"
               aria-hidden
             />
           </div>
@@ -142,40 +139,34 @@ export default function ActivitiesPage() {
       </div>
 
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-10 pb-28 pt-12">
-        {/* FitLife Pass / Atividades – editorial header, lighter glass */}
-        <GlassCard variant="dark" padding="lg" className="mb-10">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/70">
+        <GlassCard variant="app" padding="lg" className="mb-10">
+          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/65">
             FitLife Pass
           </p>
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl md:text-5xl">
+          <h1 className="app-hero-title mt-4 text-white sm:mt-5">
             Atividades
           </h1>
-          <p className="mt-5 max-w-xl text-sm leading-relaxed text-white/80 sm:text-base">
+          <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-white/65 sm:text-base">
             Escolhe uma categoria para ver parceiros e reservar atividades.
           </p>
         </GlassCard>
 
-        {/* Supporting copy instead of duplicate search */}
         <div className="relative mb-10">
-          <GlassCard
-            variant="dark"
-            padding="md"
-            className="rounded-2xl border border-white/[0.06] bg-white/[0.04] backdrop-blur-xl"
-          >
-            <p className="text-sm text-white/80 sm:text-base">
+          <GlassCard variant="app" padding="md">
+            <p className="text-[15px] text-white/80 sm:text-base">
               Explora parceiros por categoria e encontra a atividade ideal para ti — ginásios,
               padel, yoga, estúdios, crossfit, piscinas e healthy food com benefício FitLife Pass.
             </p>
           </GlassCard>
         </div>
 
-        {/* Categorias principais – entrada para o sistema de atividades */}
+        {/* Categorias principais */}
         <section className="mb-12">
           <div className="mb-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/60">
+            <h2 className="app-section-title text-white/90">
               Explorar por categoria
-            </p>
-            <p className="mt-2 text-sm text-white/75">
+            </h2>
+            <p className="mt-2 text-[15px] text-white/65">
               Escolhe o tipo de atividade para ver os parceiros disponíveis.
             </p>
           </div>
@@ -187,20 +178,21 @@ export default function ActivitiesPage() {
                 className="group block h-full"
               >
                 <GlassCard
-                  variant="dark"
+                  variant="app"
                   padding="lg"
                   hover
-                  className="flex h-full min-h-[180px] flex-col items-center justify-between rounded-3xl border border-white/12 bg-white/5 text-center backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10 hover:border-white/20 hover:shadow-xl"
+                  activityStyle
+                  className="flex h-full min-h-[180px] flex-col items-center justify-between text-center"
                 >
                   <div>
-                    <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                    <h2 className="app-card-title text-white sm:text-xl">
                       {cat.label}
                     </h2>
-                    <p className="mt-3 text-xs text-white/65">
+                    <p className="mt-3 text-[13px] text-white/65">
                       {cat.description}
                     </p>
                   </div>
-                  <span className="mt-6 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-medium text-white transition duration-200 group-hover:bg-white/15 group-hover:border-white/30 group-hover:shadow-lg">
+                  <span className="mt-6 inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/10 px-4 py-2.5 text-sm font-medium text-white transition duration-[180ms] group-hover:bg-white/15 group-hover:border-white/25 group-hover:translate-y-[-2px]">
                     Ver parceiros →
                   </span>
                 </GlassCard>
@@ -209,21 +201,21 @@ export default function ActivitiesPage() {
           </div>
         </section>
 
-        {/* Perto de ti – máximo 4 parceiros dentro de 10 km, quick discovery */}
+        {/* Perto de ti */}
         <section className="mb-12">
           <div className="mb-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/60">
+            <h2 className="app-section-title text-white/90">
               Perto de ti
-            </p>
-            <p className="mt-2 text-sm text-white/75">
+            </h2>
+            <p className="mt-2 text-[15px] text-white/65">
               {geoLoading
                 ? "A obter a tua localização…"
                 : "Parceiros mais próximos. Até 4 sugestões dentro de 10 km."}
             </p>
           </div>
           {nearbyPartners.length === 0 ? (
-            <GlassCard variant="dark" padding="lg" className="rounded-2xl border-white/12 bg-white/5">
-              <p className="text-sm text-white/70">Nenhum parceiro próximo nos 10 km.</p>
+            <GlassCard variant="app" padding="lg">
+              <p className="text-[15px] text-white/70">Nenhum parceiro próximo nos 10 km.</p>
             </GlassCard>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

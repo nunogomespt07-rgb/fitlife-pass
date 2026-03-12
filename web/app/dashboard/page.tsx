@@ -148,15 +148,15 @@ export default function DashboardPage() {
   const hasPlan = Boolean(getStoredUser()?.subscriptionPlanId);
 
   return (
-    <div className="mx-auto max-w-4xl px-4 pb-16 pt-20 sm:px-6 lg:px-10">
-      <header className="mb-9 sm:mb-12">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/75">
+    <div className="mx-auto max-w-4xl px-4 pb-16 pt-6 sm:px-6 lg:px-10">
+      <header className="mb-10 sm:mb-12">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/65">
           FitLife Pass · Área pessoal
         </p>
-        <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-5xl">
+        <h1 className="app-hero-title mt-4 text-white sm:mt-5">
           Olá, {firstName}
         </h1>
-        <p className="mt-3 text-sm text-white/70">
+        <p className="mt-3 text-[15px] leading-relaxed text-white/65 sm:text-base">
           Acede rapidamente às tuas reservas, créditos e histórico na tua conta FitLife Pass.
         </p>
       </header>
@@ -164,38 +164,31 @@ export default function DashboardPage() {
         {/* Resumo principal */}
         <div className="mt-12 grid gap-6 sm:mt-16 sm:grid-cols-2">
           <DashboardCard
+            hero
             title="Créditos"
             subtitle="Saldo disponível"
-            className="relative overflow-hidden bg-[linear-gradient(135deg,rgba(37,99,235,0.95),rgba(59,130,246,0.85))] border-white/[0.22] shadow-[0_10px_40px_rgba(37,99,235,0.35)]"
+            className="relative overflow-hidden"
           >
-            <div
-              className="pointer-events-none absolute inset-x-0 -top-10 h-28 opacity-90"
-              style={{
-                background:
-                  "radial-gradient(circle_at_10% 0%, rgba(191,219,254,0.55), transparent 60%)",
-              }}
-              aria-hidden
-            />
-            <p className="relative text-5xl sm:text-6xl font-semibold tracking-tight text-white tabular-nums">
+            <p className="relative text-[48px] font-bold tracking-tight text-white tabular-nums sm:text-[56px]">
               {credits}
             </p>
-            <p className="relative mt-1 text-[11px] font-semibold uppercase tracking-[0.26em] text-white/80">
+            <p className="relative mt-1 text-[11px] font-semibold uppercase tracking-[0.26em] text-white/90">
               CRÉDITOS DISPONÍVEIS
             </p>
             {credits === 0 && (
-              <p className="mt-3 text-sm text-white/80">
+              <p className="relative mt-3 text-[15px] text-white/90">
                 Sem plano ativo. Escolhe um plano para começar a usar créditos.
               </p>
             )}
             {!hasPlan && (
               <Link href="/dashboard/pagamentos#planos" className="mt-4 block">
-                <span className="inline-flex items-center justify-center rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-white/15 hover:border-white/30">
+                <span className="inline-flex items-center justify-center rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition duration-[180ms] hover:bg-white/15 hover:border-white/30 active:scale-[0.98]">
                   Ver planos
                 </span>
               </Link>
             )}
             <Link href="/dashboard/creditos">
-              <span className="mt-4 inline-flex items-center text-xs font-medium text-blue-100 underline-offset-2 hover:underline">
+              <span className="mt-4 inline-flex items-center text-sm font-medium text-white/90 underline-offset-2 hover:underline">
                 Ver detalhes de créditos →
               </span>
             </Link>
@@ -204,14 +197,13 @@ export default function DashboardPage() {
           <DashboardCard
             title="Reservas ativas"
             subtitle="Próximas atividades"
-            className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_12px_30px_rgba(15,23,42,0.75)] transition-all hover:bg-white/10 hover:border-white/20 hover:shadow-xl"
           >
             <p className="text-3xl font-semibold text-white">
               {activeReservationCount}
             </p>
-            <p className="mt-1 text-sm text-white/70">reserva(s)</p>
+            <p className="mt-1 text-[15px] text-white/65">reserva(s)</p>
             <Link href="/dashboard/reservas">
-              <span className="mt-4 inline-flex items-center text-xs font-medium text-blue-100 underline-offset-2 hover:underline">
+              <span className="mt-4 inline-flex items-center text-sm font-medium text-white/90 underline-offset-2 hover:underline">
                 Ver todas as reservas →
               </span>
             </Link>
@@ -222,25 +214,26 @@ export default function DashboardPage() {
         <SectionHeader
           title="Minhas reservas"
           subtitle="Próximas atividades e reservas de mesa."
+          variant="app"
           className="mt-20"
         />
 
         {successMessage && (
-          <div className="mt-6 rounded-[28px] border border-emerald-400/30 bg-emerald-500/10 px-5 py-3.5 text-sm text-emerald-100">
+          <div className="mt-6 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-5 py-3.5 text-[15px] text-emerald-100">
             {successMessage}
           </div>
         )}
 
         {activeReservations.length === 0 ? (
           <GlassCard
-            variant="dark"
+            variant="app"
             padding="lg"
-            className="mt-8 flex min-h-[200px] flex-col items-center justify-center text-center rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_12px_30px_rgba(15,23,42,0.75)]"
+            className="mt-8 flex min-h-[200px] flex-col items-center justify-center text-center"
           >
-            <p className="text-sm font-medium text-white/80">Sem reservas ativas</p>
-            <p className="mt-2 text-sm text-white/55">Ainda não tens reservas. Explora atividades e faz a tua primeira reserva.</p>
+            <p className="text-[15px] font-medium text-white/90">Sem reservas ativas</p>
+            <p className="mt-2 text-[15px] text-white/65">Ainda não tens reservas. Explora atividades e faz a tua primeira reserva.</p>
             <Link href="/activities">
-              <PrimaryButton variant="secondary" className="mt-6 py-3.5">
+              <PrimaryButton variant="appSecondary" className="mt-6 py-3.5">
                 Ver atividades →
               </PrimaryButton>
             </Link>
@@ -250,11 +243,12 @@ export default function DashboardPage() {
             {activeReservations.map((r) => (
               <li key={r.id}>
                 <GlassCard
-                  variant="dark"
+                  variant="app"
                   padding="md"
                   hover
                   active
-                  className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_12px_30px_rgba(15,23,42,0.75)] transition-all hover:bg-white/10 hover:border-white/20 hover:shadow-xl"
+                  activityStyle
+                  className="flex flex-col gap-3"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
@@ -266,11 +260,11 @@ export default function DashboardPage() {
                           <p className="font-semibold text-white">
                             {r.activityTitle ?? r.partnerName}
                           </p>
-                          <p className="mt-1 text-xs text-white/60">
+                          <p className="mt-1 text-[13px] text-white/65">
                             {r.partnerName}
                             {r.location ? ` · ${r.location}` : ""}
                           </p>
-                          <p className="mt-0.5 text-xs text-white/50">
+                          <p className="mt-0.5 text-xs text-white/55">
                             Data: {r.date} · {r.time}
                             {r.people > 0 && (
                               <span> · {r.people} {r.people === 1 ? "pessoa" : "pessoas"}</span>
@@ -308,7 +302,7 @@ export default function DashboardPage() {
                       <button
                         type="button"
                         onClick={() => setQrModalReservation(r)}
-                        className="rounded-xl border border-white/[0.2] bg-white/[0.08] px-4 py-2.5 text-sm font-medium text-white/90 transition hover:bg-white/[0.12] hover:text-white active:scale-[0.98]"
+                        className="app-btn-primary rounded-xl px-4 py-2.5 text-sm font-semibold transition"
                       >
                         Ver QR Code
                       </button>
@@ -323,7 +317,7 @@ export default function DashboardPage() {
                           );
                           setTimeout(() => setSuccessMessage(""), 4000);
                         }}
-                        className="rounded-xl border border-white/[0.2] bg-white/[0.06] px-4 py-2.5 text-sm font-medium text-white/70 transition hover:bg-white/[0.1] hover:text-white active:scale-[0.98]"
+                        className="app-btn-secondary rounded-xl px-4 py-2.5 text-sm font-medium"
                       >
                         Marcar como utilizada
                       </button>
@@ -335,7 +329,7 @@ export default function DashboardPage() {
                         handleCancelReservation(r.id);
                       }}
                       disabled={cancelLoadingId === r.id}
-                      className="rounded-xl border border-white/[0.2] bg-white/[0.06] px-4 py-2.5 text-sm font-medium text-white/90 transition hover:bg-white/[0.1] hover:text-white disabled:opacity-60 active:scale-[0.98]"
+                      className="app-btn-secondary rounded-xl px-4 py-2.5 text-sm font-medium disabled:opacity-60"
                     >
                       {cancelLoadingId === r.id ? "A cancelar…" : "Cancelar reserva"}
                     </button>
@@ -350,13 +344,14 @@ export default function DashboardPage() {
           <SectionHeader
             title="Histórico de reservas"
             subtitle="Reservas passadas, concluídas ou canceladas."
+            variant="app"
             className="flex-1 min-w-0"
           />
           {history.length > 0 && (
             <button
               type="button"
               onClick={() => setShowClearHistoryConfirm(true)}
-              className="rounded-xl border border-white/[0.15] bg-white/[0.06] px-4 py-2.5 text-sm font-medium text-white/80 transition hover:bg-white/[0.1] hover:text-white active:scale-[0.98] shrink-0"
+              className="app-btn-secondary rounded-xl px-4 py-2.5 text-sm font-medium shrink-0"
             >
               Limpar histórico
             </button>
@@ -364,21 +359,21 @@ export default function DashboardPage() {
         </div>
         {history.length === 0 ? (
           <GlassCard
-            variant="dark"
+            variant="app"
             padding="lg"
-            className="mt-8 flex min-h-[140px] flex-col items-center justify-center text-center rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl"
+            className="mt-8 flex min-h-[140px] flex-col items-center justify-center text-center"
           >
-            <p className="text-sm font-medium text-white/80">Ainda não tens histórico de reservas.</p>
-            <p className="mt-2 text-sm text-white/55">As tuas reservas passadas, concluídas ou canceladas aparecerão aqui.</p>
+            <p className="text-[15px] font-medium text-white/90">Ainda não tens histórico de reservas.</p>
+            <p className="mt-2 text-[15px] text-white/65">As tuas reservas passadas, concluídas ou canceladas aparecerão aqui.</p>
           </GlassCard>
         ) : (
           <ul className="mt-8 space-y-4">
             {history.map((h) => (
               <li key={h.id}>
                 <GlassCard
-                  variant="dark"
+                  variant="app"
                   padding="md"
-                  className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl"
+                  className="flex flex-col gap-3"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
@@ -387,8 +382,8 @@ export default function DashboardPage() {
                           ? h.activityTitle ?? h.partnerName
                           : h.partnerName}
                       </p>
-                      <p className="mt-1 text-xs text-white/60">{h.partnerName}</p>
-                      <p className="mt-0.5 text-xs text-white/50">
+                      <p className="mt-1 text-[13px] text-white/65">{h.partnerName}</p>
+                      <p className="mt-0.5 text-xs text-white/55">
                         {h.date} · {h.time}
                         {h.type === "activity" && h.creditsUsed > 0
                           ? ` · ${h.creditsUsed} créditos`
@@ -432,15 +427,19 @@ export default function DashboardPage() {
             aria-labelledby="clear-history-title"
           >
             <div
-              className="absolute inset-0 bg-[#0b1e4d]/80 backdrop-blur-sm"
+              className="absolute inset-0 bg-[#070f2b]/85 backdrop-blur-sm"
               onClick={() => setShowClearHistoryConfirm(false)}
               aria-hidden
             />
-            <div className="relative z-10 w-full max-w-md rounded-3xl border border-white/20 bg-[rgba(11,30,77,0.95)] p-6 shadow-2xl backdrop-blur-xl">
-              <h2 id="clear-history-title" className="text-xl font-semibold tracking-tight text-white">
+            <div className="relative z-10 w-full max-w-md rounded-2xl border border-white/[0.06] p-6 shadow-[0_24px_64px_rgba(0,0,0,0.5)] backdrop-blur-xl"
+              style={{
+                background: "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))",
+              }}
+            >
+              <h2 id="clear-history-title" className="app-section-title text-white">
                 Limpar histórico?
               </h2>
-              <p className="mt-3 text-sm text-white/80">
+              <p className="mt-3 text-[15px] text-white/65">
                 Serão removidas apenas as entradas do histórico de reservas. As reservas ativas e os teus créditos não são alterados.
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
@@ -450,14 +449,14 @@ export default function DashboardPage() {
                     clearHistory();
                     setShowClearHistoryConfirm(false);
                   }}
-                  className="rounded-xl border border-red-400/30 bg-red-500/20 px-4 py-2.5 text-sm font-medium text-red-100 transition hover:bg-red-500/30"
+                  className="rounded-xl border border-red-400/30 bg-red-500/20 px-4 py-2.5 text-sm font-medium text-red-100 transition hover:bg-red-500/30 active:scale-[0.98]"
                 >
                   Sim, limpar histórico
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowClearHistoryConfirm(false)}
-                  className="rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/15"
+                  className="app-btn-secondary rounded-xl px-4 py-2.5 text-sm font-semibold"
                 >
                   Cancelar
                 </button>
