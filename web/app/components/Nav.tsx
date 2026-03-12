@@ -33,9 +33,11 @@ export default function Nav() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [accountSheetOpen, setAccountSheetOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const mobileSearchPanelRef = useRef<HTMLDivElement | null>(null);
+  const mobileMenuPanelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -79,21 +81,50 @@ export default function Nav() {
     return () => document.removeEventListener("click", handleClickOutside);
   }, [dropdownOpen]);
 
+  // Desktop search: Escape to close & clear
   useEffect(() => {
-    if (!searchOpen) return;
     function handleKey(e: KeyboardEvent) {
       if (e.key === "Escape") {
-        setSearchOpen(false);
         setSearchQuery("");
       }
     }
     document.addEventListener("keydown", handleKey);
-    // auto-focus search input when overlay or desktop search opens
+    return () => document.removeEventListener("keydown", handleKey);
+  }, []);
+
+  // Mobile search: focus input & close on outside tap
+  useEffect(() => {
+    if (!isMobileSearchOpen) return;
     if (searchInputRef.current) {
       searchInputRef.current.focus();
     }
-    return () => document.removeEventListener("keydown", handleKey);
-  }, [searchOpen]);
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        mobileSearchPanelRef.current &&
+        !mobileSearchPanelRef.current.contains(e.target as Node)
+      ) {
+        setIsMobileSearchOpen(false);
+        setSearchQuery("");
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isMobileSearchOpen]);
+
+  // Mobile account menu: close on outside tap
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        mobileMenuPanelRef.current &&
+        !mobileMenuPanelRef.current.contains(e.target as Node)
+      ) {
+        setIsMobileMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isMobileMenuOpen]);
 
   const isActive = (path: string) => pathname === path;
 
@@ -167,7 +198,9 @@ export default function Nav() {
       .slice(0, 8);
   }, [allSearchItems, searchQuery]);
 
-  const showSearchResults = searchOpen && searchQuery.length > 0;
+  const showSearchResults =
+    searchQuery.length > 0 &&
+    filteredSearchItems.length > 0;
 
   const handleLogout = () => {
     if (typeof window !== "undefined") {
@@ -217,9 +250,7 @@ export default function Nav() {
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
-                  setSearchOpen(true);
                 }}
-                onFocus={() => setSearchOpen(true)}
                 placeholder="Pesquisar parceiros (Lisboa, Yoga, Terra...)"
                 className="w-full bg-transparent text-xs text-white/90 placeholder:text-white/50 focus:outline-none"
               />
@@ -228,7 +259,6 @@ export default function Nav() {
                   type="button"
                   onClick={() => {
                     setSearchQuery("");
-                    setSearchOpen(false);
                     searchInputRef.current?.blur();
                   }}
                   className="ml-1 rounded-full bg-white/10 px-2 py-0.5 text-[10px] text-white/80 hover:bg-white/20"
@@ -310,8 +340,8 @@ export default function Nav() {
                 <button
                   type="button"
                   onClick={() => {
-                    setAccountSheetOpen(false);
-                    setSearchOpen(true);
+                    setIsMobileMenuOpen(false);
+                    setIsMobileSearchOpen(true);
                   }}
                   className="relative shrink-0 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 shadow-sm backdrop-blur-md transition hover:bg-white/10"
                   aria-label="Pesquisar"
@@ -357,8 +387,8 @@ export default function Nav() {
                 <button
                   type="button"
                   onClick={() => {
-                    setSearchOpen(false);
-                    setAccountSheetOpen((open) => !open);
+                    setIsMobileSearchOpen(false);
+                    setIsMobileMenuOpen((open) => !open);
                   }}
                   className="shrink-0 flex items-center gap-3 rounded-full border border-white/[0.08] bg-white/[0.04] pl-3 pr-3.5 py-1.5 text-xs font-semibold text-white/95 shadow-sm backdrop-blur-md transition-all duration-200 hover:bg-white/[0.07] hover:border-white/[0.12] focus:outline-none focus:ring-2 focus:ring-white/15 focus:ring-offset-2 focus:ring-offset-transparent"
                   aria-expanded={accountSheetOpen}
@@ -523,21 +553,14 @@ export default function Nav() {
       </nav>
 
       {/* Mobile search sheet below header */}
-      {showAuthenticatedUI && searchOpen && (
+      {showAuthenticatedUI && isMobileSearchOpen && (
         <div className="sm:hidden">
-          {/* Backdrop */}
-          <button
-            type="button"
-            className="fixed inset-0 z-40 bg-black/40"
-            onClick={() => {
-              setSearchOpen(false);
-              setSearchQuery("");
-            }}
-            aria-label="Fechar pesquisa"
-          />
           {/* Panel aligned under header */}
           <div className="fixed inset-x-0 top-14 z-50 flex justify-center px-4 pt-2">
-            <div className="w-full max-w-6xl rounded-2xl border border-white/[0.12] bg-[rgba(15,23,42,0.96)] p-3.5 shadow-[0_18px_50px_rgba(0,0,0,0.65)] backdrop-blur-xl">
+            <div
+              ref={mobileSearchPanelRef}
+              className="w-full max-w-6xl rounded-2xl border border-white/[0.12] bg-[rgba(15,23,42,0.96)] p-3.5 shadow-[0_18px_50px_rgba(0,0,0,0.65)] backdrop-blur-xl"
+            >
             <div className="flex items-center gap-2 rounded-xl bg-white/[0.03] px-3 py-2.5">
               <svg
                 className="h-4 w-4 text-white/60"
@@ -599,7 +622,7 @@ export default function Nav() {
                           type="button"
                           onClick={() => {
                             router.push(item.href);
-                            setSearchOpen(false);
+                              setIsMobileSearchOpen(false);
                             setSearchQuery("");
                           }}
                           className="flex w-full flex-col items-start px-3.5 py-2 text-left text-xs text-white/90 transition hover:bg-white/10"
@@ -627,18 +650,14 @@ export default function Nav() {
       )}
 
       {/* Mobile account dropdown (avatar menu) */}
-      {showAuthenticatedUI && accountSheetOpen && (
+      {showAuthenticatedUI && isMobileMenuOpen && (
         <div className="sm:hidden">
-          {/* Backdrop */}
-          <button
-            type="button"
-            className="fixed inset-0 z-40 bg-black/40"
-            onClick={() => setAccountSheetOpen(false)}
-            aria-label="Fechar menu de conta"
-          />
           {/* Dropdown anchored under header / avatar */}
           <div className="fixed inset-x-0 top-14 z-50 flex justify-end px-4 pt-2">
-            <div className="w-full max-w-xs rounded-2xl border border-white/[0.14] bg-[rgba(10,18,38,0.98)] pb-2 pt-2 shadow-[0_18px_50px_rgba(0,0,0,0.75)] backdrop-blur-xl">
+            <div
+              ref={mobileMenuPanelRef}
+              className="w-full max-w-xs rounded-2xl border border-white/[0.14] bg-[rgba(10,18,38,0.98)] pb-2 pt-2 shadow-[0_18px_50px_rgba(0,0,0,0.75)] backdrop-blur-xl"
+            >
             <div className="px-4 pb-2 pt-1">
               <div className="flex items-center gap-3">
                 <span className="flex h-9 w-9 items-center justify-center rounded-full border border-white/[0.25] bg-white/[0.15] text-[13px] font-bold text-white">
@@ -655,7 +674,7 @@ export default function Nav() {
               <button
                 type="button"
                 onClick={() => {
-                  setAccountSheetOpen(false);
+                  setIsMobileMenuOpen(false);
                   router.push("/dashboard");
                 }}
                 className="flex w-full items-center justify-between rounded-2xl px-3.5 py-2.5 text-sm text-white/90 transition hover:bg-white/10"
@@ -665,7 +684,7 @@ export default function Nav() {
               <button
                 type="button"
                 onClick={() => {
-                  setAccountSheetOpen(false);
+                  setIsMobileMenuOpen(false);
                   router.push("/dashboard/perfil");
                 }}
                 className="flex w-full items-center justify-between rounded-2xl px-3.5 py-2.5 text-sm text-white/90 transition hover:bg-white/10"
@@ -675,7 +694,7 @@ export default function Nav() {
               <button
                 type="button"
                 onClick={() => {
-                  setAccountSheetOpen(false);
+                  setIsMobileMenuOpen(false);
                   router.push("/dashboard/favoritos");
                 }}
                 className="flex w-full items-center justify-between rounded-2xl px-3.5 py-2.5 text-sm text-white/90 transition hover:bg-white/10"
@@ -685,7 +704,7 @@ export default function Nav() {
               <button
                 type="button"
                 onClick={() => {
-                  setAccountSheetOpen(false);
+                  setIsMobileMenuOpen(false);
                   router.push("/dashboard/pagamentos");
                 }}
                 className="flex w-full items-center justify-between rounded-2xl px-3.5 py-2.5 text-sm text-white/90 transition hover:bg-white/10"
@@ -695,7 +714,7 @@ export default function Nav() {
               <button
                 type="button"
                 onClick={() => {
-                  setAccountSheetOpen(false);
+                  setIsMobileMenuOpen(false);
                   router.push("/dashboard/convidar");
                 }}
                 className="flex w-full items-center justify-between rounded-2xl px-3.5 py-2.5 text-sm text-white/90 transition hover:bg-white/10"
@@ -705,7 +724,7 @@ export default function Nav() {
               <button
                 type="button"
                 onClick={() => {
-                  setAccountSheetOpen(false);
+                  setIsMobileMenuOpen(false);
                   router.push("/faq");
                 }}
                 className="flex w-full items-center justify-between rounded-2xl px-3.5 py-2.5 text-sm text-white/90 transition hover:bg-white/10"
@@ -718,7 +737,7 @@ export default function Nav() {
               <button
                 type="button"
                 onClick={() => {
-                  setAccountSheetOpen(false);
+                  setIsMobileMenuOpen(false);
                   handleLogout();
                 }}
                 className="flex w-full items-center justify-between rounded-2xl px-3.5 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
