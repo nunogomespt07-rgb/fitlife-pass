@@ -187,7 +187,7 @@ export default function PremiumAuthCard() {
     const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
     setLoading(true);
     try {
-      const res = await fetch("/api/register", {
+      const res = await fetch(`${API_BASE}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

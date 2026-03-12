@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+
+# Environment (do not commit; set MONGODB_URI etc. in Railway)
+.env
+.env.local
+.env.*.local
+
+# Logs and runtime
+npm-debug.log*
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
