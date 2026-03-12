@@ -553,105 +553,112 @@ export default function Nav() {
         </div>
       </nav>
 
-      {/* Mobile search sheet below header */}
+      {/* Mobile search – full-screen dedicated mode */}
       {showAuthenticatedUI && isMobileSearchOpen && (
-        <div className="sm:hidden">
-          {/* Panel aligned under header */}
-          <div className="fixed inset-x-0 top-14 z-50 flex justify-center px-4 pt-2">
+        <div className="fixed inset-0 z-40 flex flex-col bg-[rgba(5,10,25,0.98)] bg-[radial-gradient(circle_at_20%_0%,rgba(59,130,246,0.28),transparent_55%),radial-gradient(circle_at_80%_100%,rgba(37,99,235,0.22),transparent_55%),linear-gradient(180deg,#020617,#020617)] sm:hidden">
+          <div className="h-4" aria-hidden />
+          <div className="px-4 pt-4 pb-2">
             <div
               ref={mobileSearchPanelRef}
-              className="w-full max-w-6xl rounded-2xl border border-white/[0.12] bg-[rgba(15,23,42,0.96)] p-3.5 shadow-[0_18px_50px_rgba(0,0,0,0.65)] backdrop-blur-xl"
+              className="mx-auto flex max-w-6xl flex-col gap-2"
             >
-            <div className="flex items-center gap-2 rounded-xl bg-white/[0.03] px-3 py-2.5">
-              <svg
-                className="h-4 w-4 text-white/60"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden
-              >
-                <circle cx="11" cy="11" r="7" />
-                <line x1="16.65" y1="16.65" x2="21" y2="21" />
-              </svg>
-              <input
-                ref={mobileSearchInputRef}
-                type="text"
-                inputMode="search"
-                enterKeyHint="search"
-                autoComplete="off"
-                autoCorrect="off"
-                autoCapitalize="none"
-                spellCheck={false}
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                }}
-                placeholder="Pesquisar atividades, parceiros ou clubes"
-                className="w-full bg-transparent text-[15px] text-white placeholder:text-white/45 outline-none"
-              />
-              {searchQuery && (
+              <div className="flex items-center gap-3">
+                <div className="flex flex-1 items-center gap-2 rounded-full border border-white/[0.14] bg-white/[0.06] px-3 py-2.5 shadow-[0_12px_35px_rgba(15,23,42,0.9)] backdrop-blur-lg">
+                  <svg
+                    className="h-4 w-4 text-white/65"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                  >
+                    <circle cx="11" cy="11" r="7" />
+                    <line x1="16.65" y1="16.65" x2="21" y2="21" />
+                  </svg>
+                  <input
+                    ref={mobileSearchInputRef}
+                    type="text"
+                    inputMode="search"
+                    enterKeyHint="search"
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="none"
+                    spellCheck={false}
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                    }}
+                    placeholder="Pesquisar atividades, parceiros ou clubes"
+                    className="w-full bg-transparent text-[15px] text-white placeholder:text-white/45 outline-none"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchQuery("");
+                      }}
+                      className="flex h-6 w-6 items-center justify-center rounded-full bg-white/15 text-white/80 hover:bg-white/25"
+                      aria-label="Limpar pesquisa"
+                    >
+                      <span className="text-[11px] leading-none">×</span>
+                    </button>
+                  )}
+                </div>
                 <button
                   type="button"
                   onClick={() => {
+                    setIsMobileSearchOpen(false);
                     setSearchQuery("");
                   }}
-                  className="rounded-full bg-white/10 px-2 py-0.5 text-[11px] text-white/80 hover:bg-white/20"
+                  className="px-1 py-1 text-[13px] font-medium text-white/80"
                 >
-                  Limpar
+                  Cancelar
                 </button>
-              )}
-              <button
-                type="button"
-                onClick={() => {
-                  setIsMobileSearchOpen(false);
-                  setSearchQuery("");
-                }}
-                className="ml-1 rounded-full bg-white/5 px-2 py-0.5 text-[11px] font-medium text-white/70 hover:bg-white/10"
-              >
-                Cancelar
-              </button>
-            </div>
-
-            {searchQuery.length > 0 && (
-              <div className="mt-3 max-h-72 overflow-y-auto rounded-xl border border-white/[0.08] bg-black/20 py-1.5">
-                {filteredSearchItems.length === 0 ? (
-                  <div className="px-3.5 py-2 text-xs text-white/70">
-                    Sem resultados.
-                  </div>
-                ) : (
-                  <ul>
-                    {filteredSearchItems.map((item) => (
-                      <li key={item.id}>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            router.push(item.href);
-                              setIsMobileSearchOpen(false);
-                            setSearchQuery("");
-                          }}
-                          className="flex w-full flex-col items-start px-3.5 py-2 text-left text-xs text-white/90 transition hover:bg-white/10"
-                        >
-                          <span className="font-medium truncate">{item.name}</span>
-                          <span className="mt-0.5 text-[11px] text-white/65">
-                            {item.category}
-                            {item.city || item.location ? (
-                              <>
-                                {" · "}
-                                {item.city || item.location}
-                              </>
-                            ) : null}
-                          </span>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
               </div>
-            )}
             </div>
+          </div>
+          <div className="mx-auto w-full max-w-6xl flex-1 px-4 pb-6 pt-1 overflow-y-auto">
+            {searchQuery.length === 0 ? (
+              <div className="mt-6 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-4 py-5 text-sm text-white/70 text-center">
+                Procura atividades, parceiros ou clubes.
+              </div>
+            ) : filteredSearchItems.length === 0 ? (
+              <div className="mt-6 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-4 py-5 text-sm text-white/70 text-center">
+                Sem resultados.
+              </div>
+            ) : (
+              <ul className="mt-3 space-y-1.5">
+                {filteredSearchItems.map((item) => (
+                  <li key={item.id}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        router.push(item.href);
+                        setIsMobileSearchOpen(false);
+                        setSearchQuery("");
+                        mobileSearchInputRef.current?.blur();
+                      }}
+                      className="flex w-full flex-col items-start rounded-2xl border border-white/[0.06] bg-white/[0.03] px-3.5 py-2.5 text-left text-xs text-white/90 transition hover:bg-white/[0.08] hover:border-white/[0.14]"
+                    >
+                      <span className="w-full truncate text-[13px] font-semibold text-white">
+                        {item.name}
+                      </span>
+                      <span className="mt-0.5 text-[11px] text-white/65">
+                        {item.category}
+                        {item.city || item.location ? (
+                          <>
+                            {" · "}
+                            {item.city || item.location}
+                          </>
+                        ) : null}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       )}
