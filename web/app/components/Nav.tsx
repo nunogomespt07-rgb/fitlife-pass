@@ -683,9 +683,9 @@ export default function Nav() {
         <div className="sm:hidden fixed right-4 top-[86px] z-[80] w-[min(300px,calc(100vw-1.5rem))]">
           <div
             ref={mobileMenuPanelRef}
-            className="overflow-hidden rounded-[26px] border border-white/10 bg-[rgba(6,12,32,0.94)] shadow-[0_24px_70px_rgba(0,0,0,0.42)] backdrop-blur-2xl"
+            className="overflow-hidden rounded-[26px] border border-white/[0.08] bg-[rgba(6,12,32,0.94)] shadow-[0_24px_70px_rgba(0,0,0,0.42)] backdrop-blur-2xl"
           >
-            <div className="flex items-center gap-3 border-b border-white/6 px-5 py-3.5">
+            <div className="flex items-center gap-3 border-b border-white/[0.06] px-5 py-3.5">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-base font-semibold text-white">
                 {avatarLetter}
               </div>
@@ -750,7 +750,7 @@ export default function Nav() {
               </Link>
             </div>
 
-            <div className="border-t border-white/10 px-2 py-2">
+            <div className="border-t border-white/[0.06] px-2 py-2">
               <button
                 type="button"
                 onClick={() => {
