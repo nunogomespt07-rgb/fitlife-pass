@@ -73,7 +73,7 @@ export default function LandingPage() {
   return (
     <div className="page-bg text-white font-sans">
       {/* ========== HERO – Cinematic scene, athlete integrated ========== */}
-      <section className="relative min-h-[min(100vh,860px)] sm:min-h-[90vh] w-full overflow-hidden lg:overflow-visible">
+      <section className="landing-hero relative min-h-[min(100vh,860px)] sm:min-h-[90vh] w-full overflow-hidden lg:overflow-visible">
         {/* Layered background atmosphere – depth and lighting */}
         <div
           className="absolute inset-0"
@@ -105,16 +105,16 @@ export default function LandingPage() {
 
         <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-0 px-4 pt-8 pb-8 sm:px-6 sm:pt-12 sm:pb-10 lg:min-h-[min(92vh,920px)] lg:grid-cols-[minmax(0,480px)_1.4fr_minmax(0,400px)] lg:items-center lg:gap-10 lg:px-8 lg:py-14 xl:gap-12 xl:px-10">
           {/* LEFT: headline – bolder, more presence */}
-          <div className="order-1 flex flex-col justify-center pb-0 sm:pb-4 lg:max-w-[520px] lg:pr-4 lg:pb-0">
+          <div className="order-1 flex flex-col justify-center pb-0 sm:pb-4 lg:max-w-[520px] lg:pr-6 lg:pb-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/55 sm:text-xs sm:tracking-[0.32em]">
               FitLife Pass
             </p>
-            <h1 className="hero-title mt-5 font-extrabold text-white sm:mt-6 lg:mt-8">
+            <h1 className="landing-hero-title hero-title mt-5 font-extrabold text-white sm:mt-6 lg:mt-10">
               <span className="block">Um só passe.</span>
               <span className="block">Todos os teus</span>
               <span className="block">treinos.</span>
             </h1>
-            <p className="mt-5 max-w-md text-base leading-[1.7] text-white/85 sm:mt-6 sm:text-[1.0625rem] sm:leading-[1.75] lg:mt-8">
+            <p className="landing-hero-desc mt-5 max-w-md text-base leading-[1.7] text-white/85 sm:mt-6 sm:text-[1.0625rem] sm:leading-[1.75] lg:mt-10">
               <span className="block">Ginásio, yoga, padel, crossfit</span>
               <span className="block">e estúdios premium numa só experiência.</span>
             </p>
@@ -125,7 +125,7 @@ export default function LandingPage() {
 
           {/* CENTER: athlete scene – integrated into environment */}
           <div className="order-2 mt-6 mb-4 flex justify-center sm:mt-8 sm:mb-6 lg:order-2 lg:mt-0 lg:mb-0 lg:flex lg:min-h-0 lg:items-center lg:justify-center lg:px-2 lg:overflow-visible">
-            <div className="relative w-full max-w-full flex justify-center items-end lg:items-center min-h-[320px] sm:min-h-[420px] lg:min-h-0 pointer-events-none">
+            <div className="landing-hero-runner relative w-full max-w-full flex justify-center items-end lg:items-center min-h-[320px] sm:min-h-[420px] lg:min-h-0 pointer-events-none">
               {/* Soft radial glow behind runner – ambient light integration */}
               <div
                 className="absolute inset-0 flex items-center justify-center"
@@ -195,8 +195,8 @@ export default function LandingPage() {
           </div>
 
           {/* RIGHT: auth card – floats above scene */}
-          <div className="order-3 relative z-30 flex items-center justify-center mt-0 pt-0 sm:pt-4 lg:order-3 lg:mt-0 lg:pt-0 lg:justify-center lg:pl-0">
-            <div className="hero-float-card rounded-[var(--radius-card)]">
+          <div className="order-3 relative z-30 flex items-center justify-center mt-0 pt-0 sm:pt-4 lg:order-3 lg:mt-0 lg:pt-0 lg:justify-center lg:pl-8 xl:pl-10">
+            <div className="hero-float-card rounded-[var(--radius-card)] lg:bg-white/[0.04] lg:border lg:border-white/[0.08] lg:backdrop-blur-[18px] lg:shadow-[0_40px_90px_rgba(0,0,0,0.45)]">
               <Suspense fallback={null}>
                 <PremiumAuthCard />
               </Suspense>

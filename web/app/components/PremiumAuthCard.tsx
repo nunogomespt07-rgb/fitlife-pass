@@ -402,7 +402,7 @@ export default function PremiumAuthCard() {
                 type="button"
                 variant="primary"
                 onClick={() => openEmailFlow("login")}
-                className="w-full h-12 rounded-xl text-[15px] py-4"
+                className="w-full h-12 rounded-xl text-[15px] py-4 lg:landing-primary-cta"
               >
                 Continuar com e-mail
               </PrimaryButton>
@@ -528,7 +528,7 @@ export default function PremiumAuthCard() {
                     loading={loading}
                     disabled={loading}
                     loadingLabel="A entrar…"
-                    className="mt-5 w-full h-12 rounded-xl text-[15px] py-4"
+                    className="mt-5 w-full h-12 rounded-xl text-[15px] py-4 lg:landing-primary-cta"
                   >
                     Entrar
                   </PrimaryButton>
@@ -611,7 +611,7 @@ export default function PremiumAuthCard() {
                       <PrimaryButton
                         type="submit"
                         variant="primary"
-                        className="mt-4 w-full h-12 rounded-xl text-[15px] py-4"
+                        className="mt-4 w-full h-12 rounded-xl text-[15px] py-4 lg:landing-primary-cta"
                       >
                         Criar conta
                       </PrimaryButton>
@@ -735,7 +735,7 @@ export default function PremiumAuthCard() {
                         loading={loading}
                         disabled={loading}
                         loadingLabel="A concluir…"
-                        className="mt-4 w-full h-12 rounded-xl text-[15px] py-4"
+                        className="mt-4 w-full h-12 rounded-xl text-[15px] py-4 lg:landing-primary-cta"
                       >
                         Concluir registo
                       </PrimaryButton>

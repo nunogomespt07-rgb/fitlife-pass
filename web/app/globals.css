@@ -127,6 +127,48 @@
       font-size: var(--text-hero-desktop);
     }
   }
+  /* Landing hero – desktop-only enhancements */
+  @media (min-width: 1024px) {
+    .landing-hero {
+      background-color: #060f2e;
+      background-image:
+        radial-gradient(circle at 20% 30%, rgba(120, 170, 255, 0.2), transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(70, 120, 255, 0.18), transparent 45%),
+        linear-gradient(180deg, #060f2e, #0c1e4f);
+    }
+    .landing-hero-title {
+      font-size: 64px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+    }
+    .landing-hero-desc {
+      font-size: 18px;
+      opacity: 0.85;
+    }
+    .landing-primary-cta {
+      background: linear-gradient(180deg, #4f7dff, #2f5fff);
+      box-shadow: 0 10px 35px rgba(80, 120, 255, 0.45);
+      transition: all 0.25s ease;
+    }
+    .landing-primary-cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 15px 45px rgba(80, 120, 255, 0.55);
+    }
+    .landing-hero-runner {
+      position: relative;
+      filter: drop-shadow(0 40px 80px rgba(0, 0, 0, 0.35));
+    }
+    .landing-hero-runner::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      margin: -8%;
+      background: radial-gradient(circle, rgba(90, 140, 255, 0.35), transparent 60%);
+      filter: blur(40px);
+      z-index: -1;
+    }
+  }
   /* Desktop only: hero runner image ~60% larger, shifted right for balance */
   .hero-runner-scale {
     transform: none;
