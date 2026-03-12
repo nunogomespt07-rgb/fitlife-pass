@@ -73,46 +73,32 @@ export default function LandingPage() {
   return (
     <div className="page-bg text-white font-sans">
       {/* ========== HERO – Cinematic scene, athlete integrated ========== */}
-      <section className="relative min-h-[min(100vh,860px)] sm:min-h-[90vh] w-full overflow-hidden">
-        {/* Layer 1: Deep navy base */}
-        <div className="absolute inset-0 bg-[#050a12]" aria-hidden />
-        {/* Layer 2: Gradient depth */}
+      <section className="relative min-h-[min(100vh,860px)] sm:min-h-[90vh] w-full overflow-hidden lg:overflow-visible">
+        {/* Layered background atmosphere – depth and lighting */}
         <div
           className="absolute inset-0"
           style={{
-            background: 'linear-gradient(165deg, #050a12 0%, #0a0f1c 25%, #0f172a 50%, #0c1222 100%)',
+            background: [
+              'radial-gradient(circle at 20% 30%, rgba(90,140,255,0.25), transparent 50%)',
+              'radial-gradient(circle at 80% 70%, rgba(60,120,255,0.18), transparent 50%)',
+              'linear-gradient(180deg, #070f2b 0%, #0f1e4d 100%)',
+            ].join(', '),
           }}
           aria-hidden
         />
-        {/* Layer 3: Radial key light – behind athlete position (center-right) */}
+        {/* Side vignette + depth */}
         <div
           className="absolute inset-0"
           style={{
-            background: 'radial-gradient(ellipse 90% 100% at 55% 55%, rgba(59,130,246,0.22) 0%, rgba(37,99,235,0.1) 35%, transparent 60%)',
+            background: 'linear-gradient(90deg, #070f2b 0%, transparent 38%, transparent 62%, rgba(15,30,77,0.85) 100%)',
           }}
           aria-hidden
         />
-        {/* Layer 4: Secondary atmospheric glow – top-left fill */}
+        {/* Bottom atmospheric fade */}
         <div
           className="absolute inset-0"
           style={{
-            background: 'radial-gradient(ellipse 60% 50% at 15% 30%, rgba(96,165,250,0.08) 0%, transparent 50%)',
-          }}
-          aria-hidden
-        />
-        {/* Layer 5: Side vignette + depth */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background: 'linear-gradient(90deg, #050a12 0%, transparent 35%, transparent 65%, rgba(10,15,28,0.9) 100%)',
-          }}
-          aria-hidden
-        />
-        {/* Layer 6: Bottom atmospheric fade (ground shadow) */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background: 'linear-gradient(to top, #050a12 0%, transparent 25%, transparent 70%, rgba(5,10,18,0.4) 100%)',
+            background: 'linear-gradient(to top, #070f2b 0%, transparent 30%, transparent 72%, rgba(7,15,43,0.4) 100%)',
           }}
           aria-hidden
         />
@@ -138,39 +124,42 @@ export default function LandingPage() {
           </div>
 
           {/* CENTER: athlete scene – integrated into environment */}
-          <div className="order-2 mt-6 mb-4 flex justify-center sm:mt-8 sm:mb-6 lg:order-2 lg:mt-0 lg:mb-0 lg:flex lg:min-h-0 lg:items-center lg:justify-center lg:px-2">
+          <div className="order-2 mt-6 mb-4 flex justify-center sm:mt-8 sm:mb-6 lg:order-2 lg:mt-0 lg:mb-0 lg:flex lg:min-h-0 lg:items-center lg:justify-center lg:px-2 lg:overflow-visible">
             <div className="relative w-full max-w-full flex justify-center items-end lg:items-center min-h-[320px] sm:min-h-[420px] lg:min-h-0 pointer-events-none">
-              {/* Energy glow – soft blur behind athlete */}
+              {/* Soft radial glow behind runner – ambient light integration */}
               <div
                 className="absolute inset-0 flex items-center justify-center"
-                style={{ margin: '-10%' }}
+                style={{ margin: '-12%' }}
                 aria-hidden
               >
                 <div
-                  className="w-[80%] max-w-[500px] aspect-[3/4] rounded-full opacity-90"
+                  className="w-[85%] max-w-[520px] aspect-[3/4] rounded-full opacity-95 lg:w-[100%] lg:max-w-[680px]"
                   style={{
-                    background: 'radial-gradient(ellipse 70% 90% at 50% 60%, rgba(96,165,250,0.35) 0%, rgba(59,130,246,0.18) 40%, rgba(37,99,235,0.06) 65%, transparent 85%)',
-                    filter: 'blur(50px)',
+                    background: 'radial-gradient(ellipse 70% 90% at 50% 58%, rgba(90,140,255,0.4) 0%, rgba(60,120,255,0.22) 38%, rgba(59,130,246,0.08) 62%, transparent 82%)',
+                    filter: 'blur(56px)',
                   }}
                 />
               </div>
-              {/* Mist / soft particles – second blur layer */}
+              {/* Second blur layer – softer mist */}
               <div
-                className="absolute inset-0 flex items-center justify-center opacity-70"
-                style={{ margin: '-5%' }}
+                className="absolute inset-0 flex items-center justify-center opacity-80"
+                style={{ margin: '-6%' }}
                 aria-hidden
               >
                 <div
-                  className="w-[70%] max-w-[420px] h-[60%] rounded-full"
+                  className="w-[72%] max-w-[440px] h-[58%] rounded-full lg:w-[90%] lg:max-w-[560px]"
                   style={{
-                    background: 'radial-gradient(ellipse 80% 70% at 50% 70%, rgba(147,197,253,0.12) 0%, transparent 60%)',
-                    filter: 'blur(60px)',
+                    background: 'radial-gradient(ellipse 80% 70% at 50% 72%, rgba(147,197,253,0.18) 0%, transparent 58%)',
+                    filter: 'blur(64px)',
                   }}
                 />
               </div>
-              {/* Athlete container – gradient fade + color blend */}
-              <div className="relative flex justify-center items-end w-full" style={{ filter: 'drop-shadow(0 0 80px rgba(59,130,246,0.2))' }}>
-                <div className="relative w-full flex justify-center">
+              {/* Athlete container – desktop: scale 1.6x and reposition to the side */}
+              <div
+                className="relative flex justify-center items-end w-full lg:translate-x-[8%]"
+                style={{ filter: 'drop-shadow(0 0 88px rgba(90,140,255,0.28))' }}
+              >
+                <div className="relative w-full flex justify-center hero-runner-scale">
                   <Image
                     src="/images/runner-hero.png"
                     alt="Runner"
@@ -188,7 +177,7 @@ export default function LandingPage() {
                   <div
                     className="pointer-events-none absolute inset-x-0 bottom-0 h-[45%]"
                     style={{
-                      background: 'linear-gradient(to top, #050a12 0%, rgba(5,10,18,0.85) 25%, rgba(5,10,18,0.4) 55%, transparent 100%)',
+                      background: 'linear-gradient(to top, #070f2b 0%, rgba(7,15,43,0.88) 28%, rgba(7,15,43,0.42) 56%, transparent 100%)',
                     }}
                     aria-hidden
                   />
