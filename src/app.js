@@ -30,12 +30,12 @@ const envOrigins = (process.env.CORS_ORIGIN || process.env.FRONTEND_URL || "")
 const origins = [...new Set([...allowedOrigins, ...envOrigins])];
 
 const corsOptions = {
-  origin: function (origin, callback) {
+  origin: function(origin, callback) {
     if (!origin) return callback(null, true);
     if (origins.includes(origin)) return callback(null, true);
     return callback(new Error(`CORS blocked for origin: ${origin}`));
   },
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
   credentials: true,
 };
 
