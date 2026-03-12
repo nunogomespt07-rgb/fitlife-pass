@@ -112,6 +112,18 @@ export default function Nav() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isMobileSearchOpen]);
 
+  // Lock body scroll while mobile search is open
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    if (isMobileSearchOpen) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = prev;
+      };
+    }
+  }, [isMobileSearchOpen]);
+
   // Mobile account menu: close on outside tap
   useEffect(() => {
     if (!isMobileMenuOpen) return;
