@@ -103,7 +103,7 @@ export default function LandingPage() {
           aria-hidden
         />
 
-        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-0 px-4 pt-8 pb-8 sm:px-6 sm:pt-12 sm:pb-10 lg:min-h-[min(92vh,920px)] lg:grid-cols-[minmax(0,480px)_1.4fr_minmax(0,400px)] lg:items-center lg:gap-10 lg:px-8 lg:py-14 xl:gap-12 xl:px-10">
+        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-0 px-4 pt-8 pb-8 sm:px-6 sm:pt-12 sm:pb-10 lg:min-h-[min(92vh,920px)] lg:grid-cols-[minmax(0,480px)_1.4fr_minmax(0,400px)] lg:items-center lg:gap-24 lg:px-8 lg:py-14 xl:gap-28 xl:px-10">
           {/* LEFT: headline – bolder, more presence */}
           <div className="order-1 flex flex-col justify-center pb-0 sm:pb-4 lg:max-w-[520px] lg:pr-6 lg:pb-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/55 sm:text-xs sm:tracking-[0.32em]">
@@ -165,7 +165,7 @@ export default function LandingPage() {
                     alt="Runner"
                     width={1500}
                     height={2000}
-                    className="h-[320px] w-auto max-w-[92%] object-contain object-center sm:h-[440px] md:h-[560px] lg:h-[82vh] lg:max-h-[820px] lg:max-w-[95%] scale-[1.02]"
+                    className="h-[320px] w-auto max-w-[92%] object-contain object-center sm:h-[440px] md:h-[560px] lg:h-auto lg:w-[460px] lg:max-w-none scale-[1.02]"
                     style={{
                       maskImage: 'linear-gradient(to bottom, black 0%, black 72%, transparent 100%)',
                       WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 72%, transparent 100%)',

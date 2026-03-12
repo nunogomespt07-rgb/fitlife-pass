@@ -157,14 +157,13 @@
     }
     .landing-hero-runner {
       position: relative;
-      filter: drop-shadow(0 40px 80px rgba(0, 0, 0, 0.35));
+      filter: drop-shadow(0 40px 80px rgba(0, 0, 0, 0.45));
     }
     .landing-hero-runner::before {
       content: "";
       position: absolute;
-      inset: 0;
-      margin: -8%;
-      background: radial-gradient(circle, rgba(90, 140, 255, 0.35), transparent 60%);
+      inset: -80px;
+      background: radial-gradient(circle, rgba(90, 140, 255, 0.35), transparent 65%);
       filter: blur(40px);
       z-index: -1;
     }
@@ -175,7 +174,7 @@
   }
   @media (min-width: 1024px) {
     .hero-runner-scale {
-      transform: scale(1.6) translateX(10%);
+      transform: translateX(8%);
     }
   }
   /* Auth card floating above hero scene */
