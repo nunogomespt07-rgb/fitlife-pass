@@ -21,8 +21,8 @@
   --ref-text-muted: rgba(255, 255, 255, 0.5);
 
   /* Typography scale – strong presence */
-  --text-hero-mobile: clamp(2.25rem, 8vw, 3rem);
-  --text-hero-desktop: clamp(3rem, 5vw, 4.5rem);
+  --text-hero-mobile: clamp(2.5rem, 9vw, 3.5rem);
+  --text-hero-desktop: clamp(3.25rem, 5.5vw, 5rem);
   --text-section: clamp(1.5rem, 3vw, 2.25rem);
   --text-card: 1.125rem;
   --text-body: 1rem;
@@ -118,11 +118,20 @@
   }
   .hero-title {
     font-size: var(--text-hero-mobile);
+    line-height: 1.05;
+    letter-spacing: -0.04em;
   }
   @media (min-width: 1024px) {
     .hero-title {
       font-size: var(--text-hero-desktop);
     }
+  }
+  /* Auth card floating above hero scene */
+  .hero-float-card {
+    box-shadow:
+      0 32px 80px rgba(0, 0, 0, 0.5),
+      0 0 0 1px rgba(255, 255, 255, 0.08),
+      0 0 120px -20px rgba(59, 130, 246, 0.15);
   }
 }
 
