@@ -656,28 +656,28 @@ export default function Nav() {
           <div className="fixed inset-x-0 top-14 z-50 flex justify-end px-4 pt-2">
             <div
               ref={mobileMenuPanelRef}
-              className="w-full max-w-xs rounded-2xl border border-white/[0.14] bg-[rgba(10,18,38,0.98)] pb-2 pt-2 shadow-[0_18px_50px_rgba(0,0,0,0.75)] backdrop-blur-xl"
+              className="w-full max-w-[260px] rounded-2xl border border-white/[0.14] bg-[rgba(10,18,38,0.96)] pb-1.5 pt-1.5 shadow-[0_16px_40px_rgba(0,0,0,0.75)] backdrop-blur-xl"
             >
-            <div className="px-4 pb-2 pt-1">
-              <div className="flex items-center gap-3">
-                <span className="flex h-9 w-9 items-center justify-center rounded-full border border-white/[0.25] bg-white/[0.15] text-[13px] font-bold text-white">
-                  {avatarLetter}
-                </span>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-white">{firstName}</p>
-                  <p className="text-xs text-white/60">{user?.email}</p>
+              <div className="px-3.5 pb-1.5 pt-0.5">
+                <div className="flex items-center gap-2.5">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/[0.25] bg-white/[0.15] text-[12px] font-bold text-white">
+                    {avatarLetter}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-[13px] font-semibold text-white leading-tight">{firstName}</p>
+                    <p className="mt-0.5 text-[11px] text-white/55 leading-tight truncate">{user?.email}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="mt-1 border-t border-white/[0.08]" />
-            <nav className="px-2 pt-1">
+              <div className="mt-1 border-t border-white/[0.08]" />
+              <nav className="px-1.5 pt-0.5">
               <button
                 type="button"
                 onClick={() => {
                   setIsMobileMenuOpen(false);
                   router.push("/dashboard");
                 }}
-                className="flex w-full items-center justify-between rounded-2xl px-3.5 py-2.5 text-sm text-white/90 transition hover:bg-white/10"
+                className="flex w-full items-center justify-between rounded-2xl px-3 py-2 text-[13px] text-white/90 transition hover:bg-white/10"
               >
                 <span>Conta</span>
               </button>
@@ -687,7 +687,7 @@ export default function Nav() {
                   setIsMobileMenuOpen(false);
                   router.push("/dashboard/perfil");
                 }}
-                className="flex w-full items-center justify-between rounded-2xl px-3.5 py-2.5 text-sm text-white/90 transition hover:bg-white/10"
+                className="flex w-full items-center justify-between rounded-2xl px-3 py-2 text-[13px] text-white/90 transition hover:bg-white/10"
               >
                 <span>Perfil</span>
               </button>
@@ -697,7 +697,7 @@ export default function Nav() {
                   setIsMobileMenuOpen(false);
                   router.push("/dashboard/favoritos");
                 }}
-                className="flex w-full items-center justify-between rounded-2xl px-3.5 py-2.5 text-sm text-white/90 transition hover:bg-white/10"
+                className="flex w-full items-center justify-between rounded-2xl px-3 py-2 text-[13px] text-white/90 transition hover:bg-white/10"
               >
                 <span>Favoritos</span>
               </button>
@@ -707,7 +707,7 @@ export default function Nav() {
                   setIsMobileMenuOpen(false);
                   router.push("/dashboard/pagamentos");
                 }}
-                className="flex w-full items-center justify-between rounded-2xl px-3.5 py-2.5 text-sm text-white/90 transition hover:bg-white/10"
+                className="flex w-full items-center justify-between rounded-2xl px-3 py-2 text-[13px] text-white/90 transition hover:bg-white/10"
               >
                 <span>Pagamentos</span>
               </button>
@@ -717,7 +717,7 @@ export default function Nav() {
                   setIsMobileMenuOpen(false);
                   router.push("/dashboard/convidar");
                 }}
-                className="flex w-full items-center justify-between rounded-2xl px-3.5 py-2.5 text-sm text-white/90 transition hover:bg-white/10"
+                className="flex w-full items-center justify-between rounded-2xl px-3 py-2 text-[13px] text-white/90 transition hover:bg-white/10"
               >
                 <span>Convidar amigos</span>
               </button>
@@ -727,20 +727,20 @@ export default function Nav() {
                   setIsMobileMenuOpen(false);
                   router.push("/faq");
                 }}
-                className="flex w-full items-center justify-between rounded-2xl px-3.5 py-2.5 text-sm text-white/90 transition hover:bg-white/10"
+                className="flex w-full items-center justify-between rounded-2xl px-3 py-2 text-[13px] text-white/90 transition hover:bg-white/10"
               >
                 <span>FAQ</span>
               </button>
             </nav>
             <div className="mt-1 border-t border-white/[0.08]" />
-            <div className="px-2 pt-1">
+            <div className="px-1.5 pt-0.5 pb-0.5">
               <button
                 type="button"
                 onClick={() => {
                   setIsMobileMenuOpen(false);
                   handleLogout();
                 }}
-                className="flex w-full items-center justify-between rounded-2xl px-3.5 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+                className="flex w-full items-center justify-between rounded-2xl px-3 py-2 text-[13px] font-semibold text-red-300 transition hover:bg-red-500/10"
               >
                 <span>Sair</span>
               </button>
