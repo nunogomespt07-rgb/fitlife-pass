@@ -1,5 +1,5 @@
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:3002";
+  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
 
 export async function apiFetch<T = unknown>(
   path: string,

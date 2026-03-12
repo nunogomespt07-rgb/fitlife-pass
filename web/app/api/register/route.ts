@@ -2,8 +2,8 @@ import { NextRequest } from "next/server";
 
 const BACKEND_API_BASE =
   process.env.BACKEND_API_URL?.replace(/\/$/, "") ||
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ||
-  "http://localhost:3002";
+  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
+  "";
 
 export async function POST(req: NextRequest) {
   try {

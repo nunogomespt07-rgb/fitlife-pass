@@ -7,7 +7,7 @@ import GlassCard from "../components/ui/GlassCard";
 import PrimaryButton from "../components/ui/PrimaryButton";
 
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:3002";
+  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();

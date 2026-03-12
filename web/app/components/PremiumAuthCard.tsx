@@ -15,7 +15,7 @@ function splitFullName(fullName: string): { firstName: string; lastName: string 
 }
 
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:3002";
+  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const HAS_NUMBER_OR_SYMBOL = /[0-9]|[^a-zA-Z0-9]/;
