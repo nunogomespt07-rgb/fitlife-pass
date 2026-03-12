@@ -401,14 +401,14 @@ export default function Nav() {
                   type="button"
                   onClick={() => {
                     setIsMobileSearchOpen(false);
-                    setIsMobileMenuOpen((open) => !open);
+                    setIsMobileMenuOpen((prev) => !prev);
                   }}
-                  className="shrink-0 flex items-center gap-3 rounded-full border border-white/[0.08] bg-white/[0.04] pl-3 pr-3.5 py-1.5 text-xs font-semibold text-white/95 shadow-sm backdrop-blur-md transition-all duration-200 hover:bg-white/[0.07] hover:border-white/[0.12] focus:outline-none focus:ring-2 focus:ring-white/15 focus:ring-offset-2 focus:ring-offset-transparent"
+                  className="shrink-0 flex items-center justify-center rounded-full border border-white/[0.10] bg-white/[0.05] p-1.5 text-xs font-semibold text-white/95 shadow-[0_10px_30px_rgba(0,0,0,0.25)] backdrop-blur-xl transition-all duration-200 hover:bg-white/[0.08] hover:border-white/[0.14] sm:hidden"
                   aria-expanded={isMobileMenuOpen}
                   aria-haspopup="true"
                 >
                   <span
-                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/[0.25] bg-white/[0.15] text-[12px] font-bold text-white"
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/[0.24] bg-white/[0.14] text-[12px] font-bold text-white"
                     aria-hidden
                   >
                     {avatarLetter}
@@ -675,102 +675,88 @@ export default function Nav() {
         </div>
       )}
 
-      {/* Mobile account dropdown (avatar menu) */}
       {showAuthenticatedUI && isMobileMenuOpen && (
-        <div className="sm:hidden">
-          {/* Dropdown anchored under header / avatar */}
-          <div className="fixed inset-x-0 top-14 z-50 flex justify-end px-3 pt-1.5">
-            <div
-              ref={mobileMenuPanelRef}
-              className="w-full max-w-[240px] rounded-2xl border border-white/[0.14] bg-[rgba(10,18,38,0.96)] pb-1.5 pt-1.5 shadow-[0_14px_36px_rgba(0,0,0,0.8)] backdrop-blur-xl"
-            >
-              <div className="px-3 pb-1.5 pt-0.5">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full border border-white/[0.25] bg-white/[0.15] text-[11px] font-bold text-white">
-                    {avatarLetter}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-[13px] font-semibold text-white leading-tight truncate">{firstName}</p>
-                    <p className="mt-0.5 text-[11px] text-white/55 leading-tight truncate">{user?.email}</p>
-                  </div>
-                </div>
+        <div className="sm:hidden fixed inset-x-4 top-[88px] z-[80]">
+          <div
+            ref={mobileMenuPanelRef}
+            className="overflow-hidden rounded-[30px] border border-white/10 bg-[rgba(5,10,28,0.94)] shadow-[0_30px_80px_rgba(0,0,0,0.45)] backdrop-blur-2xl"
+          >
+            <div className="flex items-center gap-4 border-b border-white/10 px-5 py-4">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-lg font-semibold text-white">
+                {avatarLetter}
               </div>
-              <div className="mt-1 border-t border-white/[0.08]" />
-              <nav className="px-1.5 pt-0.5 pb-0.5">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  router.push("/dashboard");
-                }}
-                className="flex w-full items-center justify-between rounded-2xl px-3 py-1.75 text-[13px] text-white/90 transition hover:bg-white/10"
+
+              <div className="min-w-0">
+                <p className="truncate text-[1.05rem] font-semibold leading-5 text-white">
+                  {firstName}
+                </p>
+                <p className="mt-1 truncate text-sm text-white/60">
+                  {user?.email || session?.user?.email || ""}
+                </p>
+              </div>
+            </div>
+
+            <div className="px-2 py-2">
+              <Link
+                href="/dashboard"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex min-h-[52px] items-center rounded-2xl px-4 text-[1.05rem] font-medium text-white/92 transition active:scale-[0.99] hover:bg-white/5"
               >
-                <span>Conta</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  router.push("/dashboard/perfil");
-                }}
-                className="flex w-full items-center justify-between rounded-2xl px-3 py-1.75 text-[13px] text-white/90 transition hover:bg-white/10"
+                Conta
+              </Link>
+
+              <Link
+                href="/dashboard/perfil"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex min-h-[52px] items-center rounded-2xl px-4 text-[1.05rem] font-medium text-white/92 transition active:scale-[0.99] hover:bg-white/5"
               >
-                <span>Perfil</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  router.push("/dashboard/favoritos");
-                }}
-                className="flex w-full items-center justify-between rounded-2xl px-3 py-1.75 text-[13px] text-white/90 transition hover:bg-white/10"
+                Perfil
+              </Link>
+
+              <Link
+                href="/dashboard/favoritos"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex min-h-[52px] items-center rounded-2xl px-4 text-[1.05rem] font-medium text-white/92 transition active:scale-[0.99] hover:bg-white/5"
               >
-                <span>Favoritos</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  router.push("/dashboard/pagamentos");
-                }}
-                className="flex w-full items-center justify-between rounded-2xl px-3 py-1.75 text-[13px] text-white/90 transition hover:bg-white/10"
+                Favoritos
+              </Link>
+
+              <Link
+                href="/dashboard/pagamentos"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex min-h-[52px] items-center rounded-2xl px-4 text-[1.05rem] font-medium text-white/92 transition active:scale-[0.99] hover:bg-white/5"
               >
-                <span>Pagamentos</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  router.push("/dashboard/convidar");
-                }}
-                className="flex w-full items-center justify-between rounded-2xl px-3 py-1.75 text-[13px] text-white/90 transition hover:bg-white/10"
+                Pagamentos
+              </Link>
+
+              <Link
+                href="/dashboard/convidar"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex min-h-[52px] items-center rounded-2xl px-4 text-[1.05rem] font-medium text-white/92 transition active:scale-[0.99] hover:bg-white/5"
               >
-                <span>Convidar amigos</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  router.push("/faq");
-                }}
-                className="flex w-full items-center justify-between rounded-2xl px-3 py-2 text-[13px] text-white/90 transition hover:bg-white/10"
+                Convidar amigos
+              </Link>
+
+              <Link
+                href="/faq"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex min-h-[52px] items-center rounded-2xl px-4 text-[1.05rem] font-medium text-white/92 transition active:scale-[0.99] hover:bg-white/5"
               >
-                <span>FAQ</span>
-              </button>
-            </nav>
-            <div className="mt-0.5 border-t border-white/[0.06]" />
-            <div className="px-1.5 pt-0.5 pb-0.5">
+                FAQ
+              </Link>
+            </div>
+
+            <div className="border-t border-white/10 px-2 py-2">
               <button
                 type="button"
                 onClick={() => {
                   setIsMobileMenuOpen(false);
                   handleLogout();
                 }}
-                className="flex w-full items-center justify-between rounded-2xl px-3 py-1.75 text-[13px] font-semibold text-red-300 transition hover:bg-red-500/10"
+                className="flex min-h-[54px] w-full items-center rounded-2xl px-4 text-left text-[1.05rem] font-medium text-rose-300 transition active:scale-[0.99] hover:bg-white/5"
               >
-                <span>Sair</span>
+                Sair
               </button>
-            </div>
             </div>
           </div>
         </div>
