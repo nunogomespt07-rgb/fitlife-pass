@@ -301,7 +301,7 @@ export default function Nav() {
           {showAuthenticatedUI ? (
             <>
               {/* Mobile-only header actions: bell + avatar */}
-              <div className="flex items-center gap-2 sm:hidden">
+              <div className="flex items-center gap-2.5 sm:hidden">
                 <button
                   type="button"
                   onClick={() => router.push("/dashboard/notifications")}
@@ -491,8 +491,8 @@ export default function Nav() {
 
       {/* Mobile search bar below header (mobile-only) */}
       {showAuthenticatedUI && (
-        <div className="px-4 pt-3 sm:hidden">
-          <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-md">
+        <div className="px-4 pt-4 pb-2 sm:hidden">
+          <div className="flex h-[54px] items-center gap-3 rounded-full border border-white/[0.12] bg-white/[0.06] px-4 backdrop-blur-md">
             <svg
               className="h-4 w-4 text-white/60"
               viewBox="0 0 24 24"
