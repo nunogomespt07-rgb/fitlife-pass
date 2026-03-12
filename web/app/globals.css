@@ -1,21 +1,46 @@
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Premium blue fitness system – Apple Fitness+ / ClassPass style */
+/* Design system – world-class premium (Apple / Stripe / Linear level) */
 :root {
-  --ref-blue-dark: #0b1e4d; /* primary dark */
-  --ref-blue-primary: #1d4ed8; /* primary blue */
-  --ref-blue-electric: #2563eb; /* electric blue */
-  --ref-blue-bright: #3b82f6; /* bright accent */
-  --ref-blue-glow-highlight: #60a5fa; /* glow highlight */
+  --ref-blue-dark: #070b14;
+  --ref-blue-navy: #0f172a;
+  --ref-blue-primary: #1d4ed8;
+  --ref-blue-electric: #2563eb;
+  --ref-blue-bright: #3b82f6;
+  --ref-blue-glow: #60a5fa;
 
-  --ref-glass-surface: rgba(255, 255, 255, 0.08);
-  --ref-glass-border: rgba(255, 255, 255, 0.14);
+  --ref-glass-surface: rgba(255, 255, 255, 0.06);
+  --ref-glass-border: rgba(255, 255, 255, 0.12);
+  --ref-glass-border-strong: rgba(255, 255, 255, 0.18);
 
   --ref-text-primary: #ffffff;
-  --ref-text-secondary: rgba(255, 255, 255, 0.75);
+  --ref-text-secondary: rgba(255, 255, 255, 0.72);
+  --ref-text-muted: rgba(255, 255, 255, 0.5);
+
+  /* Typography scale – strong presence */
+  --text-hero-mobile: clamp(2.25rem, 8vw, 3rem);
+  --text-hero-desktop: clamp(3rem, 5vw, 4.5rem);
+  --text-section: clamp(1.5rem, 3vw, 2.25rem);
+  --text-card: 1.125rem;
+  --text-body: 1rem;
+  --text-caption: 0.8125rem;
+
+  /* Spacing rhythm */
+  --space-section: 6rem;
+  --space-block: 1.5rem;
+  --space-element: 0.75rem;
+
+  /* Radius – elegant consistency */
+  --radius-card: 1.25rem;
+  --radius-button: 1rem;
+  --radius-input: 1rem;
+
+  /* Shadows – premium depth */
+  --shadow-glass: 0 24px 64px rgba(15, 23, 42, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+  --shadow-cta: 0 4px 20px rgba(59, 130, 246, 0.4), 0 1px 0 rgba(255, 255, 255, 0.1) inset;
 }
 
 @layer base {
@@ -33,75 +58,78 @@
     margin: 0;
     padding: 0;
     min-height: 100vh;
-    background:
-      radial-gradient(circle at 30% 20%, rgba(96, 165, 250, 0.18), transparent 45%),
-      radial-gradient(circle at 80% 70%, rgba(37, 99, 235, 0.12), transparent 50%),
-      linear-gradient(180deg, #0f1f45 0%, #1e3a8a 40%, #1e40af 100%);
+    background-color: var(--ref-blue-dark);
+    background-image:
+      radial-gradient(ellipse 120% 80% at 50% -20%, rgba(59, 130, 246, 0.12), transparent 50%),
+      radial-gradient(ellipse 80% 60% at 80% 50%, rgba(37, 99, 235, 0.08), transparent 45%),
+      linear-gradient(180deg, #070b14 0%, #0f172a 35%, #0c1222 100%);
     color: var(--ref-text-primary);
   }
 }
 
 @layer utilities {
-  /* Premium glass utilities (used in skeletons / generic cards) */
   .glass {
-    @apply rounded-[28px] shadow-2xl backdrop-blur-[48px];
-    border: 1px solid var(--ref-glass-border);
-    background-color: var(--ref-glass-surface);
-    box-shadow:
-      0 20px 60px rgba(37, 99, 235, 0.25),
-      0 8px 30px rgba(0, 0, 0, 0.25);
+    border-radius: var(--radius-card);
+    border: 1px solid var(--ref-glass-border-strong);
+    background: var(--ref-glass-surface);
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    box-shadow: var(--shadow-glass);
   }
   .glass-dark {
-    @apply rounded-[28px] shadow-2xl backdrop-blur-[48px];
+    border-radius: var(--radius-card);
     border: 1px solid var(--ref-glass-border);
-    background-color: rgba(5, 12, 32, 0.7);
-    box-shadow:
-      0 20px 60px rgba(37, 99, 235, 0.25),
-      0 8px 30px rgba(0, 0, 0, 0.25);
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    box-shadow: var(--shadow-glass);
   }
   .animate-in {
-    animation: animate-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: animate-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
   .hover-lift {
     @apply transition-all duration-200 ease-out;
   }
   .hover-lift:hover {
-    transform: translateY(-2px);
-    border-color: rgba(255, 255, 255, 0.22);
-    box-shadow:
-      0 24px 48px rgba(37, 99, 235, 0.28),
-      0 8px 24px rgba(0, 0, 0, 0.2);
+    transform: translateY(-3px);
+    border-color: var(--ref-glass-border-strong);
+    box-shadow: 0 28px 56px rgba(15, 23, 42, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
   }
   .active-scale:active {
     transform: scale(0.98);
   }
-  /* Page background: premium layered blue gradient */
   .page-bg {
     min-height: 100vh;
     background-color: var(--ref-blue-dark);
     background-image:
-      radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.35), transparent 45%),
-      radial-gradient(circle at 80% 0%, rgba(37, 99, 235, 0.25), transparent 50%),
-      linear-gradient(180deg, #0b1e4d 0%, #1d4ed8 60%, #2563eb 100%);
+      radial-gradient(ellipse 100% 70% at 50% -10%, rgba(59, 130, 246, 0.14), transparent 50%),
+      radial-gradient(ellipse 80% 50% at 90% 60%, rgba(37, 99, 235, 0.08), transparent 45%),
+      linear-gradient(180deg, #070b14 0%, #0f172a 40%, #0c1222 100%);
   }
-  /* Dashboard: layered premium blue gradient (Apple/Airbnb/Stripe-inspired) */
   .page-bg-dashboard {
     background-color: #0f172a;
     background-image:
-      radial-gradient(circle at 20% 20%, #3b82f6 0%, transparent 40%),
-      radial-gradient(circle at 80% 0%, #2563eb 0%, transparent 45%),
+      radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.15), transparent 40%),
+      radial-gradient(circle at 80% 0%, rgba(37, 99, 235, 0.1), transparent 45%),
       linear-gradient(180deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%);
   }
-  /* Section spacing scale – elegant, Apple-like */
   .section-spacing {
-    @apply pb-24 pt-20 sm:pt-24;
+    @apply pb-24 pt-20 sm:pt-28;
+  }
+  .hero-title {
+    font-size: var(--text-hero-mobile);
+  }
+  @media (min-width: 1024px) {
+    .hero-title {
+      font-size: var(--text-hero-desktop);
+    }
   }
 }
 
 @keyframes animate-in {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;

@@ -72,68 +72,80 @@ export default function LandingPage() {
 
   return (
     <div className="page-bg text-white font-sans">
-      {/* ========== PREMIUM HERO – Mobile-first, tighter composition ========== */}
-      <section className="relative min-h-[min(100vh,720px)] sm:min-h-[80vh] w-full overflow-hidden">
-        {/* Background – refined gradient, less layers for cleaner premium feel */}
-        <div className="absolute inset-0 bg-[#0a0f1e]" aria-hidden />
-        <div className="absolute inset-0 bg-gradient-to-br from-[#070c18] via-[#0f172a] to-[#0f172a]" aria-hidden />
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-950/50 via-[#1e1b4b]/40 to-slate-900/80" aria-hidden />
+      {/* ========== HERO – World-class headline, cinematic image ========== */}
+      <section className="relative min-h-[min(100vh,800px)] sm:min-h-[85vh] w-full overflow-hidden">
+        {/* Deep navy base + subtle radial lighting */}
+        <div className="absolute inset-0 bg-[#070b14]" aria-hidden />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#070b14] via-[#0f172a] to-[#0c1222]" aria-hidden />
         <div
-          className="absolute inset-0 opacity-90"
+          className="absolute inset-0 opacity-100"
           style={{
-            background: 'linear-gradient(90deg, rgba(7,12,24,0.5) 0%, transparent 38%, transparent 62%, rgba(15,23,42,0.2) 100%)',
+            background: 'radial-gradient(ellipse 100% 80% at 50% 20%, rgba(59,130,246,0.12) 0%, transparent 50%), radial-gradient(ellipse 70% 50% at 85% 60%, rgba(37,99,235,0.06) 0%, transparent 45%)',
           }}
           aria-hidden
         />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_100%_70%_at_50%_35%,rgba(59,130,246,0.08),transparent_50%)]" aria-hidden />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/20 via-transparent to-transparent" aria-hidden />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#070b14]/70 via-transparent 40% to-[#0f172a]/50" aria-hidden />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#070b14]/40 via-transparent to-transparent" aria-hidden />
 
-        {/* Content – mobile: compact TEXT → RUNNER → CARD with intentional spacing */}
-        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-0 px-4 pt-6 pb-6 sm:px-6 sm:pt-8 sm:pb-8 lg:min-h-[min(92vh,920px)] lg:grid-cols-[minmax(0,480px)_1.4fr_minmax(0,380px)] lg:items-center lg:gap-8 lg:px-8 lg:py-10 lg:pt-10 xl:gap-10 xl:px-10">
-          {/* LEFT: headline + supporting – tighter on mobile */}
-          <div className="order-1 flex flex-col justify-center pb-0 sm:pb-2 lg:max-w-[520px] lg:pr-3 lg:pb-0 xl:max-w-[520px]">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-white/50 sm:text-[11px] sm:tracking-[0.36em] sm:text-white/55">
+        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-0 px-4 pt-8 pb-8 sm:px-6 sm:pt-12 sm:pb-10 lg:min-h-[min(92vh,920px)] lg:grid-cols-[minmax(0,480px)_1.4fr_minmax(0,400px)] lg:items-center lg:gap-10 lg:px-8 lg:py-14 xl:gap-12 xl:px-10">
+          {/* LEFT: statement headline + supporting copy */}
+          <div className="order-1 flex flex-col justify-center pb-0 sm:pb-4 lg:max-w-[520px] lg:pr-4 lg:pb-0">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/50 sm:text-xs sm:tracking-[0.32em]">
               FitLife Pass
             </p>
-            <h1 className="mt-3 text-[1.75rem] font-bold leading-[1.15] tracking-tight text-white sm:mt-5 sm:text-[2.1rem] sm:leading-[1.12] lg:text-5xl xl:text-[3.25rem] xl:leading-[1.1]">
+            <h1 className="hero-title mt-5 font-extrabold leading-[1.08] tracking-tight text-white sm:mt-6 lg:mt-8" style={{ letterSpacing: '-0.03em' }}>
               <span className="block">Um só passe.</span>
               <span className="block">Todos os teus</span>
               <span className="block">treinos.</span>
             </h1>
-            <p className="mt-2 max-w-md text-[0.875rem] leading-[1.65] text-white/75 sm:mt-3 sm:text-[0.95rem] sm:leading-[1.7] sm:text-white/80">
+            <p className="mt-5 max-w-md text-base leading-[1.7] text-white/75 sm:mt-6 sm:text-[1.0625rem] sm:leading-[1.75] lg:mt-8">
               <span className="block">Ginásio, yoga, padel, crossfit</span>
               <span className="block">e estúdios premium numa só experiência.</span>
             </p>
-            <p className="mt-3 text-[12px] font-medium text-white/60 sm:mt-5 sm:text-[13px] sm:text-white/70">
+            <p className="mt-4 text-sm font-medium text-white/60 sm:mt-5 sm:text-[0.9375rem]">
               Uma conta. Vários parceiros. Sem fidelização.
             </p>
           </div>
 
-          {/* CENTER: runner – smaller on mobile, better balance */}
-          <div className="order-2 mt-2 mb-2 flex justify-center sm:mt-4 sm:mb-3 lg:order-2 lg:mt-0 lg:mb-0 lg:flex lg:min-h-0 lg:items-center lg:justify-center lg:px-2">
-            <div className="relative flex w-full max-w-full justify-center pointer-events-none lg:max-w-full">
+          {/* CENTER: runner – cinematic, integrated into background */}
+          <div className="order-2 mt-6 mb-4 flex justify-center sm:mt-8 sm:mb-6 lg:order-2 lg:mt-0 lg:mb-0 lg:flex lg:min-h-0 lg:items-center lg:justify-center lg:px-4">
+            <div className="relative flex w-full max-w-full justify-center pointer-events-none">
+              {/* Soft glow behind figure – part of scene */}
               <div
-                className="pointer-events-none absolute inset-[-8%] -z-10 blur-2xl opacity-90 sm:blur-3xl lg:blur-[80px]"
+                className="pointer-events-none absolute inset-[-15%] -z-10 opacity-80 sm:opacity-90"
                 style={{
-                  background:
-                    "radial-gradient(circle at center, rgba(96,165,250,0.35) 0%, rgba(37,99,235,0.18) 40%, rgba(15,23,42,0) 70%)",
+                  background: 'radial-gradient(ellipse 70% 90% at 50% 55%, rgba(96,165,250,0.2) 0%, rgba(37,99,235,0.08) 45%, transparent 70%)',
+                  filter: 'blur(40px)',
                 }}
                 aria-hidden
               />
-              <Image
-                src="/images/runner-hero.png"
-                alt="Runner"
-                width={1500}
-                height={2000}
-                className="h-[280px] w-auto max-w-[85%] object-contain object-center drop-shadow-[0_0_48px_rgba(59,130,246,0.28)] sm:h-[380px] sm:max-w-[90%] md:h-[500px] md:max-w-[96%] md:drop-shadow-[0_0_72px_rgba(59,130,246,0.34)] lg:h-[820px] lg:max-h-[820px] lg:max-w-full"
-                priority
-                unoptimized
-              />
+              <div className="relative">
+                <Image
+                  src="/images/runner-hero.png"
+                  alt="Runner"
+                  width={1500}
+                  height={2000}
+                  className="h-[300px] w-auto max-w-[88%] object-contain object-center sm:h-[400px] md:h-[520px] lg:h-[780px] lg:max-h-[85vh] lg:max-w-full"
+                  style={{
+                    filter: 'drop-shadow(0 0 60px rgba(59,130,246,0.25))',
+                  }}
+                  priority
+                  unoptimized
+                />
+                {/* Subtle gradient mask so figure blends into background */}
+                <div
+                  className="pointer-events-none absolute inset-0 -z-10"
+                  style={{
+                    background: 'linear-gradient(to bottom, transparent 0%, transparent 70%, rgba(7,11,20,0.4) 100%)',
+                  }}
+                  aria-hidden
+                />
+              </div>
             </div>
           </div>
 
-          {/* RIGHT: auth card – direct adjacency on mobile */}
-          <div className="order-3 relative z-20 flex items-center justify-center mt-0 pt-0 sm:pt-2 lg:order-3 lg:mt-0 lg:pt-0 lg:justify-center lg:pl-0">
+          {/* RIGHT: auth card */}
+          <div className="order-3 relative z-20 flex items-center justify-center mt-0 pt-0 sm:pt-4 lg:order-3 lg:mt-0 lg:pt-0 lg:justify-center lg:pl-0">
             <Suspense fallback={null}>
               <PremiumAuthCard />
             </Suspense>
@@ -150,22 +162,21 @@ export default function LandingPage() {
           }`}
         >
           <div className="flex items-baseline justify-between gap-2">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-white/60">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/55">
               Parceiros em destaque
             </p>
-            <span className="hidden text-[11px] font-medium text-white/50 sm:inline">
+            <span className="hidden text-xs font-medium text-white/50 sm:inline">
               +50 espaços em Lisboa e Porto
             </span>
           </div>
-          {/* Mobile: carrossel horizontal · Desktop: grelha */}
-          <div className="mt-6 flex gap-4 overflow-x-auto pb-3 -mx-4 px-4 sm:mt-8 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 lg:grid-cols-4">
+          <div className="mt-8 flex gap-5 overflow-x-auto pb-3 -mx-4 px-4 sm:mt-10 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 lg:grid-cols-4">
             {FEATURED_PARTNERS.map((p) => (
               <GlassCard
                 key={p.name}
                 variant="dark"
                 padding="sm"
                 as="article"
-                className="min-w-[240px] rounded-[20px] border-white/18 bg-white/[0.04] shadow-[0_16px_44px_rgba(15,23,42,0.78)] sm:min-w-0 transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_20px_56px_rgba(15,23,42,0.9)]"
+                className="min-w-[260px] sm:min-w-0 hover-lift"
               >
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[radial-gradient(circle_at_0%_0%,rgba(56,189,248,0.75),transparent_55%),radial-gradient(circle_at_100%_100%,rgba(129,140,248,0.8),transparent_55%)]">
@@ -202,10 +213,10 @@ export default function LandingPage() {
           <SectionHeader
             title="Como Funciona"
             subtitle="Cria conta grátis, recebe créditos e reserva aulas em ginásios e estúdios parceiros. Uma única app para todas as tuas atividades."
-            className="mt-20"
+            className="mt-24 sm:mt-28"
           />
         </div>
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {[
             {
               step: "Passo 1",
@@ -227,7 +238,7 @@ export default function LandingPage() {
               key={step}
               variant="dark"
               padding="lg"
-              className="rounded-[22px] border border-white/[0.12] bg-white/[0.04] text-left shadow-[0_16px_48px_rgba(15,23,42,0.82)] backdrop-blur-[20px] transition-all duration-200 hover:bg-white/[0.07] hover:shadow-[0_20px_56px_rgba(15,23,42,0.9)]"
+              className="text-left hover-lift"
             >
               <div className="flex items-start gap-3">
                 <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white/80">
@@ -254,13 +265,13 @@ export default function LandingPage() {
           <SectionHeader
             title="Para Ginásios"
             subtitle="Queres listar as tuas aulas na FitLife Pass? Contacta-nos para parceria e mais visibilidade."
-            className="mt-32"
+            className="mt-32 sm:mt-40"
           />
           <GlassCard
             variant="dark"
             padding="lg"
             as="section"
-            className="mt-10 rounded-3xl border-white/20 bg-white/[0.06] text-left shadow-[0_22px_64px_rgba(15,23,42,0.9)]"
+            className="mt-12 hover-lift"
           >
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>

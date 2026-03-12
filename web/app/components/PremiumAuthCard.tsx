@@ -251,10 +251,10 @@ export default function PremiumAuthCard() {
   }
 
   const inputBase =
-    "w-full h-12 rounded-2xl border border-white/[0.12] bg-white/[0.06] px-4 text-[15px] text-white placeholder:text-white/30 outline-none transition-all duration-200 focus:ring-2 focus:ring-blue-400/40 focus:ring-offset-0 focus:ring-offset-transparent focus:border-blue-400/50";
-  const inputError = "border-amber-400/40 focus:ring-amber-400/30 focus:border-amber-400/50";
+    "w-full h-12 rounded-xl border border-[var(--ref-glass-border)] bg-white/[0.06] px-4 text-[15px] text-white placeholder:text-white/35 outline-none transition-all duration-200 focus:ring-2 focus:ring-blue-400/50 focus:ring-offset-0 focus:border-blue-400/60";
+  const inputError = "border-amber-400/50 focus:ring-amber-400/40 focus:border-amber-400/60";
   const selectBase =
-    "w-full h-12 rounded-2xl border border-white/[0.12] bg-white/[0.06] px-4 pr-10 text-[15px] text-white outline-none transition-all duration-200 focus:ring-2 focus:ring-blue-400/40 focus:ring-offset-0 focus:border-blue-400/50 border-white/[0.08] appearance-none";
+    "w-full h-12 rounded-xl border border-[var(--ref-glass-border)] bg-white/[0.06] px-4 pr-10 text-[15px] text-white outline-none transition-all duration-200 focus:ring-2 focus:ring-blue-400/50 focus:border-blue-400/60 appearance-none";
 
   const EyeIcon = ({ show }: { show: boolean }) =>
     show ? (
@@ -330,7 +330,7 @@ export default function PremiumAuthCard() {
         className={`relative flex w-full items-center justify-center rounded-2xl border px-4 py-3.5 text-sm font-semibold transition-all duration-200 ${
           disabled
             ? "border-white/[0.08] bg-white/[0.02] text-white/30"
-            : "border-white/[0.18] bg-white/[0.06] text-white hover:bg-white/[0.10] hover:border-white/25 focus:outline-none focus:ring-2 focus:ring-blue-400/30 focus:border-blue-400/40"
+            : "border-[var(--ref-glass-border-strong)] bg-white/[0.06] text-white hover:bg-white/[0.10] hover:border-white/25 focus:outline-none focus:ring-2 focus:ring-blue-400/40 focus:border-blue-400/50"
         }`}
         aria-disabled={disabled}
         title={disabled && hint ? hint : undefined}
@@ -372,14 +372,14 @@ export default function PremiumAuthCard() {
   }
 
   return (
-    <div className="w-full max-w-sm rounded-[24px] border border-white/[0.14] bg-white/[0.06] p-5 shadow-[0_24px_64px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.06)_inset] backdrop-blur-2xl sm:rounded-[28px] sm:p-6">
+    <div className="glass-dark w-full max-w-sm rounded-[var(--radius-card)] p-6 shadow-[var(--shadow-glass)] sm:max-w-[400px] sm:p-8">
       <div className="mt-0.5">
         <div className="flex items-center justify-between">
           {screen === "email" ? (
             <button
               type="button"
               onClick={backToEntry}
-              className="-ml-1 inline-flex items-center gap-1 rounded-xl px-2 py-2 text-xs font-semibold text-white/55 hover:text-white/90 focus:outline-none focus:ring-2 focus:ring-blue-400/30 focus:ring-offset-1 focus:ring-offset-transparent"
+              className="-ml-1 inline-flex items-center gap-1 rounded-xl px-2 py-2 text-xs font-semibold text-white/55 hover:text-white/90 focus:outline-none focus:ring-2 focus:ring-blue-400/40 focus:ring-offset-1 focus:ring-offset-transparent"
             >
               ← Voltar
             </button>
@@ -390,25 +390,26 @@ export default function PremiumAuthCard() {
           <span />
         </div>
 
-        <h2 className="mt-4 text-[1.125rem] font-semibold tracking-tight text-white">
+        <h2 className="mt-5 text-xl font-semibold tracking-tight text-white sm:mt-6 sm:text-[1.25rem]">
           Entrar ou registar-se
         </h2>
 
         {/* Content area – stable min-height */}
-        <div className="mt-4 min-h-[300px] sm:min-h-[320px]">
+        <div className="mt-5 min-h-[300px] sm:min-h-[320px]">
           {screen === "entry" ? (
             <div className="animate-in">
               <PrimaryButton
                 type="button"
+                variant="primary"
                 onClick={() => openEmailFlow("login")}
-                className="w-full h-12 rounded-2xl text-[15px] font-semibold bg-white text-slate-900 shadow-[0_2px_8px_rgba(0,0,0,0.08),0_1px_0_rgba(255,255,255,0.1)_inset] hover:bg-white/95 hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)] active:scale-[0.99] transition-all duration-200"
+                className="w-full h-12 rounded-xl text-[15px] py-4"
               >
                 Continuar com e-mail
               </PrimaryButton>
 
-              <div className="relative mt-4 mb-2 flex items-center gap-3">
+              <div className="relative mt-5 mb-2 flex items-center gap-3">
                 <span className="flex-1 border-t border-white/20" />
-                <span className="text-[11px] font-medium uppercase tracking-wider text-white/45">ou</span>
+                <span className="text-xs font-medium uppercase tracking-wider text-white/45">ou</span>
                 <span className="flex-1 border-t border-white/20" />
               </div>
 
@@ -440,14 +441,14 @@ export default function PremiumAuthCard() {
             </div>
           ) : (
             <div className="animate-in">
-              <div className="flex gap-1 rounded-full bg-white/[0.06] p-1.5 border border-white/[0.08]">
+              <div className="flex gap-1 rounded-xl bg-white/[0.06] p-1.5 border border-[var(--ref-glass-border)]">
                 <button
                   type="button"
                   onClick={() => { setEmailMode("login"); setError(""); setSignupStep(0); }}
-                  className={`flex-1 rounded-full py-3.5 text-sm font-medium transition-all duration-200 ${
+                  className={`flex-1 rounded-lg py-3.5 text-sm font-medium transition-all duration-200 ${
                     emailMode === "login"
                       ? "bg-white/20 text-white shadow-[0_0_20px_-4px_rgba(59,130,246,0.35),0_1px_0_rgba(255,255,255,0.08)_inset]"
-                      : "text-white/40 hover:text-white/75"
+                      : "text-white/45 hover:text-white/80"
                   }`}
                 >
                   Entrar
@@ -455,10 +456,10 @@ export default function PremiumAuthCard() {
                 <button
                   type="button"
                   onClick={() => { setEmailMode("signup"); setError(""); setSignupStep(0); }}
-                  className={`flex-1 rounded-full py-3.5 text-sm font-medium transition-all duration-200 ${
+                  className={`flex-1 rounded-lg py-3.5 text-sm font-medium transition-all duration-200 ${
                     emailMode === "signup"
                       ? "bg-white/20 text-white shadow-[0_0_20px_-4px_rgba(59,130,246,0.35),0_1px_0_rgba(255,255,255,0.08)_inset]"
-                      : "text-white/40 hover:text-white/75"
+                      : "text-white/45 hover:text-white/80"
                   }`}
                 >
                   Criar conta
@@ -466,7 +467,7 @@ export default function PremiumAuthCard() {
               </div>
 
               {emailMode === "login" ? (
-                <form onSubmit={handleLogin} className="mt-4 space-y-3.5">
+                <form onSubmit={handleLogin} className="mt-5 space-y-4">
                   <div>
                     <label htmlFor="auth-email" className="mb-1.5 block text-[11px] font-medium tracking-wide text-white/50">
                       Email
@@ -523,10 +524,11 @@ export default function PremiumAuthCard() {
                   )}
                   <PrimaryButton
                     type="submit"
+                    variant="primary"
                     loading={loading}
                     disabled={loading}
                     loadingLabel="A entrar…"
-                    className="mt-4 w-full h-12 rounded-2xl text-[15px] font-semibold bg-white text-slate-900 shadow-[0_2px_8px_rgba(0,0,0,0.08),0_1px_0_rgba(255,255,255,0.1)_inset] hover:bg-white/95 hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)] active:scale-[0.99] transition-all duration-200"
+                    className="mt-5 w-full h-12 rounded-xl text-[15px] py-4"
                   >
                     Entrar
                   </PrimaryButton>
@@ -534,7 +536,7 @@ export default function PremiumAuthCard() {
               ) : (
                 <>
                   {signupStep === 0 ? (
-                    <form onSubmit={handleSignupStep0} className="mt-4 space-y-3.5">
+                    <form onSubmit={handleSignupStep0} className="mt-5 space-y-4">
                       <div>
                         <label htmlFor="signup-email" className="mb-1.5 block text-[11px] font-medium tracking-wide text-white/50">
                           Email
@@ -608,13 +610,14 @@ export default function PremiumAuthCard() {
 
                       <PrimaryButton
                         type="submit"
-                        className="mt-2 w-full h-12 rounded-2xl text-[15px] font-semibold bg-white text-slate-900 shadow-[0_2px_8px_rgba(0,0,0,0.08),0_1px_0_rgba(255,255,255,0.1)_inset] hover:bg-white/95 active:scale-[0.99]"
+                        variant="primary"
+                        className="mt-4 w-full h-12 rounded-xl text-[15px] py-4"
                       >
                         Criar conta
                       </PrimaryButton>
                     </form>
                   ) : (
-                    <form onSubmit={handleSignupStep1} className="mt-4 space-y-3.5">
+                    <form onSubmit={handleSignupStep1} className="mt-5 space-y-4">
                       <div className="grid gap-3 sm:grid-cols-2">
                         <div>
                           <label htmlFor="signup-firstName" className="mb-1.5 block text-[11px] font-medium tracking-wide text-white/50">
@@ -728,10 +731,11 @@ export default function PremiumAuthCard() {
 
                       <PrimaryButton
                         type="submit"
+                        variant="primary"
                         loading={loading}
                         disabled={loading}
                         loadingLabel="A concluir…"
-                        className="mt-2 w-full h-12 rounded-2xl text-[15px] font-semibold bg-white text-slate-900 shadow-[0_2px_8px_rgba(0,0,0,0.08),0_1px_0_rgba(255,255,255,0.1)_inset] hover:bg-white/95 active:scale-[0.99]"
+                        className="mt-4 w-full h-12 rounded-xl text-[15px] py-4"
                       >
                         Concluir registo
                       </PrimaryButton>
@@ -742,7 +746,7 @@ export default function PremiumAuthCard() {
             </div>
           )}
 
-          <p className="mt-4 text-center text-[11px] text-white/40">
+          <p className="mt-5 text-center text-xs text-white/45">
             Os teus dados estão protegidos. Nunca partilhamos o teu email.
           </p>
         </div>

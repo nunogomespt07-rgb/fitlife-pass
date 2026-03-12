@@ -26,11 +26,11 @@ export default function PrimaryButton({
   variant = "primary",
 }: PrimaryButtonProps) {
   const base =
-    "inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold transition-all duration-200 ease-out active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none";
+    "inline-flex items-center justify-center gap-2 rounded-xl px-6 py-4 text-base font-bold transition-all duration-200 ease-out active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none";
   const variantClass =
     variant === "primary"
-      ? "bg-[linear-gradient(135deg,#3B82F6,#2563EB)] text-white shadow-[0_10px_30px_rgba(59,130,246,0.45)] hover:shadow-[0_14px_40px_rgba(59,130,246,0.55)] hover:translate-y-[-2px]"
-      : "border border-white/[0.22] bg-white/[0.06] text-white hover:bg-white/[0.10]";
+      ? "bg-[linear-gradient(135deg,#3B82F6_0%,#2563EB_100%)] text-white shadow-[var(--shadow-cta)] hover:shadow-[0_6px_28px_rgba(59,130,246,0.5),0_1px_0_rgba(255,255,255,0.12)_inset] hover:translate-y-[-2px]"
+      : "border border-white/[0.2] bg-white/[0.06] text-white hover:bg-white/[0.10] hover:border-white/30";
 
   const content = loading ? (
     <>

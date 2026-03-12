@@ -13,11 +13,11 @@ export default function SectionHeader({
 }: SectionHeaderProps) {
   return (
     <header className={className}>
-      <h2 className="text-xl font-semibold tracking-[-0.02em] text-white sm:text-2xl md:text-3xl">
+      <h2 className="font-bold tracking-tight text-white" style={{ fontSize: 'var(--text-section)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
         {title}
       </h2>
       {subtitle && (
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/80 sm:text-base">
+        <p className="mt-4 max-w-xl text-base leading-relaxed text-white/72 sm:mt-5">
           {subtitle}
         </p>
       )}
