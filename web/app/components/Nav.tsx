@@ -192,7 +192,7 @@ export default function Nav() {
           </Link>
 
           {showAuthenticatedUI && (
-            <div className="relative hidden flex-1 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/90 shadow-sm backdrop-blur-md sm:flex">
+            <div className="relative flex items-center flex-1 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/90 shadow-sm backdrop-blur-md sm:flex">
               <svg
                 className="mr-2 mt-[2px] h-4 w-4 shrink-0 text-white/50"
                 viewBox="0 0 24 24"
