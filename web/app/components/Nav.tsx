@@ -305,7 +305,7 @@ export default function Nav() {
                 <button
                   type="button"
                   onClick={() => router.push("/dashboard/notifications")}
-                  className="notificationButton relative hidden h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 shadow-sm backdrop-blur-md transition hover:bg-white/10 sm:flex"
+                  className="notificationButton relative flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 shadow-sm backdrop-blur-md transition hover:bg-white/10"
                   aria-label={unreadCount > 0 ? `${unreadCount} notificações por ler` : "Notificações"}
                 >
                   <svg
