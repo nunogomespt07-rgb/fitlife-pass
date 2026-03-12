@@ -272,6 +272,7 @@ export default function Nav() {
           )}
         </div>
 
+        {/* Right side – nav links + notifications + avatar */}
         <div className="flex items-center gap-2.5 sm:gap-4">
           {!isOnboardingOrRegister && !isAuthRoute && (
             <Link
@@ -300,10 +301,11 @@ export default function Nav() {
           {showAuthenticatedUI ? (
             <div className="relative ml-1 sm:ml-2" ref={dropdownRef}>
               <div className="flex items-center gap-3 sm:gap-4">
+                {/* Notification bell – visible on mobile and desktop */}
                 <button
                   type="button"
                   onClick={() => router.push("/dashboard/notifications")}
-                  className="relative hidden h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 shadow-sm backdrop-blur-md transition hover:bg-white/10 sm:flex"
+                  className="relative flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 shadow-sm backdrop-blur-md transition hover:bg-white/10"
                   aria-label={unreadCount > 0 ? `${unreadCount} notificações por ler` : "Notificações"}
                 >
                   <svg
@@ -320,9 +322,7 @@ export default function Nav() {
                     <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                   </svg>
                   {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-3.5 min-w-[0.9rem] items-center justify-center rounded-full bg-blue-500 px-1 text-[9px] font-semibold text-white">
-                      {unreadCount > 99 ? "99+" : unreadCount}
-                    </span>
+                    <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-[#ff3b30] shadow-[0_0_6px_rgba(255,59,48,0.6)]" />
                   )}
                 </button>
                 {(planLabel !== null || credits !== undefined) && (
@@ -448,6 +448,76 @@ export default function Nav() {
           )}
         </div>
       </nav>
+
+      {/* Mobile search bar – below header, same logic as desktop search */}
+      {showAuthenticatedUI && (
+        <div className="mx-auto block w-full max-w-6xl px-4 pb-3 pt-2 sm:hidden">
+          <div className="relative flex w-full items-center rounded-[14px] border border-white/[0.08] bg-white/[0.06] px-3 py-2 text-[14px] text-white/90 shadow-sm backdrop-blur-[10px]">
+            <svg
+              className="mr-2 h-4 w-4 shrink-0 text-white/50"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
+              <circle cx="11" cy="11" r="7" />
+              <line x1="16.65" y1="16.65" x2="21" y2="21" />
+            </svg>
+            <input
+              ref={searchInputRef}
+              type="search"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setSearchOpen(true);
+              }}
+              onFocus={() => setSearchOpen(true)}
+              placeholder="Pesquisar atividades, parceiros ou clubes"
+              className="w-full bg-transparent text-[14px] text-white/90 placeholder:text-white/55 focus:outline-none"
+            />
+          </div>
+          {showSearchResults && (
+            <div className="mt-2 rounded-2xl border border-white/14 bg-[#020617]/90 py-1.5 text-sm shadow-[0_18px_40px_rgba(15,23,42,0.7)] backdrop-blur-2xl">
+              {filteredSearchItems.length === 0 ? (
+                <div className="px-3.5 py-2 text-xs text-white/70">
+                  Sem resultados.
+                </div>
+              ) : (
+                <ul className="max-h-72 overflow-y-auto">
+                  {filteredSearchItems.map((item) => (
+                    <li key={item.id}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          router.push(item.href);
+                          setSearchOpen(false);
+                          setSearchQuery("");
+                          searchInputRef.current?.blur();
+                        }}
+                        className="flex w-full flex-col items-start px-3.5 py-2 text-left text-xs text-white/90 transition hover:bg-white/10"
+                      >
+                        <span className="font-medium truncate">{item.name}</span>
+                        <span className="mt-0.5 text-[11px] text-white/65">
+                          {item.category}
+                          {item.city || item.location ? (
+                            <>
+                              {" · "}
+                              {item.city || item.location}
+                            </>
+                          ) : null}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </header>
   );
 }
