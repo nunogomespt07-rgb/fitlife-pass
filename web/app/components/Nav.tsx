@@ -36,6 +36,7 @@ export default function Nav() {
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const mobileSearchInputRef = useRef<HTMLInputElement | null>(null);
   const mobileSearchPanelRef = useRef<HTMLDivElement | null>(null);
   const mobileMenuPanelRef = useRef<HTMLDivElement | null>(null);
 
@@ -95,8 +96,8 @@ export default function Nav() {
   // Mobile search: focus input & close on outside tap
   useEffect(() => {
     if (!isMobileSearchOpen) return;
-    if (searchInputRef.current) {
-      searchInputRef.current.focus();
+    if (mobileSearchInputRef.current) {
+      mobileSearchInputRef.current.focus();
     }
     function handleClickOutside(e: MouseEvent) {
       if (
@@ -280,9 +281,9 @@ export default function Nav() {
                             type="button"
                             onClick={() => {
                               router.push(item.href);
-                              setSearchOpen(false);
+                              setIsMobileSearchOpen(false);
                               setSearchQuery("");
-                              searchInputRef.current?.blur();
+                              mobileSearchInputRef.current?.blur();
                             }}
                             className="flex w-full flex-col items-start px-3.5 py-2 text-left text-xs text-white/90 transition hover:bg-white/10"
                           >
@@ -576,7 +577,7 @@ export default function Nav() {
                 <line x1="16.65" y1="16.65" x2="21" y2="21" />
               </svg>
               <input
-                ref={searchInputRef}
+                ref={mobileSearchInputRef}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => {
