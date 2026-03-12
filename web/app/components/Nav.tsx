@@ -579,12 +579,18 @@ export default function Nav() {
               <input
                 ref={mobileSearchInputRef}
                 type="text"
+                inputMode="search"
+                enterKeyHint="search"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="none"
+                spellCheck={false}
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
                 }}
                 placeholder="Pesquisar atividades, parceiros ou clubes"
-                className="w-full bg-transparent text-sm text-white placeholder:text-white/45 outline-none"
+                className="w-full bg-transparent text-[15px] text-white placeholder:text-white/45 outline-none"
               />
               {searchQuery && (
                 <button
