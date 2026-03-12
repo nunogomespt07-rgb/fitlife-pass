@@ -32,6 +32,30 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
     setNotifications(getStoredNotifications());
   }, []);
 
+  // Ensure a single welcome notification is created once per browser
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const FLAG_KEY = "fitlife-welcome-notification-created";
+    const hasFlag = window.localStorage.getItem(FLAG_KEY);
+    if (hasFlag) return;
+
+    const existing = getStoredNotifications();
+    if (existing.length === 0) {
+      const welcome: NotificationItem = {
+        id: `welcome-${Date.now()}`,
+        title: "Bem-vindo ao FitLife Pass",
+        description:
+          "Explora atividades perto de ti e usa os teus créditos para reservar a tua primeira experiência.",
+        dateTime: new Date().toISOString(),
+        read: false,
+      };
+      const next = [welcome];
+      setNotifications(next);
+      setStoredNotifications(next);
+    }
+    window.localStorage.setItem(FLAG_KEY, "1");
+  }, []);
+
   const unreadCount = useMemo(
     () => notifications.filter((n) => !n.read).length,
     [notifications]

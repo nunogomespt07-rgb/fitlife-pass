@@ -12,44 +12,6 @@ export type NotificationItem = {
 
 const STORAGE_KEY = "fitlife-notifications";
 
-const MOCK_INITIAL: NotificationItem[] = [
-  {
-    id: "n1",
-    title: "Reserva confirmada",
-    description: "A tua reserva no Green Bowl Lisboa foi confirmada para 19 março às 13:00.",
-    dateTime: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    read: false,
-  },
-  {
-    id: "n2",
-    title: "Reserva amanhã às 13:00",
-    description: "Lembra-te: Vinyasa Flow no Zen Yoga Studio amanhã às 13:00.",
-    dateTime: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-    read: false,
-  },
-  {
-    id: "n3",
-    title: "Novo parceiro disponível perto de ti",
-    description: "Fresh & Fit Porto abriu reservas. Experimenta os bowls saudáveis.",
-    dateTime: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    read: true,
-  },
-  {
-    id: "n4",
-    title: "Plano renovado com sucesso",
-    description: "O teu plano FitLife Premium foi renovado. Obrigado por continuares connosco.",
-    dateTime: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-    read: true,
-  },
-  {
-    id: "n5",
-    title: "Créditos extra adicionados",
-    description: "20 créditos foram adicionados à tua conta.",
-    dateTime: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-    read: true,
-  },
-];
-
 function safeParse<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
   try {
@@ -72,8 +34,8 @@ function safeSet(key: string, value: unknown): void {
 }
 
 export function getStoredNotifications(): NotificationItem[] {
-  const data = safeParse<NotificationItem[]>(STORAGE_KEY, MOCK_INITIAL);
-  return Array.isArray(data) ? data : MOCK_INITIAL;
+  const data = safeParse<NotificationItem[]>(STORAGE_KEY, []);
+  return Array.isArray(data) ? data : [];
 }
 
 export function setStoredNotifications(list: NotificationItem[]): void {

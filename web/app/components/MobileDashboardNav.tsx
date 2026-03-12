@@ -41,7 +41,7 @@ export default function MobileDashboardNav() {
           {/* Home */}
           <Link
             href="/dashboard"
-            className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl px-2.5 py-1.5 text-xs font-medium transition-all duration-[180ms] ${
+            className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl px-2.5 py-1.5 text-[11px] font-medium transition-all duration-[180ms] ${
               isActive("home")
                 ? "text-white bg-white/10"
                 : "text-white/60"
@@ -66,13 +66,13 @@ export default function MobileDashboardNav() {
                 strokeLinejoin="round"
               />
             </svg>
-            <span>Home</span>
+            <span className="leading-tight">Home</span>
           </Link>
 
           {/* Atividades */}
           <Link
             href="/activities"
-            className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl px-2.5 py-1.5 text-xs font-medium transition-all duration-[180ms] ${
+            className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl px-2.5 py-1.5 text-[11px] font-medium transition-all duration-[180ms] ${
               isActive("activities")
                 ? "text-white bg-white/10"
                 : "text-white/60"
@@ -105,13 +105,13 @@ export default function MobileDashboardNav() {
                 strokeWidth="1.8"
               />
             </svg>
-            <span>Atividades</span>
+            <span className="leading-tight">Atividades</span>
           </Link>
 
           {/* Reservas */}
           <Link
             href="/dashboard/reservas"
-            className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl px-2.5 py-1.5 text-xs font-medium transition-all duration-[180ms] ${
+            className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl px-2.5 py-1.5 text-[11px] font-medium transition-all duration-[180ms] ${
               isActive("reservas")
                 ? "text-white bg-white/10"
                 : "text-white/60"
@@ -145,13 +145,13 @@ export default function MobileDashboardNav() {
                 strokeLinecap="round"
               />
             </svg>
-            <span>Reservas</span>
+            <span className="leading-tight">Reservas</span>
           </Link>
 
           {/* Check-in */}
           <Link
             href="/dashboard/qr-codes"
-            className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl px-2.5 py-1.5 text-xs font-medium transition-all duration-[180ms] ${
+            className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl px-2.5 py-1.5 text-[11px] font-medium transition-all duration-[180ms] ${
               isActive("checkin")
                 ? "text-white bg-white/10"
                 : "text-white/60"
@@ -205,13 +205,13 @@ export default function MobileDashboardNav() {
                 strokeLinecap="round"
               />
             </svg>
-            <span>Check-in</span>
+            <span className="leading-tight">Check-in</span>
           </Link>
 
           {/* Perfil */}
           <Link
             href="/dashboard/perfil"
-            className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl px-2.5 py-1.5 text-xs font-medium transition-all duration-[180ms] ${
+            className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl px-2.5 py-1.5 text-[11px] font-medium transition-all duration-[180ms] ${
               isActive("perfil")
                 ? "text-white bg-white/10"
                 : "text-white/60"
@@ -244,7 +244,7 @@ export default function MobileDashboardNav() {
                 strokeLinejoin="round"
               />
             </svg>
-            <span>Perfil</span>
+            <span className="leading-tight">Perfil</span>
           </Link>
         </div>
       </nav>

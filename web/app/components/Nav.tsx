@@ -87,6 +87,10 @@ export default function Nav() {
       }
     }
     document.addEventListener("keydown", handleKey);
+    // auto-focus search input when overlay or desktop search opens
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
     return () => document.removeEventListener("keydown", handleKey);
   }, [searchOpen]);
 
@@ -272,7 +276,7 @@ export default function Nav() {
           )}
         </div>
 
-        {/* Right side – nav links + notifications + avatar */}
+        {/* Right side – nav links + actions */}
         <div className="mobileHeaderRight ml-auto flex items-center gap-2.5 sm:gap-4">
           {!isOnboardingOrRegister && !isAuthRoute && (
             <Link
@@ -300,8 +304,32 @@ export default function Nav() {
           )}
           {showAuthenticatedUI ? (
             <>
-              {/* Mobile-only header actions: bell + avatar */}
+              {/* Mobile-only header actions: search + bell + avatar */}
               <div className="flex items-center gap-2.5 sm:hidden">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchOpen(true);
+                  }}
+                  className="relative shrink-0 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 shadow-sm backdrop-blur-md transition hover:bg-white/10"
+                  aria-label="Pesquisar"
+                >
+                  <svg
+                    className="h-5 w-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                  >
+                    <circle cx="11" cy="11" r="7" />
+                    <line x1="16.65" y1="16.65" x2="21" y2="21" />
+                  </svg>
+                </button>
+
+                {/* Mobile bell */}
                 <button
                   type="button"
                   onClick={() => router.push("/dashboard/notifications")}
@@ -489,40 +517,107 @@ export default function Nav() {
         </div>
       </nav>
 
-      {/* Mobile search bar below header (mobile-only) */}
-      {showAuthenticatedUI && (
-        <div className="px-4 pt-4 pb-2 sm:hidden">
-          <div className="flex h-[54px] items-center gap-3 rounded-full border border-white/[0.12] bg-white/[0.06] px-4 backdrop-blur-md">
-            <svg
-              className="h-4 w-4 text-white/60"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden
-            >
-              <circle cx="11" cy="11" r="7" />
-              <line x1="16.65" y1="16.65" x2="21" y2="21" />
-            </svg>
-            <input
-              ref={searchInputRef}
-              type="text"
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setSearchOpen(true);
-              }}
-              onFocus={() => setSearchOpen(true)}
-              placeholder="Pesquisar atividades, parceiros ou clubes"
-              className="w-full bg-transparent text-sm text-white placeholder:text-white/45 outline-none"
-            />
+      {/* Mobile search overlay (Spotlight-style) */}
+      {showAuthenticatedUI && searchOpen && (
+        <div className="fixed inset-0 z-40 flex items-start justify-center px-4 pt-16 pb-6 sm:hidden">
+          {/* Backdrop */}
+          <button
+            type="button"
+            className="absolute inset-0 bg-[#020617]/80 backdrop-blur-sm"
+            onClick={() => {
+              setSearchOpen(false);
+              setSearchQuery("");
+            }}
+            aria-label="Fechar pesquisa"
+          />
+          {/* Panel */}
+          <div className="relative z-10 w-full max-w-md rounded-2xl border border-white/[0.12] bg-[rgba(15,23,42,0.96)] p-3.5 shadow-[0_20px_60px_rgba(0,0,0,0.65)] backdrop-blur-xl">
+            <div className="flex items-center gap-2 rounded-xl bg-white/[0.03] px-3 py-2.5">
+              <svg
+                className="h-4 w-4 text-white/60"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <circle cx="11" cy="11" r="7" />
+                <line x1="16.65" y1="16.65" x2="21" y2="21" />
+              </svg>
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                }}
+                placeholder="Pesquisar atividades, parceiros ou clubes"
+                className="w-full bg-transparent text-sm text-white placeholder:text-white/45 outline-none"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("");
+                  }}
+                  className="rounded-full bg-white/10 px-2 py-0.5 text-[11px] text-white/80 hover:bg-white/20"
+                >
+                  Limpar
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchOpen(false);
+                  setSearchQuery("");
+                }}
+                className="ml-1 rounded-full bg-white/5 px-2 py-0.5 text-[11px] font-medium text-white/70 hover:bg-white/10"
+              >
+                Cancelar
+              </button>
+            </div>
+
+            {searchQuery.length > 0 && (
+              <div className="mt-3 max-h-72 overflow-y-auto rounded-xl border border-white/[0.08] bg-black/20 py-1.5">
+                {filteredSearchItems.length === 0 ? (
+                  <div className="px-3.5 py-2 text-xs text-white/70">
+                    Sem resultados.
+                  </div>
+                ) : (
+                  <ul>
+                    {filteredSearchItems.map((item) => (
+                      <li key={item.id}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            router.push(item.href);
+                            setSearchOpen(false);
+                            setSearchQuery("");
+                          }}
+                          className="flex w-full flex-col items-start px-3.5 py-2 text-left text-xs text-white/90 transition hover:bg-white/10"
+                        >
+                          <span className="font-medium truncate">{item.name}</span>
+                          <span className="mt-0.5 text-[11px] text-white/65">
+                            {item.category}
+                            {item.city || item.location ? (
+                              <>
+                                {" · "}
+                                {item.city || item.location}
+                              </>
+                            ) : null}
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
-
-      {/* (No extra mobile-only search wrapper; desktop search bar remains the single source of truth) */}
     </header>
   );
 }

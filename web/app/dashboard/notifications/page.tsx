@@ -49,7 +49,15 @@ export default function DashboardNotificationsPage() {
               padding="lg"
               className="rounded-2xl border border-white/12 bg-white/5 text-center backdrop-blur-xl"
             >
-              <p className="text-sm text-white/70">Ainda não tens notificações.</p>
+              <p className="text-sm text-white/80">
+                Nenhuma notificação nova.
+              </p>
+              <p className="mt-2 text-xs text-white/60">
+                Quando fizeres reservas ou receberes créditos,
+              </p>
+              <p className="text-xs text-white/60">
+                vais ver aqui todas as atualizações da tua conta.
+              </p>
             </GlassCard>
           ) : (
             notifications.map((n) => (
