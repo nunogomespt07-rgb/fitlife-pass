@@ -72,113 +72,51 @@ export default function LandingPage() {
 
   return (
     <div className="page-bg text-white font-sans">
-      {/* ========== PREMIUM HERO – One continuous composition ========== */}
-      <section className="relative min-h-[80vh] w-full overflow-hidden">
-        {/* Background – directional energy: left darker → runner zone glow → right softer */}
+      {/* ========== PREMIUM HERO – Mobile-first, tighter composition ========== */}
+      <section className="relative min-h-[min(100vh,720px)] sm:min-h-[80vh] w-full overflow-hidden">
+        {/* Background – refined gradient, less layers for cleaner premium feel */}
         <div className="absolute inset-0 bg-[#0a0f1e]" aria-hidden />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#070c18] via-[#0f172a] to-[#0f172a]" aria-hidden />
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-950/70 via-[#1e1b4b]/60 to-slate-900/85" aria-hidden />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#070c18] via-[#0f172a] to-[#0f172a]" aria-hidden />
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-950/50 via-[#1e1b4b]/40 to-slate-900/80" aria-hidden />
         <div
           className="absolute inset-0 opacity-90"
           style={{
-            background: 'linear-gradient(90deg, rgba(7,12,24,0.4) 0%, transparent 35%, transparent 65%, rgba(15,23,42,0.25) 100%)',
+            background: 'linear-gradient(90deg, rgba(7,12,24,0.5) 0%, transparent 38%, transparent 62%, rgba(15,23,42,0.2) 100%)',
           }}
           aria-hidden
         />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_120%_90%_at_50%_40%,rgba(59,130,246,0.10),transparent_55%)] opacity-80 animate-pulse" aria-hidden />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_60%,rgba(129,140,248,0.06),transparent_38%)]" aria-hidden />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/28 via-slate-950/5 to-transparent" aria-hidden />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_60%,transparent_52%,rgba(0,0,0,0.16)_100%)]" aria-hidden />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_100%_70%_at_50%_35%,rgba(59,130,246,0.08),transparent_50%)]" aria-hidden />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/20 via-transparent to-transparent" aria-hidden />
 
-        {/* Motion trail – soft energy behind runner, dissolves into background */}
-        <div
-          className="pointer-events-none absolute left-[28%] top-1/2 h-[1px] w-[24%] -translate-y-1/2 opacity-[0.06] blur-[1px]"
-          style={{
-            background: 'linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 30%, rgba(34,211,238,0.35) 70%, transparent 100%)',
-          }}
-          aria-hidden
-        />
-        <div
-          className="pointer-events-none absolute left-[30%] top-[48%] h-[1px] w-[20%] -translate-y-1/2 opacity-[0.05] blur-[2px]"
-          style={{
-            background: 'linear-gradient(90deg, transparent 0%, rgba(99,102,241,0.4) 40%, transparent 100%)',
-          }}
-          aria-hidden
-        />
-        <div
-          className="pointer-events-none absolute left-[26%] top-[52%] h-[1px] w-[22%] -translate-y-1/2 opacity-[0.04] blur-[2px]"
-          style={{
-            background: 'linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.35) 50%, transparent 100%)',
-          }}
-          aria-hidden
-        />
-
-        {/* Energy from text – originates at text edge, flows into runner glow, fades before card */}
-        <div
-          className="pointer-events-none absolute inset-0 opacity-100"
-          style={{
-            background: 'linear-gradient(90deg, transparent 0%, transparent 26%, rgba(59,130,246,0.05) 32%, rgba(59,130,246,0.09) 48%, rgba(34,211,238,0.03) 62%, transparent 74%)',
-          }}
-          aria-hidden
-        />
-        <div
-          className="pointer-events-none absolute left-[28%] top-1/2 h-[72%] w-[48%] -translate-y-1/2 blur-[56px] opacity-90"
-          style={{
-            background: 'radial-gradient(ellipse 100% 100% at 0% 50%, rgba(59,130,246,0.07), transparent 60%)',
-          }}
-          aria-hidden
-        />
-
-        {/* Runner glow – centered on athlete, extends toward card, fades before touching */}
-        <div
-          className="pointer-events-none absolute left-1/2 top-1/2 h-[90%] w-[90%] -translate-x-1/2 -translate-y-1/2 blur-[68px]"
-          style={{
-            background: 'radial-gradient(ellipse 70% 82% at 55% 50%, rgba(59,130,246,0.12) 0%, rgba(59,130,246,0.04) 25%, rgba(34,211,238,0.025) 48%, transparent 78%)',
-          }}
-          aria-hidden
-        />
-
-        {/* Soft background light glow behind athlete */}
-        <div
-          className="pointer-events-none absolute inset-0 blur-[42px] opacity-80"
-          style={{
-            background:
-              "radial-gradient(circle at 40% 40%, rgba(80,150,255,0.24), transparent 60%)",
-          }}
-          aria-hidden
-        />
-
-        {/* Content – mobile: normal flow TEXT → RUNNER → CARD; desktop: 3-column grid */}
-        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-0 px-4 py-10 sm:px-6 lg:min-h-[min(92vh,920px)] lg:grid-cols-[minmax(0,480px)_1.4fr_minmax(0,380px)] lg:items-center lg:gap-8 lg:px-8 lg:py-10 xl:gap-10 xl:px-10">
-          {/* LEFT ZONE: headline + supporting text – editorial max-width */}
-          <div className="order-1 flex flex-col justify-center pb-0 sm:pb-4 lg:max-w-[520px] lg:pr-3 lg:pb-0 xl:max-w-[520px]">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.36em] text-white/55">
+        {/* Content – mobile: compact TEXT → RUNNER → CARD with intentional spacing */}
+        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-0 px-4 pt-6 pb-6 sm:px-6 sm:pt-8 sm:pb-8 lg:min-h-[min(92vh,920px)] lg:grid-cols-[minmax(0,480px)_1.4fr_minmax(0,380px)] lg:items-center lg:gap-8 lg:px-8 lg:py-10 lg:pt-10 xl:gap-10 xl:px-10">
+          {/* LEFT: headline + supporting – tighter on mobile */}
+          <div className="order-1 flex flex-col justify-center pb-0 sm:pb-2 lg:max-w-[520px] lg:pr-3 lg:pb-0 xl:max-w-[520px]">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-white/50 sm:text-[11px] sm:tracking-[0.36em] sm:text-white/55">
               FitLife Pass
             </p>
-            <h1 className="mt-5 text-[2.1rem] font-bold leading-[1.12] tracking-tight text-white sm:text-4xl lg:text-5xl xl:text-[3.25rem] xl:leading-[1.1]">
+            <h1 className="mt-3 text-[1.75rem] font-bold leading-[1.15] tracking-tight text-white sm:mt-5 sm:text-[2.1rem] sm:leading-[1.12] lg:text-5xl xl:text-[3.25rem] xl:leading-[1.1]">
               <span className="block">Um só passe.</span>
               <span className="block">Todos os teus</span>
               <span className="block">treinos.</span>
             </h1>
-            <p className="mt-3 max-w-md text-[0.95rem] leading-[1.7] text-white/80 sm:text-base">
+            <p className="mt-2 max-w-md text-[0.875rem] leading-[1.65] text-white/75 sm:mt-3 sm:text-[0.95rem] sm:leading-[1.7] sm:text-white/80">
               <span className="block">Ginásio, yoga, padel, crossfit</span>
-              <span className="block">e estúdios premium</span>
-              <span className="block">numa só experiência.</span>
+              <span className="block">e estúdios premium numa só experiência.</span>
             </p>
-            <p className="mt-5 text-[13px] font-medium text-white/70">
+            <p className="mt-3 text-[12px] font-medium text-white/60 sm:mt-5 sm:text-[13px] sm:text-white/70">
               Uma conta. Vários parceiros. Sem fidelização.
             </p>
           </div>
 
-          {/* CENTER ZONE: runner – mobile: normal flow; desktop: full-body image, no crop */}
-          <div className="order-2 mt-4 mb-3 flex justify-center lg:order-2 lg:mt-0 lg:mb-0 lg:flex lg:min-h-0 lg:items-center lg:justify-center lg:px-2">
+          {/* CENTER: runner – smaller on mobile, better balance */}
+          <div className="order-2 mt-2 mb-2 flex justify-center sm:mt-4 sm:mb-3 lg:order-2 lg:mt-0 lg:mb-0 lg:flex lg:min-h-0 lg:items-center lg:justify-center lg:px-2">
             <div className="relative flex w-full max-w-full justify-center pointer-events-none lg:max-w-full">
-              {/* Glow: mobile uses radial behind athlete; desktop subtle */}
               <div
-                className="pointer-events-none absolute inset-[-10%] -z-10 blur-3xl lg:blur-[80px]"
+                className="pointer-events-none absolute inset-[-8%] -z-10 blur-2xl opacity-90 sm:blur-3xl lg:blur-[80px]"
                 style={{
                   background:
-                    "radial-gradient(circle at center, rgba(96,165,250,0.42) 0%, rgba(37,99,235,0.22) 40%, rgba(15,23,42,0) 75%)",
+                    "radial-gradient(circle at center, rgba(96,165,250,0.35) 0%, rgba(37,99,235,0.18) 40%, rgba(15,23,42,0) 70%)",
                 }}
                 aria-hidden
               />
@@ -187,15 +125,15 @@ export default function LandingPage() {
                 alt="Runner"
                 width={1500}
                 height={2000}
-                className="h-[500px] w-auto max-w-[96%] object-contain object-center drop-shadow-[0_0_72px_rgba(59,130,246,0.34)] md:h-[820px] md:max-h-[820px] md:w-auto md:max-w-full md:object-contain md:object-center"
+                className="h-[280px] w-auto max-w-[85%] object-contain object-center drop-shadow-[0_0_48px_rgba(59,130,246,0.28)] sm:h-[380px] sm:max-w-[90%] md:h-[500px] md:max-w-[96%] md:drop-shadow-[0_0_72px_rgba(59,130,246,0.34)] lg:h-[820px] lg:max-h-[820px] lg:max-w-full"
                 priority
                 unoptimized
               />
             </div>
           </div>
 
-          {/* RIGHT ZONE: login card – directly below runner on mobile; right column on desktop */}
-          <div className="order-3 relative z-20 flex items-center justify-center mt-0 pt-0 sm:pt-3 lg:order-3 lg:mt-0 lg:pt-0 lg:justify-center lg:pl-0">
+          {/* RIGHT: auth card – direct adjacency on mobile */}
+          <div className="order-3 relative z-20 flex items-center justify-center mt-0 pt-0 sm:pt-2 lg:order-3 lg:mt-0 lg:pt-0 lg:justify-center lg:pl-0">
             <Suspense fallback={null}>
               <PremiumAuthCard />
             </Suspense>

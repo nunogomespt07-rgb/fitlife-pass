@@ -251,10 +251,10 @@ export default function PremiumAuthCard() {
   }
 
   const inputBase =
-    "w-full h-11 rounded-2xl border bg-white/[0.04] px-4 text-[15px] text-white placeholder:text-white/25 outline-none transition-all duration-200 focus:ring-2 focus:ring-white/20 focus:ring-offset-0 focus:border-white/[0.2]";
-  const inputError = "border-amber-400/30 focus:ring-amber-400/30 focus:border-amber-400/40";
+    "w-full h-12 rounded-2xl border border-white/[0.12] bg-white/[0.06] px-4 text-[15px] text-white placeholder:text-white/30 outline-none transition-all duration-200 focus:ring-2 focus:ring-blue-400/40 focus:ring-offset-0 focus:ring-offset-transparent focus:border-blue-400/50";
+  const inputError = "border-amber-400/40 focus:ring-amber-400/30 focus:border-amber-400/50";
   const selectBase =
-    "w-full h-11 rounded-2xl border bg-white/[0.04] px-4 pr-10 text-[15px] text-white outline-none transition-all duration-200 focus:ring-2 focus:ring-white/20 focus:ring-offset-0 focus:border-white/[0.2] border-white/[0.08] appearance-none";
+    "w-full h-12 rounded-2xl border border-white/[0.12] bg-white/[0.06] px-4 pr-10 text-[15px] text-white outline-none transition-all duration-200 focus:ring-2 focus:ring-blue-400/40 focus:ring-offset-0 focus:border-blue-400/50 border-white/[0.08] appearance-none";
 
   const EyeIcon = ({ show }: { show: boolean }) =>
     show ? (
@@ -329,8 +329,8 @@ export default function PremiumAuthCard() {
         disabled={disabled}
         className={`relative flex w-full items-center justify-center rounded-2xl border px-4 py-3.5 text-sm font-semibold transition-all duration-200 ${
           disabled
-            ? "border-white/[0.10] bg-white/[0.03] text-white/35"
-            : "border-white/[0.18] bg-white/[0.06] text-white hover:bg-white/[0.10] hover:border-white/25 focus:outline-none focus:ring-2 focus:ring-white/20"
+            ? "border-white/[0.08] bg-white/[0.02] text-white/30"
+            : "border-white/[0.18] bg-white/[0.06] text-white hover:bg-white/[0.10] hover:border-white/25 focus:outline-none focus:ring-2 focus:ring-blue-400/30 focus:border-blue-400/40"
         }`}
         aria-disabled={disabled}
         title={disabled && hint ? hint : undefined}
@@ -372,14 +372,14 @@ export default function PremiumAuthCard() {
   }
 
   return (
-    <div className="w-full max-w-sm rounded-[26px] border border-white/10 bg-white/5 p-5 shadow-[0_10px_40px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:rounded-[30px] sm:p-7">
-      <div className="mt-1">
+    <div className="w-full max-w-sm rounded-[24px] border border-white/[0.14] bg-white/[0.06] p-5 shadow-[0_24px_64px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.06)_inset] backdrop-blur-2xl sm:rounded-[28px] sm:p-6">
+      <div className="mt-0.5">
         <div className="flex items-center justify-between">
           {screen === "email" ? (
             <button
               type="button"
               onClick={backToEntry}
-              className="-ml-1 inline-flex items-center gap-1 rounded-xl px-2 py-2 text-xs font-semibold text-white/60 hover:text-white/85 focus:outline-none focus:ring-2 focus:ring-white/20"
+              className="-ml-1 inline-flex items-center gap-1 rounded-xl px-2 py-2 text-xs font-semibold text-white/55 hover:text-white/90 focus:outline-none focus:ring-2 focus:ring-blue-400/30 focus:ring-offset-1 focus:ring-offset-transparent"
             >
               ← Voltar
             </button>
@@ -390,26 +390,26 @@ export default function PremiumAuthCard() {
           <span />
         </div>
 
-        <h2 className="mt-4 text-lg font-semibold tracking-tight text-white">
+        <h2 className="mt-4 text-[1.125rem] font-semibold tracking-tight text-white">
           Entrar ou registar-se
         </h2>
 
         {/* Content area – stable min-height */}
-        <div className="mt-5 min-h-[320px]">
+        <div className="mt-4 min-h-[300px] sm:min-h-[320px]">
           {screen === "entry" ? (
             <div className="animate-in">
               <PrimaryButton
                 type="button"
                 onClick={() => openEmailFlow("login")}
-                className="w-full h-11 rounded-2xl text-[15px] font-semibold bg-white text-slate-900 shadow-[0_1px_2px_rgba(0,0,0,0.06),0_4px_12px_-2px_rgba(0,0,0,0.12)] hover:bg-white/95"
+                className="w-full h-12 rounded-2xl text-[15px] font-semibold bg-white text-slate-900 shadow-[0_2px_8px_rgba(0,0,0,0.08),0_1px_0_rgba(255,255,255,0.1)_inset] hover:bg-white/95 hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)] active:scale-[0.99] transition-all duration-200"
               >
                 Continuar com e-mail
               </PrimaryButton>
 
-              <div className="relative mt-5 mb-3 flex items-center gap-3">
-                <span className="flex-1 border-t border-white/15" />
-                <span className="text-xs font-medium uppercase tracking-wider text-white/50">ou</span>
-                <span className="flex-1 border-t border-white/15" />
+              <div className="relative mt-4 mb-2 flex items-center gap-3">
+                <span className="flex-1 border-t border-white/20" />
+                <span className="text-[11px] font-medium uppercase tracking-wider text-white/45">ou</span>
+                <span className="flex-1 border-t border-white/20" />
               </div>
 
               <div className="space-y-3">
@@ -440,14 +440,14 @@ export default function PremiumAuthCard() {
             </div>
           ) : (
             <div className="animate-in">
-              <div className="flex gap-1 rounded-full bg-white/[0.04] p-1.5">
+              <div className="flex gap-1 rounded-full bg-white/[0.06] p-1.5 border border-white/[0.08]">
                 <button
                   type="button"
                   onClick={() => { setEmailMode("login"); setError(""); setSignupStep(0); }}
                   className={`flex-1 rounded-full py-3.5 text-sm font-medium transition-all duration-200 ${
                     emailMode === "login"
-                      ? "bg-white/15 text-white shadow-[0_0_16px_-4px_rgba(59,130,246,0.25)]"
-                      : "text-white/45 hover:text-white/70"
+                      ? "bg-white/20 text-white shadow-[0_0_20px_-4px_rgba(59,130,246,0.35),0_1px_0_rgba(255,255,255,0.08)_inset]"
+                      : "text-white/40 hover:text-white/75"
                   }`}
                 >
                   Entrar
@@ -457,8 +457,8 @@ export default function PremiumAuthCard() {
                   onClick={() => { setEmailMode("signup"); setError(""); setSignupStep(0); }}
                   className={`flex-1 rounded-full py-3.5 text-sm font-medium transition-all duration-200 ${
                     emailMode === "signup"
-                      ? "bg-white/15 text-white shadow-[0_0_16px_-4px_rgba(59,130,246,0.25)]"
-                      : "text-white/45 hover:text-white/70"
+                      ? "bg-white/20 text-white shadow-[0_0_20px_-4px_rgba(59,130,246,0.35),0_1px_0_rgba(255,255,255,0.08)_inset]"
+                      : "text-white/40 hover:text-white/75"
                   }`}
                 >
                   Criar conta
@@ -466,7 +466,7 @@ export default function PremiumAuthCard() {
               </div>
 
               {emailMode === "login" ? (
-                <form onSubmit={handleLogin} className="mt-5 space-y-3">
+                <form onSubmit={handleLogin} className="mt-4 space-y-3.5">
                   <div>
                     <label htmlFor="auth-email" className="mb-1.5 block text-[11px] font-medium tracking-wide text-white/50">
                       Email
@@ -478,7 +478,7 @@ export default function PremiumAuthCard() {
                       onChange={(e) => setEmail(e.target.value)}
                       onBlur={() => { setEmailTouched(true); updateEmailError(); }}
                       required
-                      className={`${inputBase} ${emailTouched && emailError ? inputError : "border-white/[0.08]"}`}
+                      className={`${inputBase} ${emailTouched && emailError ? inputError : "border-white/[0.12]"}`}
                       placeholder="o-teu@email.com"
                       aria-invalid={emailTouched && !!emailError}
                     />
@@ -497,7 +497,7 @@ export default function PremiumAuthCard() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className={`${inputBase} pr-11 border-white/[0.08]`}
+                        className={`${inputBase} pr-11 border-white/[0.12]`}
                         placeholder="••••••••"
                       />
                       <button
@@ -526,7 +526,7 @@ export default function PremiumAuthCard() {
                     loading={loading}
                     disabled={loading}
                     loadingLabel="A entrar…"
-                    className="mt-4 w-full h-11 rounded-2xl text-[15px] font-semibold bg-white text-slate-900 shadow-[0_1px_2px_rgba(0,0,0,0.06),0_4px_12px_-2px_rgba(0,0,0,0.12)] hover:bg-white/95"
+                    className="mt-4 w-full h-12 rounded-2xl text-[15px] font-semibold bg-white text-slate-900 shadow-[0_2px_8px_rgba(0,0,0,0.08),0_1px_0_rgba(255,255,255,0.1)_inset] hover:bg-white/95 hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)] active:scale-[0.99] transition-all duration-200"
                   >
                     Entrar
                   </PrimaryButton>
@@ -534,7 +534,7 @@ export default function PremiumAuthCard() {
               ) : (
                 <>
                   {signupStep === 0 ? (
-                    <form onSubmit={handleSignupStep0} className="mt-5 space-y-3">
+                    <form onSubmit={handleSignupStep0} className="mt-4 space-y-3.5">
                       <div>
                         <label htmlFor="signup-email" className="mb-1.5 block text-[11px] font-medium tracking-wide text-white/50">
                           Email
@@ -546,7 +546,7 @@ export default function PremiumAuthCard() {
                           onChange={(e) => setEmail(e.target.value)}
                           onBlur={() => { setEmailTouched(true); updateEmailError(); }}
                           required
-                          className={`${inputBase} ${emailTouched && emailError ? inputError : "border-white/[0.08]"}`}
+                          className={`${inputBase} ${emailTouched && emailError ? inputError : "border-white/[0.12]"}`}
                           placeholder="o-teu@email.com"
                           aria-invalid={emailTouched && !!emailError}
                         />
@@ -567,7 +567,7 @@ export default function PremiumAuthCard() {
                             onChange={(e) => { setPassword(e.target.value); setError(""); }}
                             required
                             minLength={6}
-                            className={`${inputBase} pr-11 border-white/[0.08]`}
+                            className={`${inputBase} pr-11 border-white/[0.12]`}
                             placeholder="••••••••"
                           />
                           <button
@@ -608,13 +608,13 @@ export default function PremiumAuthCard() {
 
                       <PrimaryButton
                         type="submit"
-                        className="mt-2 w-full h-11 rounded-2xl text-[15px] font-semibold bg-white text-slate-900"
+                        className="mt-2 w-full h-12 rounded-2xl text-[15px] font-semibold bg-white text-slate-900 shadow-[0_2px_8px_rgba(0,0,0,0.08),0_1px_0_rgba(255,255,255,0.1)_inset] hover:bg-white/95 active:scale-[0.99]"
                       >
                         Criar conta
                       </PrimaryButton>
                     </form>
                   ) : (
-                    <form onSubmit={handleSignupStep1} className="mt-5 space-y-3">
+                    <form onSubmit={handleSignupStep1} className="mt-4 space-y-3.5">
                       <div className="grid gap-3 sm:grid-cols-2">
                         <div>
                           <label htmlFor="signup-firstName" className="mb-1.5 block text-[11px] font-medium tracking-wide text-white/50">
@@ -626,7 +626,7 @@ export default function PremiumAuthCard() {
                             value={firstName}
                             onChange={(e) => setFirstName(e.target.value)}
                             required
-                            className={`${inputBase} border-white/[0.08]`}
+                            className={`${inputBase} border-white/[0.12]`}
                             placeholder="Ex.: Pedro"
                           />
                         </div>
@@ -640,7 +640,7 @@ export default function PremiumAuthCard() {
                             value={lastName}
                             onChange={(e) => setLastName(e.target.value)}
                             required
-                            className={`${inputBase} border-white/[0.08]`}
+                            className={`${inputBase} border-white/[0.12]`}
                             placeholder="Ex.: Silva"
                           />
                         </div>
@@ -731,7 +731,7 @@ export default function PremiumAuthCard() {
                         loading={loading}
                         disabled={loading}
                         loadingLabel="A concluir…"
-                        className="mt-2 w-full h-11 rounded-2xl text-[15px] font-semibold bg-white text-slate-900"
+                        className="mt-2 w-full h-12 rounded-2xl text-[15px] font-semibold bg-white text-slate-900 shadow-[0_2px_8px_rgba(0,0,0,0.08),0_1px_0_rgba(255,255,255,0.1)_inset] hover:bg-white/95 active:scale-[0.99]"
                       >
                         Concluir registo
                       </PrimaryButton>
@@ -742,7 +742,7 @@ export default function PremiumAuthCard() {
             </div>
           )}
 
-          <p className="mt-5 text-center text-[11px] text-white/40">
+          <p className="mt-4 text-center text-[11px] text-white/40">
             Os teus dados estão protegidos. Nunca partilhamos o teu email.
           </p>
         </div>

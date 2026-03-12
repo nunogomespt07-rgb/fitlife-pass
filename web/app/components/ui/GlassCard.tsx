@@ -27,13 +27,13 @@ export default function GlassCard({
   as: Component = "div",
 }: GlassCardProps) {
   const base =
-    "rounded-[22px] border border-white/[0.14] bg-white/[0.05] backdrop-blur-[20px] transition-all duration-300";
+    "rounded-[20px] border border-white/[0.12] bg-white/[0.06] backdrop-blur-[24px] transition-all duration-300 shadow-[0_16px_48px_rgba(15,23,42,0.6)]";
   const variantClass =
     variant === "light"
       ? "bg-white/[0.10]"
-      : "bg-slate-950/40";
+      : "bg-slate-950/30";
   const glow =
-    "shadow-[0_18px_52px_rgba(15,23,42,0.85)]";
+    "shadow-[0_18px_52px_rgba(15,23,42,0.75)]";
   const motion = [hover && "hover-lift", active && "active-scale"]
     .filter(Boolean)
     .join(" ");
