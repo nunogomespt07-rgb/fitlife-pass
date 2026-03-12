@@ -1,14 +1,18 @@
 import { NextRequest } from "next/server";
 
-const BACKEND_API_BASE =
-  (process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_API_URL || "")
-    .replace(/\/$/, "");
+const BACKEND_API_BASE = (process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_API_URL)?.replace(/\/$/, "");
 
 export async function POST(req: NextRequest) {
   try {
     if (!BACKEND_API_BASE) {
       return Response.json(
         { message: "Backend API URL não configurada (BACKEND_API_URL ou NEXT_PUBLIC_API_URL)." },
+        { status: 503 }
+      );
+    }
+    if (/localhost|127\.0\.0\.1/i.test(BACKEND_API_BASE)) {
+      return Response.json(
+        { message: "Backend API URL não pode ser localhost em produção." },
         { status: 503 }
       );
     }

@@ -6,9 +6,6 @@ import { useRouter } from "next/navigation";
 import GlassCard from "../components/ui/GlassCard";
 import PrimaryButton from "../components/ui/PrimaryButton";
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "";
-
 export default function ForgotPasswordPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -21,12 +18,13 @@ export default function ForgotPasswordPage() {
     setError("");
     setLoading(true);
     try {
-      if (!API_BASE) {
-        setError("Não foi possível processar. Configuração da API em falta (NEXT_PUBLIC_API_URL).");
+      const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+      if (!base || /localhost|127\.0\.0\.1/i.test(base)) {
+        setError("Não foi possível processar. NEXT_PUBLIC_API_URL em falta ou inválida.");
         setLoading(false);
         return;
       }
-      const res = await fetch(`${API_BASE}/auth/forgot-password`, {
+      const res = await fetch(`${base}/auth/forgot-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim().toLowerCase() }),

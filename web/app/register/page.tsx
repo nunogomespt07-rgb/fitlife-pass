@@ -7,9 +7,6 @@ import { signIn } from "next-auth/react";
 import GlassCard from "../components/ui/GlassCard";
 import PrimaryButton from "../components/ui/PrimaryButton";
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "";
-
 export default function RegisterPage() {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -28,12 +25,13 @@ export default function RegisterPage() {
     }
     setLoading(true);
     try {
-      if (!API_BASE) {
-        setError("Não foi possível criar a conta. Configuração da API em falta (NEXT_PUBLIC_API_URL).");
+      const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+      if (!base || /localhost|127\.0\.0\.1/i.test(base)) {
+        setError("Não foi possível criar a conta. NEXT_PUBLIC_API_URL em falta ou inválida.");
         setLoading(false);
         return;
       }
-      const res = await fetch(`${API_BASE}/auth/register`, {
+      const res = await fetch(`${base}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

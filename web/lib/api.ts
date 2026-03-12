@@ -1,14 +1,13 @@
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "";
-
 export async function apiFetch<T = unknown>(
   path: string,
   init?: RequestInit
 ): Promise<T> {
-  if (!API_BASE) {
-    throw new Error("NEXT_PUBLIC_API_URL não está definida. Configura a URL do backend.");
+  const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+  if (!base) throw new Error("NEXT_PUBLIC_API_URL is missing");
+  if (/localhost|127\.0\.0\.1/i.test(base)) {
+    throw new Error("NEXT_PUBLIC_API_URL must not point to localhost in production");
   }
-  const url = `${API_BASE}${path.startsWith("/") ? path : `/${path}`}`;
+  const url = `${base}${path.startsWith("/") ? path : `/${path}`}`;
 
   const res = await fetch(url, {
     cache: "no-store",
