@@ -310,6 +310,7 @@ export default function Nav() {
                 <button
                   type="button"
                   onClick={() => {
+                    setAccountSheetOpen(false);
                     setSearchOpen(true);
                   }}
                   className="relative shrink-0 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 shadow-sm backdrop-blur-md transition hover:bg-white/10"
@@ -355,7 +356,10 @@ export default function Nav() {
 
                 <button
                   type="button"
-                  onClick={() => setAccountSheetOpen(true)}
+                  onClick={() => {
+                    setSearchOpen(false);
+                    setAccountSheetOpen((open) => !open);
+                  }}
                   className="shrink-0 flex items-center gap-3 rounded-full border border-white/[0.08] bg-white/[0.04] pl-3 pr-3.5 py-1.5 text-xs font-semibold text-white/95 shadow-sm backdrop-blur-md transition-all duration-200 hover:bg-white/[0.07] hover:border-white/[0.12] focus:outline-none focus:ring-2 focus:ring-white/15 focus:ring-offset-2 focus:ring-offset-transparent"
                   aria-expanded={accountSheetOpen}
                   aria-haspopup="true"
@@ -518,21 +522,22 @@ export default function Nav() {
         </div>
       </nav>
 
-      {/* Mobile search overlay (Spotlight-style) */}
+      {/* Mobile search sheet below header */}
       {showAuthenticatedUI && searchOpen && (
-        <div className="fixed inset-0 z-40 flex items-start justify-center px-4 pt-16 pb-6 sm:hidden">
+        <div className="sm:hidden">
           {/* Backdrop */}
           <button
             type="button"
-            className="absolute inset-0 bg-[#020617]/80 backdrop-blur-sm"
+            className="fixed inset-0 z-40 bg-black/40"
             onClick={() => {
               setSearchOpen(false);
               setSearchQuery("");
             }}
             aria-label="Fechar pesquisa"
           />
-          {/* Panel */}
-          <div className="relative z-10 w-full max-w-md rounded-2xl border border-white/[0.12] bg-[rgba(15,23,42,0.96)] p-3.5 shadow-[0_20px_60px_rgba(0,0,0,0.65)] backdrop-blur-xl">
+          {/* Panel aligned under header */}
+          <div className="fixed inset-x-0 top-14 z-50 flex justify-center px-4 pt-2">
+            <div className="w-full max-w-6xl rounded-2xl border border-white/[0.12] bg-[rgba(15,23,42,0.96)] p-3.5 shadow-[0_18px_50px_rgba(0,0,0,0.65)] backdrop-blur-xl">
             <div className="flex items-center gap-2 rounded-xl bg-white/[0.03] px-3 py-2.5">
               <svg
                 className="h-4 w-4 text-white/60"
@@ -616,23 +621,24 @@ export default function Nav() {
                 )}
               </div>
             )}
+            </div>
           </div>
         </div>
       )}
 
-      {/* Mobile account sheet (avatar menu) */}
+      {/* Mobile account dropdown (avatar menu) */}
       {showAuthenticatedUI && accountSheetOpen && (
-        <div className="fixed inset-0 z-40 flex items-end justify-center px-4 pb-4 sm:hidden">
+        <div className="sm:hidden">
           {/* Backdrop */}
           <button
             type="button"
-            className="absolute inset-0 bg-[#020617]/70 backdrop-blur-sm"
+            className="fixed inset-0 z-40 bg-black/40"
             onClick={() => setAccountSheetOpen(false)}
             aria-label="Fechar menu de conta"
           />
-          {/* Sheet */}
-          <div className="relative z-10 w-full max-w-md rounded-3xl border border-white/[0.12] bg-[rgba(10,18,38,0.96)] pb-3 pt-2 shadow-[0_-18px_60px_rgba(0,0,0,0.7)] backdrop-blur-xl">
-            <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-white/20" aria-hidden />
+          {/* Dropdown anchored under header / avatar */}
+          <div className="fixed inset-x-0 top-14 z-50 flex justify-end px-4 pt-2">
+            <div className="w-full max-w-xs rounded-2xl border border-white/[0.14] bg-[rgba(10,18,38,0.98)] pb-2 pt-2 shadow-[0_18px_50px_rgba(0,0,0,0.75)] backdrop-blur-xl">
             <div className="px-4 pb-2 pt-1">
               <div className="flex items-center gap-3">
                 <span className="flex h-9 w-9 items-center justify-center rounded-full border border-white/[0.25] bg-white/[0.15] text-[13px] font-bold text-white">
@@ -719,6 +725,7 @@ export default function Nav() {
               >
                 <span>Sair</span>
               </button>
+            </div>
             </div>
           </div>
         </div>
