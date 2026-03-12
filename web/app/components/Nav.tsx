@@ -392,7 +392,7 @@ export default function Nav() {
                     setIsMobileMenuOpen((open) => !open);
                   }}
                   className="shrink-0 flex items-center gap-3 rounded-full border border-white/[0.08] bg-white/[0.04] pl-3 pr-3.5 py-1.5 text-xs font-semibold text-white/95 shadow-sm backdrop-blur-md transition-all duration-200 hover:bg-white/[0.07] hover:border-white/[0.12] focus:outline-none focus:ring-2 focus:ring-white/15 focus:ring-offset-2 focus:ring-offset-transparent"
-                  aria-expanded={accountSheetOpen}
+                  aria-expanded={isMobileMenuOpen}
                   aria-haspopup="true"
                 >
                   <span
