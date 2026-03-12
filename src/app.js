@@ -21,19 +21,26 @@ const allowedOrigins = [
   "https://fitlife-pass-tb97.vercel.app",
   "http://localhost:3000",
 ];
+
 const envOrigins = (process.env.CORS_ORIGIN || process.env.FRONTEND_URL || "")
   .split(",")
   .map((o) => o.trim())
   .filter(Boolean);
-const origins = envOrigins.length ? envOrigins : allowedOrigins;
 
-app.use(
-  cors({
-    origin: origins,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    credentials: true,
-  })
-);
+const origins = [...new Set([...allowedOrigins, ...envOrigins])];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (origins.includes(origin)) return callback(null, true);
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use(express.json());
 
 // health check (para testar no browser)
