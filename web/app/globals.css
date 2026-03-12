@@ -197,11 +197,14 @@
 
   /* Premium glass card – internal app */
   .app-card {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+    background:
+      radial-gradient(circle at 0% 0%, rgba(120, 170, 255, 0.16), transparent 55%),
+      radial-gradient(circle at 100% 100%, rgba(56, 189, 248, 0.12), transparent 55%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.01));
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 16px 45px rgba(0, 0, 0, 0.45);
     border-radius: 20px;
     transition: transform 180ms ease, box-shadow 180ms ease;
   }

@@ -34,6 +34,7 @@ export default function Nav() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+  const [accountSheetOpen, setAccountSheetOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -354,9 +355,9 @@ export default function Nav() {
 
                 <button
                   type="button"
-                  onClick={() => setDropdownOpen((o) => !o)}
+                  onClick={() => setAccountSheetOpen(true)}
                   className="shrink-0 flex items-center gap-3 rounded-full border border-white/[0.08] bg-white/[0.04] pl-3 pr-3.5 py-1.5 text-xs font-semibold text-white/95 shadow-sm backdrop-blur-md transition-all duration-200 hover:bg-white/[0.07] hover:border-white/[0.12] focus:outline-none focus:ring-2 focus:ring-white/15 focus:ring-offset-2 focus:ring-offset-transparent"
-                  aria-expanded={dropdownOpen}
+                  aria-expanded={accountSheetOpen}
                   aria-haspopup="true"
                 >
                   <span
@@ -615,6 +616,110 @@ export default function Nav() {
                 )}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Mobile account sheet (avatar menu) */}
+      {showAuthenticatedUI && accountSheetOpen && (
+        <div className="fixed inset-0 z-40 flex items-end justify-center px-4 pb-4 sm:hidden">
+          {/* Backdrop */}
+          <button
+            type="button"
+            className="absolute inset-0 bg-[#020617]/70 backdrop-blur-sm"
+            onClick={() => setAccountSheetOpen(false)}
+            aria-label="Fechar menu de conta"
+          />
+          {/* Sheet */}
+          <div className="relative z-10 w-full max-w-md rounded-3xl border border-white/[0.12] bg-[rgba(10,18,38,0.96)] pb-3 pt-2 shadow-[0_-18px_60px_rgba(0,0,0,0.7)] backdrop-blur-xl">
+            <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-white/20" aria-hidden />
+            <div className="px-4 pb-2 pt-1">
+              <div className="flex items-center gap-3">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full border border-white/[0.25] bg-white/[0.15] text-[13px] font-bold text-white">
+                  {avatarLetter}
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-white">{firstName}</p>
+                  <p className="text-xs text-white/60">{user?.email}</p>
+                </div>
+              </div>
+            </div>
+            <div className="mt-1 border-t border-white/[0.08]" />
+            <nav className="px-2 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setAccountSheetOpen(false);
+                  router.push("/dashboard");
+                }}
+                className="flex w-full items-center justify-between rounded-2xl px-3.5 py-2.5 text-sm text-white/90 transition hover:bg-white/10"
+              >
+                <span>Conta</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAccountSheetOpen(false);
+                  router.push("/dashboard/perfil");
+                }}
+                className="flex w-full items-center justify-between rounded-2xl px-3.5 py-2.5 text-sm text-white/90 transition hover:bg-white/10"
+              >
+                <span>Perfil</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAccountSheetOpen(false);
+                  router.push("/dashboard/favoritos");
+                }}
+                className="flex w-full items-center justify-between rounded-2xl px-3.5 py-2.5 text-sm text-white/90 transition hover:bg-white/10"
+              >
+                <span>Favoritos</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAccountSheetOpen(false);
+                  router.push("/dashboard/pagamentos");
+                }}
+                className="flex w-full items-center justify-between rounded-2xl px-3.5 py-2.5 text-sm text-white/90 transition hover:bg-white/10"
+              >
+                <span>Pagamentos</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAccountSheetOpen(false);
+                  router.push("/dashboard/convidar");
+                }}
+                className="flex w-full items-center justify-between rounded-2xl px-3.5 py-2.5 text-sm text-white/90 transition hover:bg-white/10"
+              >
+                <span>Convidar amigos</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAccountSheetOpen(false);
+                  router.push("/faq");
+                }}
+                className="flex w-full items-center justify-between rounded-2xl px-3.5 py-2.5 text-sm text-white/90 transition hover:bg-white/10"
+              >
+                <span>FAQ</span>
+              </button>
+            </nav>
+            <div className="mt-1 border-t border-white/[0.08]" />
+            <div className="px-2 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setAccountSheetOpen(false);
+                  handleLogout();
+                }}
+                className="flex w-full items-center justify-between rounded-2xl px-3.5 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+              >
+                <span>Sair</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
