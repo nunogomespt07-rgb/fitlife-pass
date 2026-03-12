@@ -676,21 +676,21 @@ export default function Nav() {
       )}
 
       {showAuthenticatedUI && isMobileMenuOpen && (
-        <div className="sm:hidden fixed right-4 top-[86px] z-[80] w-[min(320px,calc(100vw-2rem))]">
+        <div className="sm:hidden fixed right-4 top-[86px] z-[80] w-[min(300px,calc(100vw-1.5rem))]">
           <div
             ref={mobileMenuPanelRef}
             className="overflow-hidden rounded-[26px] border border-white/10 bg-[rgba(6,12,32,0.94)] shadow-[0_24px_70px_rgba(0,0,0,0.42)] backdrop-blur-2xl"
           >
             <div className="flex items-center gap-3 border-b border-white/10 px-4 py-3.5">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-base font-semibold text-white">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-base font-semibold text-white">
                 {avatarLetter}
               </div>
 
               <div className="min-w-0">
-                <p className="truncate text-[1rem] font-semibold leading-5 text-white">
+                <p className="truncate text-[15px] font-semibold leading-5 text-white">
                   {firstName}
                 </p>
-                <p className="mt-0.5 truncate text-[13px] text-white/58">
+                <p className="mt-0.5 truncate text-[13px] text-white/55">
                   {user?.email || session?.user?.email || ""}
                 </p>
               </div>
@@ -700,7 +700,7 @@ export default function Nav() {
               <Link
                 href="/dashboard"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="flex min-h-[46px] items-center rounded-[18px] px-3.5 text-[17px] font-medium text-white/92 transition active:scale-[0.99] hover:bg-white/5"
+                className="flex min-h-[44px] items-center rounded-[18px] px-3.5 text-[17px] font-medium text-white/92 transition active:bg-white/8 active:scale-[0.99] hover:bg-white/5"
               >
                 Conta
               </Link>
@@ -708,7 +708,7 @@ export default function Nav() {
               <Link
                 href="/dashboard/perfil"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="flex min-h-[46px] items-center rounded-[18px] px-3.5 text-[17px] font-medium text-white/92 transition active:scale-[0.99] hover:bg-white/5"
+                className="flex min-h-[44px] items-center rounded-[18px] px-3.5 text-[17px] font-medium text-white/92 transition active:bg-white/8 active:scale-[0.99] hover:bg-white/5"
               >
                 Perfil
               </Link>
@@ -716,7 +716,7 @@ export default function Nav() {
               <Link
                 href="/dashboard/favoritos"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="flex min-h-[46px] items-center rounded-[18px] px-3.5 text-[17px] font-medium text-white/92 transition active:scale-[0.99] hover:bg-white/5"
+                className="flex min-h-[44px] items-center rounded-[18px] px-3.5 text-[17px] font-medium text-white/92 transition active:bg-white/8 active:scale-[0.99] hover:bg-white/5"
               >
                 Favoritos
               </Link>
@@ -724,7 +724,7 @@ export default function Nav() {
               <Link
                 href="/dashboard/pagamentos"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="flex min-h-[46px] items-center rounded-[18px] px-3.5 text-[17px] font-medium text-white/92 transition active:scale-[0.99] hover:bg-white/5"
+                className="flex min-h-[44px] items-center rounded-[18px] px-3.5 text-[17px] font-medium text-white/92 transition active:bg-white/8 active:scale-[0.99] hover:bg-white/5"
               >
                 Pagamentos
               </Link>
@@ -732,7 +732,7 @@ export default function Nav() {
               <Link
                 href="/dashboard/convidar"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="flex min-h-[46px] items-center rounded-[18px] px-3.5 text-[17px] font-medium text-white/92 transition active:scale-[0.99] hover:bg-white/5"
+                className="flex min-h-[44px] items-center rounded-[18px] px-3.5 text-[17px] font-medium text-white/92 transition active:bg-white/8 active:scale-[0.99] hover:bg-white/5"
               >
                 Convidar amigos
               </Link>
@@ -740,7 +740,7 @@ export default function Nav() {
               <Link
                 href="/faq"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="flex min-h-[46px] items-center rounded-[18px] px-3.5 text-[17px] font-medium text-white/92 transition active:scale-[0.99] hover:bg-white/5"
+                className="flex min-h-[44px] items-center rounded-[18px] px-3.5 text-[17px] font-medium text-white/92 transition active:bg-white/8 active:scale-[0.99] hover:bg-white/5"
               >
                 FAQ
               </Link>
@@ -753,7 +753,7 @@ export default function Nav() {
                   setIsMobileMenuOpen(false);
                   handleLogout();
                 }}
-                className="flex min-h-[48px] w-full items-center rounded-[18px] px-3.5 text-left text-[17px] font-medium text-rose-300 transition active:scale-[0.99] hover:bg-white/5"
+                className="flex min-h-[44px] w-full items-center rounded-[18px] px-3.5 text-left text-[17px] font-medium text-rose-300 transition active:bg-white/8 active:scale-[0.99] hover:bg-white/5"
               >
                 Sair
               </button>
