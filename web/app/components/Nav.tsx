@@ -299,13 +299,13 @@ export default function Nav() {
             </div>
           )}
           {showAuthenticatedUI ? (
-            <div className="relative ml-1 sm:ml-2" ref={dropdownRef}>
-              <div className="flex items-center gap-[10px] sm:gap-4">
-                {/* Desktop notification bell (unchanged) */}
+            <>
+              {/* Mobile-only header actions: bell + avatar */}
+              <div className="flex items-center gap-2 sm:hidden">
                 <button
                   type="button"
                   onClick={() => router.push("/dashboard/notifications")}
-                  className="notificationButton relative shrink-0 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 shadow-sm backdrop-blur-md transition hover:bg-white/10"
+                  className="relative shrink-0 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 shadow-sm backdrop-blur-md transition hover:bg-white/10"
                   aria-label={unreadCount > 0 ? `${unreadCount} notificações por ler` : "Notificações"}
                 >
                   <svg
@@ -323,19 +323,7 @@ export default function Nav() {
                   </svg>
                   {unreadCount > 0 && <span className="notificationBadge" />}
                 </button>
-                {(planLabel !== null || credits !== undefined) && (
-                  <span
-                    className="hidden sm:inline-flex items-center gap-2.5 rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-[11px] font-medium tracking-tight text-white/90"
-                  >
-                    <span className="font-semibold text-white/95">
-                      {planLabel ?? "Sem plano"}
-                    </span>
-                    <span className="h-3 w-px bg-white/20" aria-hidden />
-                    <span className="text-white/70 tabular-nums">
-                      {credits} crédito{credits === 1 ? "" : "s"}
-                    </span>
-                  </span>
-                )}
+
                 <button
                   type="button"
                   onClick={() => setDropdownOpen((o) => !o)}
@@ -349,87 +337,141 @@ export default function Nav() {
                   >
                     {avatarLetter}
                   </span>
-                  <span className="hidden sm:inline max-w-[140px] truncate text-white">{firstName}</span>
-                  <svg
-                    className={`h-3.5 w-3.5 shrink-0 text-white/50 transition duration-200 ${dropdownOpen ? "rotate-180" : ""}`}
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
                 </button>
               </div>
-              {dropdownOpen && (
-                <div
-                  className="absolute right-0 top-full mt-2 min-w-[220px] rounded-2xl border border-white/[0.12] bg-[#020617]/80 py-1.5 shadow-[0_18px_40px_rgba(15,23,42,0.7)] backdrop-blur-3xl"
-                  role="menu"
-                >
-                  <Link
-                    href="/dashboard"
-                    onClick={() => setDropdownOpen(false)}
-                    className="block rounded-lg mx-1.5 px-3.5 py-2.5 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-white"
-                    role="menuitem"
-                  >
-                    Conta
-                  </Link>
-                  <Link
-                    href="/dashboard/perfil"
-                    onClick={() => setDropdownOpen(false)}
-                    className="block rounded-lg mx-1.5 px-3.5 py-2.5 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-white"
-                    role="menuitem"
-                  >
-                    Perfil
-                  </Link>
-                  <Link
-                    href="/dashboard/favoritos"
-                    onClick={() => setDropdownOpen(false)}
-                    className="block rounded-lg mx-1.5 px-3.5 py-2.5 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-white"
-                    role="menuitem"
-                  >
-                    Favoritos
-                  </Link>
-                  <Link
-                    href="/dashboard/pagamentos"
-                    onClick={() => setDropdownOpen(false)}
-                    className="block rounded-lg mx-1.5 px-3.5 py-2.5 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-white"
-                    role="menuitem"
-                  >
-                    Pagamentos
-                  </Link>
-                  <Link
-                    href="/dashboard/convidar"
-                    onClick={() => setDropdownOpen(false)}
-                    className="block rounded-lg mx-1.5 px-3.5 py-2.5 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-white"
-                    role="menuitem"
-                  >
-                    Convidar amigos
-                  </Link>
-                  <Link
-                    href="/faq"
-                    onClick={() => setDropdownOpen(false)}
-                    className="block rounded-lg mx-1.5 px-3.5 py-2.5 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-white"
-                    role="menuitem"
-                  >
-                    FAQ
-                  </Link>
-                  <div className="my-1.5 border-t border-white/[0.06]" />
+
+              {/* Desktop / tablet actions – existing dropdown, bell, plan badge, avatar */}
+              <div className="relative ml-1 sm:ml-2 hidden sm:block" ref={dropdownRef}>
+                <div className="flex items-center gap-[10px] sm:gap-4">
                   <button
                     type="button"
-                    onClick={handleLogout}
-                    className="block w-full rounded-lg mx-1.5 px-3.5 py-2.5 text-left text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-white"
-                    role="menuitem"
+                    onClick={() => router.push("/dashboard/notifications")}
+                    className="notificationButton relative shrink-0 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 shadow-sm backdrop-blur-md transition hover:bg-white/10"
+                    aria-label={unreadCount > 0 ? `${unreadCount} notificações por ler` : "Notificações"}
                   >
-                    Sair
+                    <svg
+                      className="h-5 w-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden
+                    >
+                      <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+                      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                    </svg>
+                    {unreadCount > 0 && <span className="notificationBadge" />}
+                  </button>
+                  {(planLabel !== null || credits !== undefined) && (
+                    <span
+                      className="hidden sm:inline-flex items-center gap-2.5 rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-[11px] font-medium tracking-tight text-white/90"
+                    >
+                      <span className="font-semibold text-white/95">
+                        {planLabel ?? "Sem plano"}
+                      </span>
+                      <span className="h-3 w-px bg-white/20" aria-hidden />
+                      <span className="text-white/70 tabular-nums">
+                        {credits} crédito{credits === 1 ? "" : "s"}
+                      </span>
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setDropdownOpen((o) => !o)}
+                    className="shrink-0 flex items-center gap-3 rounded-full border border-white/[0.08] bg-white/[0.04] pl-3 pr-3.5 py-1.5 text-xs font-semibold text-white/95 shadow-sm backdrop-blur-md transition-all duration-200 hover:bg-white/[0.07] hover:border-white/[0.12] focus:outline-none focus:ring-2 focus:ring-white/15 focus:ring-offset-2 focus:ring-offset-transparent"
+                    aria-expanded={dropdownOpen}
+                    aria-haspopup="true"
+                  >
+                    <span
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/[0.25] bg-white/[0.15] text-[12px] font-bold text-white"
+                      aria-hidden
+                    >
+                      {avatarLetter}
+                    </span>
+                    <span className="hidden sm:inline max-w-[140px] truncate text-white">{firstName}</span>
+                    <svg
+                      className={`h-3.5 w-3.5 shrink-0 text-white/50 transition duration-200 ${dropdownOpen ? "rotate-180" : ""}`}
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
                   </button>
                 </div>
-              )}
-            </div>
+                {dropdownOpen && (
+                  <div
+                    className="absolute right-0 top-full mt-2 min-w-[220px] rounded-2xl border border-white/[0.12] bg-[#020617]/80 py-1.5 shadow-[0_18px_40px_rgba(15,23,42,0.7)] backdrop-blur-3xl"
+                    role="menu"
+                  >
+                    <Link
+                      href="/dashboard"
+                      onClick={() => setDropdownOpen(false)}
+                      className="block rounded-lg mx-1.5 px-3.5 py-2.5 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-white"
+                      role="menuitem"
+                    >
+                      Conta
+                    </Link>
+                    <Link
+                      href="/dashboard/perfil"
+                      onClick={() => setDropdownOpen(false)}
+                      className="block rounded-lg mx-1.5 px-3.5 py-2.5 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-white"
+                      role="menuitem"
+                    >
+                      Perfil
+                    </Link>
+                    <Link
+                      href="/dashboard/favoritos"
+                      onClick={() => setDropdownOpen(false)}
+                      className="block rounded-lg mx-1.5 px-3.5 py-2.5 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-white"
+                      role="menuitem"
+                    >
+                      Favoritos
+                    </Link>
+                    <Link
+                      href="/dashboard/pagamentos"
+                      onClick={() => setDropdownOpen(false)}
+                      className="block rounded-lg mx-1.5 px-3.5 py-2.5 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-white"
+                      role="menuitem"
+                    >
+                      Pagamentos
+                    </Link>
+                    <Link
+                      href="/dashboard/convidar"
+                      onClick={() => setDropdownOpen(false)}
+                      className="block rounded-lg mx-1.5 px-3.5 py-2.5 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-white"
+                      role="menuitem"
+                    >
+                      Convidar amigos
+                    </Link>
+                    <Link
+                      href="/faq"
+                      onClick={() => setDropdownOpen(false)}
+                      className="block rounded-lg mx-1.5 px-3.5 py-2.5 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-white"
+                      role="menuitem"
+                    >
+                      FAQ
+                    </Link>
+                    <div className="my-1.5 border-t border-white/[0.06]" />
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="block w-full rounded-lg mx-1.5 px-3.5 py-2.5 text-left text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-white"
+                      role="menuitem"
+                    >
+                      Sair
+                    </button>
+                  </div>
+                )}
+              </div>
+            </>
           ) : (
             !isOnboardingOrRegister && !isAuthRoute && (
               <Link
