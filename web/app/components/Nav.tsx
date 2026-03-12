@@ -600,7 +600,7 @@ export default function Nav() {
               <button
                 type="button"
                 onClick={() => {
-                  setSearchOpen(false);
+                  setIsMobileSearchOpen(false);
                   setSearchQuery("");
                 }}
                 className="ml-1 rounded-full bg-white/5 px-2 py-0.5 text-[11px] font-medium text-white/70 hover:bg-white/10"
