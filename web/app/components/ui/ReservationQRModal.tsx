@@ -45,10 +45,6 @@ export default function ReservationQRModal({ reservation, onClose }: Reservation
         variant="dark"
         padding="lg"
         className="relative z-10 w-full max-w-md rounded-2xl border-white/[0.06] shadow-[0_24px_64px_rgba(0,0,0,0.5)]"
-        style={{
-          background: "linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))",
-          backdropFilter: "blur(16px)",
-        }}
       >
         <h2 id="qr-modal-title" className="app-section-title text-white">
           Código QR da reserva
