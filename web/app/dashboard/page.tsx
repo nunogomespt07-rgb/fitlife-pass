@@ -156,7 +156,7 @@ export default function DashboardPage() {
         <h1 className="app-hero-title mt-4 text-white sm:mt-5">
           Olá, {firstName}
         </h1>
-        <p className="mt-3 text-[15px] leading-relaxed text-white/65 sm:text-base">
+        <p className="mt-3 text-base leading-relaxed text-white/65">
           Acede rapidamente às tuas reservas, créditos e histórico na tua conta FitLife Pass.
         </p>
       </header>
@@ -176,7 +176,7 @@ export default function DashboardPage() {
               CRÉDITOS DISPONÍVEIS
             </p>
             {credits === 0 && (
-              <p className="relative mt-3 text-[15px] text-white/90">
+              <p className="relative mt-3 text-base text-white/90">
                 Sem plano ativo. Escolhe um plano para começar a usar créditos.
               </p>
             )}
@@ -201,7 +201,7 @@ export default function DashboardPage() {
             <p className="text-3xl font-semibold text-white">
               {activeReservationCount}
             </p>
-            <p className="mt-1 text-[15px] text-white/65">reserva(s)</p>
+            <p className="mt-1 text-base text-white/65">reserva(s)</p>
             <Link href="/dashboard/reservas">
               <span className="mt-4 inline-flex items-center text-sm font-medium text-white/90 underline-offset-2 hover:underline">
                 Ver todas as reservas →
@@ -219,7 +219,7 @@ export default function DashboardPage() {
         />
 
         {successMessage && (
-          <div className="mt-6 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-5 py-3.5 text-[15px] text-emerald-100">
+          <div className="mt-6 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-5 py-3.5 text-base text-emerald-100">
             {successMessage}
           </div>
         )}
@@ -230,8 +230,8 @@ export default function DashboardPage() {
             padding="lg"
             className="mt-8 flex min-h-[200px] flex-col items-center justify-center text-center"
           >
-            <p className="text-[15px] font-medium text-white/90">Sem reservas ativas</p>
-            <p className="mt-2 text-[15px] text-white/65">Ainda não tens reservas. Explora atividades e faz a tua primeira reserva.</p>
+            <p className="text-base font-medium text-white/90">Sem reservas ativas</p>
+            <p className="mt-2 text-base text-white/65">Ainda não tens reservas. Explora atividades e faz a tua primeira reserva.</p>
             <Link href="/activities">
               <PrimaryButton variant="appSecondary" className="mt-6 py-3.5">
                 Ver atividades →
@@ -363,8 +363,8 @@ export default function DashboardPage() {
             padding="lg"
             className="mt-8 flex min-h-[140px] flex-col items-center justify-center text-center"
           >
-            <p className="text-[15px] font-medium text-white/90">Ainda não tens histórico de reservas.</p>
-            <p className="mt-2 text-[15px] text-white/65">As tuas reservas passadas, concluídas ou canceladas aparecerão aqui.</p>
+            <p className="text-base font-medium text-white/90">Ainda não tens histórico de reservas.</p>
+            <p className="mt-2 text-base text-white/65">As tuas reservas passadas, concluídas ou canceladas aparecerão aqui.</p>
           </GlassCard>
         ) : (
           <ul className="mt-8 space-y-4">
@@ -439,7 +439,7 @@ export default function DashboardPage() {
               <h2 id="clear-history-title" className="app-section-title text-white">
                 Limpar histórico?
               </h2>
-              <p className="mt-3 text-[15px] text-white/65">
+              <p className="mt-3 text-base text-white/65">
                 Serão removidas apenas as entradas do histórico de reservas. As reservas ativas e os teus créditos não são alterados.
               </p>
               <div className="mt-6 flex flex-wrap gap-3">

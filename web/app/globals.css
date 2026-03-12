@@ -186,8 +186,8 @@
 
   /* Internal app typography */
   .app-hero-title {
-    font-size: clamp(34px, 5vw, 40px);
-    font-weight: 700;
+    font-size: clamp(36px, 5vw, 40px);
+    font-weight: 800;
     letter-spacing: -0.02em;
     line-height: 1.15;
   }
@@ -198,19 +198,19 @@
     line-height: 1.25;
   }
   .app-card-title {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 600;
   }
 
   /* Primary button – internal app (vibrant gradient + glow) */
   .app-btn-primary {
-    background: linear-gradient(180deg, #5a8aff, #4a75ff);
+    background: linear-gradient(180deg, #4f7dff, #3c63ff);
     color: #fff;
-    box-shadow: 0 8px 28px rgba(90, 140, 255, 0.4);
+    box-shadow: 0 8px 25px rgba(79, 125, 255, 0.35);
     transition: transform 180ms ease, box-shadow 180ms ease;
   }
   .app-btn-primary:hover {
-    box-shadow: 0 12px 36px rgba(90, 140, 255, 0.5);
+    box-shadow: 0 10px 32px rgba(79, 125, 255, 0.45);
   }
   .app-btn-primary:active {
     transform: scale(0.98);
