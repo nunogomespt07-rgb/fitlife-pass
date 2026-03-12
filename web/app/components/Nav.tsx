@@ -273,7 +273,7 @@ export default function Nav() {
         </div>
 
         {/* Right side – nav links + notifications + avatar */}
-        <div className="mobileHeaderRight flex items-center gap-2.5 sm:gap-4">
+        <div className="mobileHeaderRight ml-auto flex items-center gap-2.5 sm:gap-4">
           {!isOnboardingOrRegister && !isAuthRoute && (
             <Link
               href="/activities"
