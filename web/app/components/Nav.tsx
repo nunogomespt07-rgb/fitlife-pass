@@ -192,7 +192,7 @@ export default function Nav() {
           </Link>
 
           {showAuthenticatedUI && (
-            <div className="relative flex flex-1 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/90 shadow-sm backdrop-blur-md">
+            <div className="relative hidden flex-1 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/90 shadow-sm backdrop-blur-md sm:flex">
               <svg
                 className="mr-2 mt-[2px] h-4 w-4 shrink-0 text-white/50"
                 viewBox="0 0 24 24"
@@ -301,11 +301,11 @@ export default function Nav() {
           {showAuthenticatedUI ? (
             <div className="relative ml-1 sm:ml-2" ref={dropdownRef}>
               <div className="flex items-center gap-[10px] sm:gap-4">
-                {/* Notification bell – visible on mobile and desktop */}
+                {/* Desktop notification bell (unchanged) */}
                 <button
                   type="button"
                   onClick={() => router.push("/dashboard/notifications")}
-                  className="notificationButton relative flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 shadow-sm backdrop-blur-md transition hover:bg-white/10"
+                  className="notificationButton relative hidden h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 shadow-sm backdrop-blur-md transition hover:bg-white/10 sm:flex"
                   aria-label={unreadCount > 0 ? `${unreadCount} notificações por ler` : "Notificações"}
                 >
                   <svg
@@ -447,7 +447,83 @@ export default function Nav() {
         </div>
       </nav>
 
-      {/* (No extra mobile-only search wrapper; desktop search bar is now visible on mobile as well) */}
+      {/* Mobile top-right actions: bell + avatar (mobile-only) */}
+      {showAuthenticatedUI && (
+        <div className="px-4 pt-2 sm:hidden">
+          <div className="flex items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => router.push("/dashboard/notifications")}
+              className="relative flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 backdrop-blur-md"
+              aria-label={unreadCount > 0 ? `${unreadCount} notificações por ler` : "Notificações"}
+            >
+              <svg
+                className="h-5 w-5 text-white"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+              </svg>
+              {unreadCount > 0 && (
+                <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]" />
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={() => setDropdownOpen((o) => !o)}
+              className="flex items-center gap-3 rounded-full border border-white/[0.08] bg-white/[0.04] pl-3 pr-3.5 py-1.5 text-xs font-semibold text-white/95 shadow-sm backdrop-blur-md"
+            >
+              <span
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/[0.25] bg-white/[0.15] text-[12px] font-bold text-white"
+                aria-hidden
+              >
+                {avatarLetter}
+              </span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile search bar below header (mobile-only) */}
+      {showAuthenticatedUI && (
+        <div className="px-4 pt-3 sm:hidden">
+          <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-md">
+            <svg
+              className="h-4 w-4 text-white/60"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
+              <circle cx="11" cy="11" r="7" />
+              <line x1="16.65" y1="16.65" x2="21" y2="21" />
+            </svg>
+            <input
+              ref={searchInputRef}
+              type="text"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setSearchOpen(true);
+              }}
+              onFocus={() => setSearchOpen(true)}
+              placeholder="Pesquisar atividades, parceiros ou clubes"
+              className="w-full bg-transparent text-sm text-white placeholder:text-white/45 outline-none"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* (No extra mobile-only search wrapper; desktop search bar remains the single source of truth) */}
     </header>
   );
 }
