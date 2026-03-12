@@ -15,15 +15,25 @@ const apiBookingRoutes = require("./routes/apiBookingRoutes");
 
 const app = express();
 
-// middlewares
-const corsOrigin = process.env.CORS_ORIGIN || process.env.FRONTEND_URL || "http://localhost:3000";
-const corsOptions = {
-  origin: corsOrigin.split(",").map((o) => o.trim()).filter(Boolean).length
-    ? corsOrigin.split(",").map((o) => o.trim())
-    : "http://localhost:3000",
-  credentials: true,
-};
-app.use(cors(corsOptions));
+// CORS – allow Vercel frontend and preflight
+const allowedOrigins = [
+  "https://fitlife-pass.vercel.app",
+  "https://fitlife-pass-tb97.vercel.app",
+  "http://localhost:3000",
+];
+const envOrigins = (process.env.CORS_ORIGIN || process.env.FRONTEND_URL || "")
+  .split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
+const origins = envOrigins.length ? envOrigins : allowedOrigins;
+
+app.use(
+  cors({
+    origin: origins,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 // health check (para testar no browser)
