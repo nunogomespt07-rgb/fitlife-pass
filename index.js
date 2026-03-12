@@ -3,7 +3,7 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 const app = require("./src/app");
 
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 8080;
 const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI || process.env.DATABASE_URL || "";
 
 const connectDB = async () => {
@@ -36,8 +36,8 @@ const connectDB = async () => {
 async function start() {
   await connectDB();
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`API a correr na porta ${PORT}`);
+  app.listen(PORT, () => {
+    console.log(`API running on port ${PORT}`);
   });
 }
 
