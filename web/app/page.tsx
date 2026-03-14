@@ -103,20 +103,21 @@ export default function LandingPage() {
           aria-hidden
         />
 
+        {/* Desktop hero: rebuilt 3-column layout (lg only). Mobile unchanged below. */}
         <div
-          className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-0 px-4 pt-8 pb-8 sm:px-6 sm:pt-12 sm:pb-10 lg:min-h-[min(92vh,960px)] lg:max-w-[1440px] lg:grid-cols-[minmax(380px,1.15fr)_minmax(360px,1fr)_minmax(360px,0.9fr)] lg:items-center lg:gap-x-12 lg:px-14 lg:py-24 xl:gap-x-16 xl:px-16 xl:py-28"
-          style={{ isolation: 'isolate' }}
+          className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-0 px-4 pt-8 pb-8 sm:px-6 sm:pt-12 sm:pb-10 lg:min-h-[min(92vh,1000px)] lg:max-w-[1440px] lg:grid-cols-[minmax(420px,1.15fr)_minmax(360px,1fr)_minmax(360px,0.95fr)] lg:items-center lg:gap-x-14 lg:px-16 lg:py-28 xl:gap-x-16 xl:px-20 xl:py-32"
+          style={{ isolation: "isolate" }}
         >
-          {/* LEFT: copy only – strict boundary, no overlap */}
-          <div className="order-1 flex flex-col justify-center pb-0 sm:pb-4 lg:min-w-0 lg:max-w-[420px] lg:overflow-hidden lg:pb-0 lg:pr-4">
+          {/* 1. LEFT — Copy only. No overlap with center. */}
+          <div className="order-1 flex flex-col justify-center pb-0 sm:pb-4 lg:min-w-0 lg:max-w-[440px] lg:overflow-hidden lg:pb-0 lg:pr-6">
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/55 sm:text-xs sm:tracking-[0.32em]">
               FitLife Pass
             </p>
-            <h1 className="landing-hero-title hero-title mt-5 font-extrabold text-white sm:mt-6 lg:mt-8">
+            <h1 className="landing-hero-title hero-title mt-5 font-extrabold text-white sm:mt-6 lg:mt-10 lg:leading-[0.98]">
               <span className="block lg:whitespace-nowrap">Um só passe.</span>
               <span className="block lg:whitespace-nowrap">Todos os teus treinos.</span>
             </h1>
-            <p className="landing-hero-desc mt-5 max-w-md text-base leading-[1.7] text-white/85 sm:mt-6 sm:text-[1.0625rem] sm:leading-[1.75] lg:mt-6 lg:max-w-[400px] lg:text-[1.0625rem] lg:leading-[1.72]">
+            <p className="landing-hero-desc mt-5 max-w-md text-base leading-[1.7] text-white/85 sm:mt-6 sm:text-[1.0625rem] sm:leading-[1.75] lg:mt-8 lg:max-w-[400px] lg:text-[1.0625rem] lg:leading-[1.72]">
               <span className="block">Ginásio, yoga, padel, crossfit</span>
               <span className="block">e estúdios premium numa só experiência.</span>
             </p>
@@ -125,92 +126,64 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* CENTER: athlete only – contained in column, no spill */}
-          <div className="order-2 mt-6 mb-4 flex justify-center sm:mt-8 sm:mb-6 lg:order-2 lg:mt-0 lg:mb-0 lg:flex lg:min-h-0 lg:items-center lg:justify-center lg:overflow-hidden lg:px-2">
-            <div className="landing-hero-runner relative w-full max-w-full flex justify-center items-end lg:items-center lg:justify-center min-h-[320px] sm:min-h-[420px] lg:min-h-0 lg:w-full pointer-events-none">
-              {/* Mobile: existing glow layers (unchanged) */}
-              <div
-                className="absolute inset-0 flex items-center justify-center lg:hidden"
-                style={{ margin: '-12%' }}
-                aria-hidden
-              >
+          {/* 2. CENTER — Athlete only. Transparent area, no box, radial glow. */}
+          <div className="order-2 mt-6 mb-4 flex justify-center sm:mt-8 sm:mb-6 lg:order-2 lg:mt-0 lg:mb-0 lg:flex lg:min-h-0 lg:items-center lg:justify-center lg:overflow-hidden lg:px-4">
+            <div className="landing-hero-runner relative w-full max-w-full flex justify-center items-end min-h-[320px] sm:min-h-[420px] lg:min-h-0 lg:h-full lg:w-full lg:items-center pointer-events-none">
+              {/* Mobile glow layers — unchanged */}
+              <div className="absolute inset-0 flex items-center justify-center lg:hidden" style={{ margin: "-12%" }} aria-hidden>
                 <div
                   className="w-[85%] max-w-[520px] aspect-[3/4] rounded-full opacity-95"
                   style={{
-                    background: 'radial-gradient(ellipse 70% 90% at 50% 58%, rgba(90,140,255,0.4) 0%, rgba(60,120,255,0.22) 38%, transparent 82%)',
-                    filter: 'blur(56px)',
+                    background: "radial-gradient(ellipse 70% 90% at 50% 58%, rgba(90,140,255,0.4) 0%, rgba(60,120,255,0.22) 38%, transparent 82%)",
+                    filter: "blur(56px)",
                   }}
                 />
               </div>
-              <div
-                className="absolute inset-0 flex items-center justify-center opacity-80 lg:hidden"
-                style={{ margin: '-6%' }}
-                aria-hidden
-              >
+              <div className="absolute inset-0 flex items-center justify-center opacity-80 lg:hidden" style={{ margin: "-6%" }} aria-hidden>
                 <div
                   className="w-[72%] max-w-[440px] h-[58%] rounded-full"
                   style={{
-                    background: 'radial-gradient(ellipse 80% 70% at 50% 72%, rgba(147,197,253,0.18) 0%, transparent 58%)',
-                    filter: 'blur(64px)',
+                    background: "radial-gradient(ellipse 80% 70% at 50% 72%, rgba(147,197,253,0.18) 0%, transparent 58%)",
+                    filter: "blur(64px)",
                   }}
                 />
               </div>
-              {/* Desktop: soft radial behind athlete only, no box */}
-              <div
-                className="absolute inset-0 hidden lg:block pointer-events-none"
-                aria-hidden
-              >
+              {/* Desktop: single radial glow behind athlete, no container */}
+              <div className="absolute inset-0 hidden lg:block pointer-events-none" aria-hidden>
                 <div
-                  className="absolute left-1/2 top-1/2 h-full w-[160%] max-w-none -translate-x-1/2 -translate-y-1/2 opacity-70"
+                  className="absolute left-1/2 top-1/2 w-[180%] h-[140%] -translate-x-1/2 -translate-y-1/2"
                   style={{
-                    background: 'radial-gradient(ellipse 45% 55% at 50% 50%, rgba(90,140,255,0.2) 0%, rgba(60,120,255,0.08) 50%, transparent 72%)',
-                    filter: 'blur(48px)',
+                    background: "radial-gradient(ellipse 40% 50% at 50% 50%, rgba(90,140,255,0.28) 0%, rgba(70,130,255,0.12) 45%, transparent 70%)",
+                    filter: "blur(52px)",
                   }}
                 />
               </div>
-              {/* Athlete – strictly in center column on desktop, no translate */}
-              <div
-                className="relative flex justify-center items-end w-full lg:w-full lg:max-w-full"
-                style={{ filter: 'drop-shadow(0 0 88px rgba(90,140,255,0.28))' }}
-              >
+              {/* Image: contained in center column only */}
+              <div className="relative flex justify-center items-end w-full lg:items-center lg:justify-center" style={{ filter: "drop-shadow(0 0 80px rgba(90,140,255,0.25))" }}>
                 <div className="relative w-full flex justify-center hero-runner-scale">
                   <Image
                     src="/images/runner-hero.png"
                     alt="Runner"
                     width={1500}
                     height={2000}
-                    className="h-[340px] w-auto max-w-[92%] object-contain object-center sm:h-[460px] md:h-[580px] lg:h-auto lg:w-full lg:max-w-[420px] lg:object-center scale-[1.02]"
+                    className="h-[340px] w-auto max-w-[92%] object-contain object-center sm:h-[460px] md:h-[580px] lg:h-auto lg:w-full lg:max-w-[440px] lg:object-center scale-[1.02]"
                     style={{
-                      maskImage: 'linear-gradient(to bottom, black 0%, black 72%, transparent 100%)',
-                      WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 72%, transparent 100%)',
+                      maskImage: "linear-gradient(to bottom, black 0%, black 72%, transparent 100%)",
+                      WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 72%, transparent 100%)",
                     }}
                     priority
                     unoptimized
                   />
-                  {/* Bottom gradient fade – blends feet into ground */}
-                  <div
-                    className="pointer-events-none absolute inset-x-0 bottom-0 h-[45%]"
-                    style={{
-                      background: 'linear-gradient(to top, #070f2b 0%, rgba(7,15,43,0.88) 28%, rgba(7,15,43,0.42) 56%, transparent 100%)',
-                    }}
-                    aria-hidden
-                  />
-                  {/* Subtle color blend overlay – ties figure to background */}
-                  <div
-                    className="pointer-events-none absolute inset-0 mix-blend-overlay opacity-[0.12]"
-                    style={{
-                      background: 'radial-gradient(ellipse 80% 90% at 50% 50%, rgba(37,99,235,0.4) 0%, transparent 70%)',
-                    }}
-                    aria-hidden
-                  />
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[45%]" style={{ background: "linear-gradient(to top, #070f2b 0%, rgba(7,15,43,0.88) 28%, rgba(7,15,43,0.42) 56%, transparent 100%)" }} aria-hidden />
+                  <div className="pointer-events-none absolute inset-0 mix-blend-overlay opacity-[0.12]" style={{ background: "radial-gradient(ellipse 80% 90% at 50% 50%, rgba(37,99,235,0.4) 0%, transparent 70%)" }} aria-hidden />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* RIGHT: auth card only */}
-          <div className="order-3 relative z-30 flex items-center justify-center mt-0 pt-0 sm:pt-4 lg:order-3 lg:mt-0 lg:flex lg:items-center lg:justify-center lg:pt-0 lg:pl-4">
-            <div className="hero-float-card w-full max-w-sm rounded-[var(--radius-card)] sm:max-w-[400px] lg:w-full lg:max-w-[420px] lg:min-w-[360px] lg:bg-white/[0.04] lg:border lg:border-white/[0.08] lg:backdrop-blur-[18px] lg:shadow-[0_40px_90px_rgba(0,0,0,0.45)]">
+          {/* 3. RIGHT — Auth card only. */}
+          <div className="order-3 relative z-30 flex items-center justify-center mt-0 pt-0 sm:pt-4 lg:order-3 lg:mt-0 lg:flex lg:items-center lg:justify-center lg:pt-0 lg:pl-6">
+            <div className="hero-float-card w-full max-w-sm rounded-[var(--radius-card)] sm:max-w-[400px] lg:w-full lg:max-w-[400px] lg:min-w-[360px] lg:bg-white/[0.04] lg:border lg:border-white/[0.08] lg:backdrop-blur-[18px] lg:shadow-[0_40px_90px_rgba(0,0,0,0.45)]">
               <Suspense fallback={null}>
                 <PremiumAuthCard desktopWider />
               </Suspense>
