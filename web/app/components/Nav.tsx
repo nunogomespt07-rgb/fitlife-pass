@@ -292,11 +292,7 @@ export default function Nav() {
             </div>
           </div>
           <div className="flex-1 overflow-y-auto px-4 pb-[max(28px,env(safe-area-inset-bottom))] pt-2">
-            {searchQuery.trim().length === 0 ? (
-              <div className="rounded-[28px] border border-white/[0.08] bg-[rgba(255,255,255,0.03)] px-5 py-5 text-white/70 shadow-[0_16px_40px_rgba(0,0,0,0.22)]">
-                Procura atividades, parceiros ou clubes
-              </div>
-            ) : filteredSearchItems.length === 0 ? (
+            {searchQuery.trim().length === 0 ? null : filteredSearchItems.length === 0 ? (
               <div className="rounded-[28px] border border-white/[0.08] bg-[rgba(255,255,255,0.03)] px-5 py-5 text-white/70 shadow-[0_16px_40px_rgba(0,0,0,0.22)]">
                 Sem resultados
               </div>
