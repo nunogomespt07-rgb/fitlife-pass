@@ -103,14 +103,14 @@ export default function LandingPage() {
           aria-hidden
         />
 
-        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-0 px-4 pt-8 pb-8 sm:px-6 sm:pt-12 sm:pb-10 lg:min-h-[min(92vh,920px)] lg:max-w-[1440px] lg:grid-cols-[1.1fr_1.25fr_0.9fr] lg:items-center lg:gap-x-16 lg:px-12 lg:py-20 xl:gap-x-20 xl:px-16 xl:py-24">
-          {/* LEFT: headline – editorial, more width on desktop */}
-          <div className="order-1 flex flex-col justify-center pb-0 sm:pb-4 lg:max-w-[520px] lg:pb-0 lg:pr-4">
+        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-0 px-4 pt-8 pb-8 sm:px-6 sm:pt-12 sm:pb-10 lg:min-h-[min(92vh,960px)] lg:max-w-[1440px] lg:grid-cols-[1.2fr_1.1fr_0.9fr] lg:items-center lg:gap-x-16 lg:px-12 lg:py-24 xl:gap-x-20 xl:px-16 xl:py-28">
+          {/* LEFT: headline – one line for first sentence on desktop */}
+          <div className="order-1 flex flex-col justify-center pb-0 sm:pb-4 lg:min-w-0 lg:pb-0 lg:pr-6">
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/55 sm:text-xs sm:tracking-[0.32em]">
               FitLife Pass
             </p>
             <h1 className="landing-hero-title hero-title mt-5 font-extrabold text-white sm:mt-6 lg:mt-8 lg:leading-[1.08]">
-              <span className="block">Um só passe.</span>
+              <span className="block lg:whitespace-nowrap">Um só passe.</span>
               <span className="block">Todos os teus</span>
               <span className="block">treinos.</span>
             </h1>
@@ -123,10 +123,24 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* CENTER: athlete scene – visual hero on desktop */}
-          <div className="order-2 mt-6 mb-4 flex justify-center sm:mt-8 sm:mb-6 lg:order-2 lg:mt-0 lg:mb-0 lg:flex lg:min-h-0 lg:items-center lg:justify-center lg:overflow-visible lg:px-4">
+          {/* CENTER: athlete – integrated, no square container on desktop */}
+          <div className="order-2 mt-6 mb-4 flex justify-center sm:mt-8 sm:mb-6 lg:order-2 lg:mt-0 lg:mb-0 lg:flex lg:min-h-0 lg:items-center lg:justify-center lg:overflow-visible lg:px-2">
             <div className="landing-hero-runner relative w-full max-w-full flex justify-center items-end lg:items-center min-h-[320px] sm:min-h-[420px] lg:min-h-0 pointer-events-none">
-              {/* Soft radial glow behind runner – ambient light integration */}
+              {/* Desktop: subtle radial behind athlete to blend into background */}
+              <div
+                className="absolute inset-0 hidden items-center justify-center lg:flex"
+                style={{ margin: '-15%' }}
+                aria-hidden
+              >
+                <div
+                  className="h-[85%] w-[75%] rounded-full opacity-90"
+                  style={{
+                    background: 'radial-gradient(ellipse 60% 80% at 50% 55%, rgba(90,140,255,0.25) 0%, rgba(60,120,255,0.12) 45%, transparent 75%)',
+                    filter: 'blur(48px)',
+                  }}
+                />
+              </div>
+              {/* Soft radial glow – ambient light (mobile + desktop) */}
               <div
                 className="absolute inset-0 flex items-center justify-center"
                 style={{ margin: '-12%' }}
@@ -154,7 +168,7 @@ export default function LandingPage() {
                   }}
                 />
               </div>
-              {/* Athlete container – desktop: larger scale + shift right (mobile unchanged) */}
+              {/* Athlete – centered on desktop, glow preserved */}
               <div
                 className="relative flex justify-center items-end w-full"
                 style={{ filter: 'drop-shadow(0 0 88px rgba(90,140,255,0.28))' }}
@@ -165,7 +179,7 @@ export default function LandingPage() {
                     alt="Runner"
                     width={1500}
                     height={2000}
-                    className="h-[340px] w-auto max-w-[92%] object-contain object-center sm:h-[460px] md:h-[580px] lg:h-auto lg:w-[580px] lg:max-w-[95%] lg:object-center scale-[1.02]"
+                    className="h-[340px] w-auto max-w-[92%] object-contain object-center sm:h-[460px] md:h-[580px] lg:h-auto lg:w-[620px] lg:max-w-[100%] lg:object-center scale-[1.02]"
                     style={{
                       maskImage: 'linear-gradient(to bottom, black 0%, black 72%, transparent 100%)',
                       WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 72%, transparent 100%)',
@@ -194,9 +208,9 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* RIGHT: auth card – premium panel on desktop */}
-          <div className="order-3 relative z-30 flex items-center justify-center mt-0 pt-0 sm:pt-4 lg:order-3 lg:mt-0 lg:flex lg:items-center lg:justify-start lg:pt-0 lg:pl-4">
-            <div className="hero-float-card w-full max-w-sm rounded-[var(--radius-card)] sm:max-w-[400px] lg:w-full lg:max-w-[420px] lg:min-w-[380px] lg:bg-white/[0.04] lg:border lg:border-white/[0.08] lg:backdrop-blur-[18px] lg:shadow-[0_40px_90px_rgba(0,0,0,0.45)]">
+          {/* RIGHT: auth card – wider, more padding on desktop */}
+          <div className="order-3 relative z-30 flex items-center justify-center mt-0 pt-0 sm:pt-4 lg:order-3 lg:mt-0 lg:flex lg:items-center lg:justify-start lg:pt-0 lg:pl-6">
+            <div className="hero-float-card w-full max-w-sm rounded-[var(--radius-card)] sm:max-w-[400px] lg:w-full lg:max-w-[440px] lg:min-w-[400px] lg:bg-white/[0.04] lg:border lg:border-white/[0.08] lg:backdrop-blur-[18px] lg:shadow-[0_40px_90px_rgba(0,0,0,0.45)]">
               <Suspense fallback={null}>
                 <PremiumAuthCard desktopWider />
               </Suspense>
