@@ -83,10 +83,15 @@ export default function DashboardReservasPage() {
         className="transition duration-[180ms] hover:translate-y-[-2px]"
       >
         <p className="app-card-title text-white">{r.partnerName}</p>
-        <p className="mt-1 text-[15px] text-white/90">
+        {(r.location || r.type === "gym") && (
+          <p className="mt-1.5 text-sm text-white/75">
+            {isGym ? "Acesso ginásio" : r.location ?? ""}
+          </p>
+        )}
+        <p className="mt-2 text-[15px] text-white/90">
           {formatDate(r.date)} — {r.time}
         </p>
-        <p className="mt-2 text-xs font-semibold uppercase tracking-wider text-white/65">
+        <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-white/65">
           {isGym
             ? "Acesso ginásio"
             : isRestaurant
@@ -121,8 +126,8 @@ export default function DashboardReservasPage() {
           </p>
         )}
         {r.creditsUsed > 0 && (
-          <p className="mt-1 text-xs text-white/65">
-            {r.creditsUsed} crédito{r.creditsUsed !== 1 ? "s" : ""}
+          <p className="mt-3 text-sm text-white/80">
+            {r.creditsUsed} crédito{r.creditsUsed !== 1 ? "s" : ""} utilizados
           </p>
         )}
         {showCancel && (
@@ -172,12 +177,20 @@ export default function DashboardReservasPage() {
             <GlassCard
               variant="app"
               padding="lg"
-              className="text-center text-white/65"
+              className="flex min-h-[200px] flex-col items-center justify-center text-center"
             >
-              <p className="text-[15px]">Não tens reservas futuras.</p>
+              <p className="app-card-title text-white">Ainda não tens reservas futuras.</p>
+              <p className="mt-3 text-[15px] text-white/75 max-w-sm">
+                Explora atividades e reserva o teu próximo treino.
+              </p>
+              <Link href="/activities" className="mt-5">
+                <PrimaryButton variant="appPrimary" className="min-w-[200px]">
+                  Explorar atividades
+                </PrimaryButton>
+              </Link>
             </GlassCard>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-5">
               {proximas.map((r) => renderCard(r, true))}
             </div>
           )}

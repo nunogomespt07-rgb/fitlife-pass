@@ -17,41 +17,13 @@ import { useFavorites } from "@/app/context/FavoritesContext";
 const ACTIVITIES_HERO_SRC = "/images/fitness-hero.jpg";
 
 const ACTIVITY_CATEGORIES = [
-  {
-    slug: "ginasios",
-    label: "Ginásios",
-    description: "Treina em health clubs e ginásios completos.",
-  },
-  {
-    slug: "padel",
-    label: "Padel",
-    description: "Reserva campos de padel em clubes parceiros.",
-  },
-  {
-    slug: "yoga",
-    label: "Yoga",
-    description: "Aulas de yoga em estúdios calmos e modernos.",
-  },
-  {
-    slug: "estudios",
-    label: "Estúdios",
-    description: "Pilates, cycling, HIIT e muito mais.",
-  },
-  {
-    slug: "crossfit",
-    label: "CrossFit",
-    description: "Boxes especializadas para treinos intensos.",
-  },
-  {
-    slug: "piscinas",
-    label: "Piscinas",
-    description: "Natação e treinos aquáticos em piscinas parceiras.",
-  },
-  {
-    slug: "healthy-food",
-    label: "Healthy Food",
-    description: "Restaurantes saudáveis com reserva e desconto exclusivo FitLife Pass.",
-  },
+  { slug: "ginasios", label: "Ginásios", description: "Treina em health clubs e ginásios completos.", city: "Lisboa", creditsFrom: 6 },
+  { slug: "padel", label: "Padel", description: "Reserva campos de padel em clubes parceiros.", city: "Lisboa", creditsFrom: 8 },
+  { slug: "yoga", label: "Yoga", description: "Aulas de yoga em estúdios calmos e modernos.", city: "Lisboa", creditsFrom: 4 },
+  { slug: "estudios", label: "Estúdios", description: "Pilates, cycling, HIIT e muito mais.", city: "Lisboa", creditsFrom: 6 },
+  { slug: "crossfit", label: "CrossFit", description: "Boxes especializadas para treinos intensos.", city: "Lisboa", creditsFrom: 8 },
+  { slug: "piscinas", label: "Piscinas", description: "Natação e treinos aquáticos em piscinas parceiras.", city: "Lisboa", creditsFrom: 5 },
+  { slug: "healthy-food", label: "Healthy Food", description: "Restaurantes saudáveis com reserva e desconto exclusivo FitLife Pass.", city: "Lisboa", creditsFrom: 6 },
 ] as const;
 
 function NearbyPartnerCard({
@@ -182,17 +154,22 @@ export default function ActivitiesPage() {
                   padding="lg"
                   hover
                   activityStyle
-                  className="flex h-full min-h-[180px] flex-col items-center justify-between text-center"
+                  className="flex h-full min-h-[200px] flex-col items-center justify-between text-center"
                 >
                   <div>
                     <h2 className="app-card-title text-white sm:text-xl">
                       {cat.label}
                     </h2>
-                    <p className="mt-3 text-[13px] text-white/65">
+                    <p className="mt-2 text-[15px] text-white/75">
                       {cat.description}
                     </p>
+                    <p className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-white/65">
+                      <span>📍 {cat.city}</span>
+                      <span>⏱ Sessões disponíveis</span>
+                      <span>💳 desde {cat.creditsFrom} créditos</span>
+                    </p>
                   </div>
-                  <span className="mt-6 inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/10 px-4 py-2.5 text-sm font-medium text-white transition duration-[180ms] group-hover:bg-white/15 group-hover:border-white/25 group-hover:translate-y-[-2px]">
+                  <span className="mt-5 inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/10 px-4 py-2.5 text-sm font-medium text-white transition duration-[180ms] group-hover:bg-white/15 group-hover:border-white/25 group-hover:translate-y-[-2px]">
                     Ver parceiros →
                   </span>
                 </GlassCard>

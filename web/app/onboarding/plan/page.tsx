@@ -110,12 +110,17 @@ export default function OnboardingPlanPage() {
                 key={plan.id}
                 variant="dark"
                 padding="lg"
-                className={`flex h-full flex-col rounded-2xl border backdrop-blur-xl transition-all duration-200 ${
+                className={`relative flex h-full flex-col rounded-2xl border backdrop-blur-xl transition-all duration-200 ${
                   isSelected
                     ? "border-blue-400/60 bg-white/[0.12] shadow-[0_16px_40px_rgba(37,99,235,0.65)]"
                     : "border-white/[0.14] bg-white/[0.06] hover:bg-white/[0.1] hover:shadow-[0_16px_40px_rgba(15,23,42,0.6)]"
                 }`}
               >
+                {plan.planName === "FitLife Core" && (
+                  <span className="mb-2 inline-block text-xs font-medium text-amber-200/95">
+                    ⭐ Mais popular
+                  </span>
+                )}
                 <p className="text-sm font-semibold uppercase tracking-wider text-white/60">
                   {plan.planName}
                 </p>

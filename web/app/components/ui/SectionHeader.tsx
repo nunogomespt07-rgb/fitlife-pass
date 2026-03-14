@@ -31,7 +31,7 @@ export default function SectionHeader({
         {title}
       </h2>
       {subtitle && (
-        <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-white/72 sm:mt-5 sm:text-base">
+        <p className="mt-2 max-w-xl text-[15px] leading-relaxed text-white/75 sm:mt-3 sm:text-base">
           {subtitle}
         </p>
       )}

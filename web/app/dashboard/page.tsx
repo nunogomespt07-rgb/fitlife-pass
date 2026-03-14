@@ -137,8 +137,15 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-4xl px-4 pt-8 pb-16">
-        <p className="text-white/60">A carregar…</p>
+      <div className="mx-auto max-w-4xl px-4 pb-24 pt-8 sm:px-6 lg:px-10">
+        <div className="h-10 w-48 rounded-lg bg-white/10 skeleton-shimmer" />
+        <div className="mt-6 h-4 w-full max-w-md rounded bg-white/10 skeleton-shimmer" />
+        <div className="mt-12 grid gap-6 sm:grid-cols-2">
+          <div className="h-44 rounded-2xl bg-white/10 skeleton-shimmer" />
+          <div className="h-44 rounded-2xl bg-white/10 skeleton-shimmer" />
+        </div>
+        <div className="mt-12 h-8 w-64 rounded bg-white/10 skeleton-shimmer" />
+        <div className="mt-6 h-32 rounded-2xl bg-white/10 skeleton-shimmer" />
       </div>
     );
   }
@@ -148,8 +155,8 @@ export default function DashboardPage() {
   const hasPlan = Boolean(getStoredUser()?.subscriptionPlanId);
 
   return (
-    <div className="mx-auto max-w-4xl px-4 pb-16 pt-6 sm:px-6 lg:px-10">
-      <header className="mb-10 sm:mb-12">
+    <div className="mx-auto max-w-4xl px-4 pb-24 pt-8 sm:px-6 sm:pt-10 lg:px-10">
+      <header className="mb-8 sm:mb-10">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/65">
           FitLife Pass · Área pessoal
         </p>
@@ -161,8 +168,18 @@ export default function DashboardPage() {
         </p>
       </header>
 
+        {/* Primary CTA */}
+        <div className="mt-8 sm:mt-10">
+          <Link href="/activities" className="block">
+            <PrimaryButton variant="appPrimary" className="w-full sm:w-auto min-w-[240px] py-4 text-base font-semibold">
+              Explorar atividades
+            </PrimaryButton>
+          </Link>
+          <p className="mt-2 text-sm text-white/75">ou <Link href="/dashboard/reservas" className="font-medium text-white/90 underline-offset-2 hover:underline">ver as minhas reservas</Link></p>
+        </div>
+
         {/* Resumo principal */}
-        <div className="mt-12 grid gap-6 sm:mt-16 sm:grid-cols-2">
+        <div className="mt-12 grid gap-6 sm:mt-14 sm:grid-cols-2">
           <DashboardCard
             hero
             title="Créditos"
@@ -215,7 +232,7 @@ export default function DashboardPage() {
           title="Minhas reservas"
           subtitle="Próximas atividades e reservas de mesa."
           variant="app"
-          className="mt-20"
+          className="mt-12 sm:mt-14"
         />
 
         {successMessage && (
@@ -230,11 +247,11 @@ export default function DashboardPage() {
             padding="lg"
             className="mt-8 flex min-h-[200px] flex-col items-center justify-center text-center"
           >
-            <p className="text-base font-medium text-white/90">Sem reservas ativas</p>
-            <p className="mt-2 text-base text-white/65">Ainda não tens reservas. Explora atividades e faz a tua primeira reserva.</p>
-            <Link href="/activities">
-              <PrimaryButton variant="appSecondary" className="mt-6 py-3.5">
-                Ver atividades →
+            <p className="app-card-title text-white">Ainda não tens reservas ativas.</p>
+            <p className="mt-3 text-[15px] text-white/75 max-w-sm">Explora atividades e reserva o teu próximo treino.</p>
+            <Link href="/activities" className="mt-5">
+              <PrimaryButton variant="appPrimary" className="min-w-[200px]">
+                Explorar atividades
               </PrimaryButton>
             </Link>
           </GlassCard>
@@ -340,7 +357,16 @@ export default function DashboardPage() {
           </ul>
         )}
 
-        <div className="mt-20 flex flex-wrap items-start justify-between gap-4">
+        {/* Location-ready: Atividades perto de ti (future) */}
+        <section className="mt-12 sm:mt-14" aria-label="Atividades perto de ti">
+          <h2 className="app-section-title text-white/90">Atividades perto de ti</h2>
+          <p className="mt-2 text-[15px] text-white/75 max-w-xl">Em breve poderás ver atividades e parceiros perto da tua localização.</p>
+          <Link href="/activities" className="mt-4 inline-block text-sm font-medium text-white/85 underline-offset-2 hover:underline">
+            Ver todas as atividades →
+          </Link>
+        </section>
+
+        <div className="mt-12 sm:mt-14 flex flex-wrap items-start justify-between gap-4">
           <SectionHeader
             title="Histórico de reservas"
             subtitle="Reservas passadas, concluídas ou canceladas."

@@ -165,7 +165,7 @@ export default function LandingPage() {
                     alt="Runner"
                     width={1500}
                     height={2000}
-                    className="h-[320px] w-auto max-w-[92%] object-contain object-center sm:h-[440px] md:h-[560px] lg:h-auto lg:w-[460px] lg:max-w-none scale-[1.02]"
+                    className="h-[340px] w-auto max-w-[92%] object-contain object-center sm:h-[460px] md:h-[580px] lg:h-auto lg:w-[520px] lg:max-w-none scale-[1.02]"
                     style={{
                       maskImage: 'linear-gradient(to bottom, black 0%, black 72%, transparent 100%)',
                       WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 72%, transparent 100%)',

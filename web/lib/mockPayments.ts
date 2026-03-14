@@ -93,6 +93,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     monthlyPrice: 89,
     creditsIncluded: 100,
     currency: "€",
+    isPopular: true,
     benefits: [
       "100 créditos mensais incluídos",
       "Acesso a todos os parceiros",
@@ -105,7 +106,6 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     monthlyPrice: 129,
     creditsIncluded: 110,
     currency: "€",
-    isPopular: true,
     benefits: [
       "110 créditos mensais incluídos",
       "Acesso a todos os parceiros",

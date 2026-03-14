@@ -14,9 +14,9 @@ type GlassCardProps = {
 
 const paddingMap = {
   none: "",
-  sm: "p-5 sm:p-6",
-  md: "p-6 sm:p-8",
-  lg: "p-6 sm:p-9",
+  sm: "p-5 sm:p-5",
+  md: "p-5 sm:p-6",
+  lg: "p-6 sm:p-6",
 };
 
 export default function GlassCard({
