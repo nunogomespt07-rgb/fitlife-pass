@@ -13,6 +13,8 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedAge, setAcceptedAge] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -21,6 +23,10 @@ export default function RegisterPage() {
     setError("");
     if (password !== confirmPassword) {
       setError("As passwords não coincidem.");
+      return;
+    }
+    if (!acceptedTerms || !acceptedAge) {
+      setError("É necessário aceitar os Termos e Condições para criar conta.");
       return;
     }
     setLoading(true);
@@ -77,6 +83,10 @@ export default function RegisterPage() {
           email: (userFromApi && typeof userFromApi === "object" && (userFromApi as { email?: string }).email) ?? email.trim().toLowerCase(),
           subscriptionPlanId: null as string | null,
           subscriptionPlanName: null as string | null,
+          acceptedTerms: true,
+          acceptedTermsAt: new Date().toISOString(),
+          acceptedPrivacy: true,
+          acceptedAgeConfirmation: true,
         };
         localStorage.setItem("fitlife-user", JSON.stringify(payload));
         router.push("/onboarding/profile");
@@ -165,6 +175,37 @@ export default function RegisterPage() {
                 className="w-full rounded-[20px] border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/40 outline-none transition focus:ring-2 focus:ring-white/20"
                 placeholder="••••••••"
               />
+            </div>
+            <div className="flex items-start gap-3">
+              <input
+                id="accept-terms"
+                type="checkbox"
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                className="mt-1 h-4 w-4 shrink-0 rounded border border-white/20 bg-white/5 text-white focus:ring-2 focus:ring-white/20"
+              />
+              <label htmlFor="accept-terms" className="text-sm text-white/80">
+                Concordo com os{" "}
+                <Link href="/legal/termos" className="font-medium text-white underline underline-offset-2 hover:text-white/90">
+                  Termos e Condições
+                </Link>{" "}
+                e{" "}
+                <Link href="/legal/privacidade" className="font-medium text-white underline underline-offset-2 hover:text-white/90">
+                  Política de Privacidade
+                </Link>
+              </label>
+            </div>
+            <div className="flex items-start gap-3">
+              <input
+                id="accept-age"
+                type="checkbox"
+                checked={acceptedAge}
+                onChange={(e) => setAcceptedAge(e.target.checked)}
+                className="mt-1 h-4 w-4 shrink-0 rounded border border-white/20 bg-white/5 text-white focus:ring-2 focus:ring-white/20"
+              />
+              <label htmlFor="accept-age" className="text-sm text-white/80">
+                Confirmo que tenho 16 anos ou mais
+              </label>
             </div>
             {error && (
               <p className="rounded-[16px] border border-red-400/30 bg-red-500/10 px-3 py-2 text-sm text-red-100">

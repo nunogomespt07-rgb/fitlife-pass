@@ -30,6 +30,11 @@ export type StoredUser = {
   dateOfBirth?: string | null;
   nif?: string | null;
   isForeign?: boolean;
+  /** Legal acceptance at registration. */
+  acceptedTerms?: boolean;
+  acceptedTermsAt?: string | null;
+  acceptedPrivacy?: boolean;
+  acceptedAgeConfirmation?: boolean;
 };
 
 const STORAGE_KEY = "fitlife-user";
@@ -83,6 +88,10 @@ export function getStoredUser(): StoredUser | null {
       dateOfBirth: parsed.dateOfBirth == null ? null : String(parsed.dateOfBirth),
       nif: parsed.nif == null ? null : String(parsed.nif),
       isForeign: parsed.isForeign === true,
+      acceptedTerms: parsed.acceptedTerms === true,
+      acceptedTermsAt: parsed.acceptedTermsAt == null ? null : String(parsed.acceptedTermsAt),
+      acceptedPrivacy: parsed.acceptedPrivacy === true,
+      acceptedAgeConfirmation: parsed.acceptedAgeConfirmation === true,
     };
   } catch {
     return null;
@@ -119,6 +128,10 @@ export function setStoredUser(user: Partial<StoredUser>): void {
       dateOfBirth: user.dateOfBirth !== undefined ? user.dateOfBirth : current?.dateOfBirth ?? null,
       nif: user.nif !== undefined ? user.nif : current?.nif ?? null,
       isForeign: user.isForeign !== undefined ? user.isForeign : current?.isForeign,
+      acceptedTerms: user.acceptedTerms !== undefined ? user.acceptedTerms : current?.acceptedTerms,
+      acceptedTermsAt: user.acceptedTermsAt !== undefined ? user.acceptedTermsAt : current?.acceptedTermsAt ?? null,
+      acceptedPrivacy: user.acceptedPrivacy !== undefined ? user.acceptedPrivacy : current?.acceptedPrivacy,
+      acceptedAgeConfirmation: user.acceptedAgeConfirmation !== undefined ? user.acceptedAgeConfirmation : current?.acceptedAgeConfirmation,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
   } catch {
