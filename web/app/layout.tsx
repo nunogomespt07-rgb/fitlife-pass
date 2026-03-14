@@ -21,8 +21,10 @@ export default function RootLayout({
         <Providers>
           <MobileSearchProvider>
             <Nav />
-            {children}
-            <Footer />
+            <div className="pb-[calc(140px+env(safe-area-inset-bottom,0px))] md:pb-0">
+              {children}
+              <Footer />
+            </div>
             <MobileDashboardNav />
           </MobileSearchProvider>
         </Providers>
