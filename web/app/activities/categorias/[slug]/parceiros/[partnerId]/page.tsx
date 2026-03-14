@@ -4,11 +4,13 @@ import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
+  activityDateToISO,
   getMockActivitiesForPartner,
   getPartnerBySlugAndId,
 } from "@/lib/activitiesData";
 import type { MockActivity } from "@/lib/activitiesData";
 import { useMockReservations } from "@/app/context/MockReservationsContext";
+import type { UnifiedReservation } from "@/lib/unifiedReservations";
 import { useFavorites } from "@/app/context/FavoritesContext";
 import GlassCard from "@/app/components/ui/GlassCard";
 import PrimaryButton from "@/app/components/ui/PrimaryButton";
@@ -32,11 +34,11 @@ export default function PartnerActivitiesPage() {
     () => getMockActivitiesForPartner(partnerId),
     [partnerId]
   );
-  const { addReservation, countReservationsForActivity } = useMockReservations();
+  const { addReservation, addGymReservation, countReservationsForActivity } = useMockReservations();
   const { toggleActivityPartner, isActivityPartnerFavorite } = useFavorites();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [gymQROpen, setGymQROpen] = useState(false);
+  const [gymReservation, setGymReservation] = useState<UnifiedReservation | null>(null);
   const [padelReservarActivity, setPadelReservarActivity] = useState<MockActivity | null>(null);
   const [padelPlayerCount, setPadelPlayerCount] = useState(2);
 
@@ -61,7 +63,7 @@ export default function PartnerActivitiesPage() {
         partnerId,
         partnerName: partner.name,
         categorySlug: slug,
-        date: act.date,
+        date: activityDateToISO(act.date),
         time: act.time,
         creditsRequired: totalCredits,
         location: act.location,
@@ -205,7 +207,23 @@ export default function PartnerActivitiesPage() {
               <PrimaryButton
                 variant="primary"
                 className="mt-6 w-full sm:w-auto"
-                onClick={() => setGymQROpen(true)}
+                onClick={() => {
+                  setErrorMessage(null);
+                  const credits = partner.creditsPerEntry ?? partner.minCredits ?? 6;
+                  const result = addGymReservation({
+                    partnerId: partner.id,
+                    partnerName: partner.name,
+                    creditsRequired: credits,
+                  });
+                  if (result.success && result.reservation) {
+                    setGymReservation(result.reservation);
+                    setSuccessMessage(`Acesso reservado. ${credits} crédito${credits !== 1 ? "s" : ""} utilizados. QR válido por 8 horas.`);
+                    setTimeout(() => setSuccessMessage(null), 6000);
+                  } else {
+                    setErrorMessage(result.error ?? "Erro ao reservar acesso.");
+                    setTimeout(() => setErrorMessage(null), 5000);
+                  }
+                }}
               >
                 Entrar agora
               </PrimaryButton>
@@ -360,8 +378,12 @@ export default function PartnerActivitiesPage() {
           </Link>
         </div>
 
-        {gymQROpen && (
-          <GymEntryQRModal partner={partner} onClose={() => setGymQROpen(false)} />
+        {gymReservation && (
+          <GymEntryQRModal
+            partner={partner}
+            reservation={gymReservation}
+            onClose={() => setGymReservation(null)}
+          />
         )}
 
         {padelReservarActivity && (

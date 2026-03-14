@@ -58,6 +58,19 @@ export default function OnboardingProfilePage() {
       setError("Data de nascimento é obrigatória.");
       return;
     }
+    const birth = new Date(dateOfBirth.trim());
+    if (Number.isNaN(birth.getTime())) {
+      setError("Data de nascimento inválida.");
+      return;
+    }
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+    if (age < 16) {
+      setError("É necessário ter pelo menos 16 anos para criar conta.");
+      return;
+    }
     setLoading(true);
     try {
       const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();

@@ -3,7 +3,7 @@
  * Persisted in localStorage under one key.
  */
 
-export type ReservationStatus = "confirmed" | "cancelled" | "completed";
+export type ReservationStatus = "confirmed" | "cancelled" | "completed" | "expired" | "used";
 
 export type PeopleLabel = "pessoas" | "jogadores";
 
@@ -12,7 +12,7 @@ export type UnifiedReservation = {
   userId?: string;
   partnerId: string;
   partnerName: string;
-  type: "activity" | "restaurant";
+  type: "activity" | "restaurant" | "gym";
   date: string;
   time: string;
   people: number;
@@ -48,6 +48,10 @@ const OLD_KEY_RESTAURANT = "fitlife-restaurant-reservations";
 const OLD_KEY_RESTAURANT_HISTORY = "fitlife-restaurant-history";
 const DEFAULT_CREDITS = 0;
 const CANCELLATION_REFUND_HOURS = 12;
+/** Gym QR / access valid for 8 hours from creation. */
+export const GYM_ACCESS_VALID_HOURS = 8;
+/** Minimum hours before scheduled start to allow cancellation. */
+export const CANCELLATION_MIN_HOURS_BEFORE = 6;
 
 function safeParse<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -89,8 +93,20 @@ function isDateTodayOrFuture(dateStr: string): boolean {
   return dateStr >= todayYMD();
 }
 
+/** Parse date string (YYYY-MM-DD or DD/MM/YYYY) + time to Date. */
 export function getScheduledDateTime(reservation: Pick<UnifiedReservation, "date" | "time">): Date | null {
-  const iso = `${reservation.date}T${reservation.time}:00`;
+  const dateStr = reservation.date.trim();
+  const timeStr = (reservation.time || "00:00").trim();
+  let iso: string;
+  if (dateStr.includes("/")) {
+    const [d, m, y] = dateStr.split("/");
+    if (!d || !m || !y) return null;
+    iso = `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}T${timeStr.includes(":") ? timeStr : timeStr + ":00"}`;
+    if (iso.length < 19) iso = `${iso}:00`;
+  } else {
+    iso = `${dateStr}T${timeStr.includes(":") ? timeStr : timeStr + ":00"}`;
+    if (iso.length < 19) iso = `${iso}:00`;
+  }
   const d = new Date(iso);
   return Number.isNaN(d.getTime()) ? null : d;
 }
@@ -102,6 +118,37 @@ export function canRefundOnCancellation(reservation: UnifiedReservation, now: Da
   if (!scheduled) return false;
   const diffMs = scheduled.getTime() - now.getTime();
   return diffMs >= CANCELLATION_REFUND_HOURS * 60 * 60 * 1000;
+}
+
+/** True if gym reservation is past 8h from createdAt (QR no longer valid). */
+export function isGymQrExpired(reservation: UnifiedReservation, now: Date = new Date()): boolean {
+  if (reservation.type !== "gym") return false;
+  const created = new Date(reservation.createdAt);
+  const expiry = new Date(created.getTime() + GYM_ACCESS_VALID_HOURS * 60 * 60 * 1000);
+  return now >= expiry;
+}
+
+/** Display status for a reservation (active, used, expired, etc.). */
+export function getReservationStatus(
+  reservation: UnifiedReservation,
+  now: Date = new Date()
+): ReservationStatus {
+  if (reservation.status !== "confirmed") return reservation.status;
+  if (reservation.type === "gym") {
+    if (reservation.completedAt) return "used";
+    if (isGymQrExpired(reservation, now)) return "expired";
+  }
+  return "confirmed";
+}
+
+/** True if user can cancel (at least CANCELLATION_MIN_HOURS_BEFORE before start). */
+export function canCancelReservation(reservation: UnifiedReservation, now: Date = new Date()): boolean {
+  if (reservation.status !== "confirmed") return false;
+  if (reservation.type === "gym") return !isGymQrExpired(reservation, now);
+  const scheduled = getScheduledDateTime(reservation);
+  if (!scheduled) return true;
+  const diffMs = scheduled.getTime() - now.getTime();
+  return diffMs >= CANCELLATION_MIN_HOURS_BEFORE * 60 * 60 * 1000;
 }
 
 /** Migrate from legacy separate stores into unified list. */
@@ -246,11 +293,14 @@ export function generateUnifiedReservationId(prefix = "res"): string {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 }
 
-/** Count reservations where status is confirmed and date >= today (activity + restaurant). */
+/** Count reservations that are active (confirmed, not expired for gym). */
 export function getActiveReservationCount(reservations: UnifiedReservation[]): number {
-  return reservations.filter(
-    (r) => r.status === "confirmed" && isDateTodayOrFuture(r.date)
-  ).length;
+  const now = new Date();
+  return reservations.filter((r) => {
+    if (r.status !== "confirmed") return false;
+    if (r.type === "gym") return !isGymQrExpired(r, now);
+    return isDateTodayOrFuture(r.date);
+  }).length;
 }
 
 /** Credits = purchased (from plan/bonus) - used. No demo default for new users. */

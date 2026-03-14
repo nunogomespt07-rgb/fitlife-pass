@@ -3,20 +3,23 @@
 import { useEffect } from "react";
 import QRCode from "react-qr-code";
 import type { Partner } from "@/lib/activitiesData";
+import type { UnifiedReservation } from "@/lib/unifiedReservations";
 import GlassCard from "./GlassCard";
 
 type GymEntryQRModalProps = {
   partner: Partner;
+  /** When provided, shows QR for this reservation (stored in app, valid 8h). */
+  reservation?: UnifiedReservation | null;
   onClose: () => void;
 };
 
-/** Unique payload for gym entry (demo: reception scans to validate access). */
-function getGymEntryPayload(partnerId: string): string {
-  const ts = Date.now();
-  return `fitlife-gym-entry:${partnerId}:${ts}`;
+/** Payload for gym entry (reception scans to validate). Uses reservation id when stored. */
+function getGymEntryPayload(partnerId: string, reservationId?: string): string {
+  if (reservationId) return `fitlife-gym-entry:${reservationId}`;
+  return `fitlife-gym-entry:${partnerId}:${Date.now()}`;
 }
 
-export default function GymEntryQRModal({ partner, onClose }: GymEntryQRModalProps) {
+export default function GymEntryQRModal({ partner, reservation, onClose }: GymEntryQRModalProps) {
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
@@ -30,6 +33,7 @@ export default function GymEntryQRModal({ partner, onClose }: GymEntryQRModalPro
   }, [onClose]);
 
   const credits = partner.creditsPerEntry ?? partner.minCredits ?? 1;
+  const payload = getGymEntryPayload(partner.id, reservation?.id);
 
   return (
     <div
@@ -60,10 +64,15 @@ export default function GymEntryQRModal({ partner, onClose }: GymEntryQRModalPro
             válido para entrada
           </span>
         </p>
+        {reservation && (
+          <p className="mt-1 text-xs text-white/55">
+            Válido por 8 horas a partir da criação. Aparece em Reservas e Check-in.
+          </p>
+        )}
 
         <div className="mt-8 flex justify-center rounded-2xl border border-white/10 bg-white p-6">
           <QRCode
-            value={getGymEntryPayload(partner.id)}
+            value={payload}
             size={200}
             bgColor="#ffffff"
             fgColor="#0f172a"

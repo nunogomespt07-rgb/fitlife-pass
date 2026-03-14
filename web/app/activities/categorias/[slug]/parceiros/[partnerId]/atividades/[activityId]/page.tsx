@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
+  activityDateToISO,
   getMockActivity,
   getPartnerBySlugAndId,
 } from "@/lib/activitiesData";
@@ -49,7 +50,7 @@ export default function ActivityDetailPage() {
       partnerId,
       partnerName: partner.name,
       categorySlug: slug,
-      date: activity.date,
+      date: activityDateToISO(activity.date),
       time: activity.time,
       creditsRequired: totalCredits,
       location: activity.location,

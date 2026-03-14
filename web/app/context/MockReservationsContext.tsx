@@ -20,6 +20,7 @@ import {
   getActiveReservationCount,
   getCreditsFromUnified,
   canRefundOnCancellation,
+  canCancelReservation,
 } from "@/lib/unifiedReservations";
 import { getStoredUser } from "@/lib/storedUser";
 import type { MockReservation } from "@/lib/mockReservations";
@@ -29,19 +30,20 @@ type AddReservationInput = Omit<MockReservation, "id" | "status">;
 type AddRestaurantReservationInput = Omit<RestaurantReservation, "id" | "status">;
 
 type MockReservationsContextValue = {
-  /** All reservations (activity + restaurant) from single source of truth. */
+  /** All reservations (activity + restaurant + gym) from single source of truth. */
   reservations: UnifiedReservation[];
-  /** Number of confirmed reservations with date >= today. */
+  /** Number of active (confirmed, non-expired) reservations. */
   activeReservationCount: number;
   credits: number;
   addReservation: (input: AddReservationInput) => { success: boolean; error?: string };
-  cancelReservation: (id: string) => void;
+  addGymReservation: (input: { partnerId: string; partnerName: string; creditsRequired: number }) => { success: boolean; error?: string; reservation?: UnifiedReservation };
+  cancelReservation: (id: string) => { success: boolean; error?: string };
   completeReservation: (id: string) => void;
   clearHistory: () => void;
   addPurchasedCredits: (amount: number) => void;
   countReservationsForActivity: (partnerId: string, activityId: string) => number;
   addRestaurantReservation: (input: AddRestaurantReservationInput) => { success: boolean; error?: string };
-  cancelRestaurantReservation: (id: string) => void;
+  cancelRestaurantReservation: (id: string) => { success: boolean; error?: string };
 };
 
 const MockReservationsContext = createContext<MockReservationsContextValue | null>(null);
@@ -108,6 +110,42 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
     [reservations, purchasedCredits]
   );
 
+  const addGymReservation = useCallback(
+    (input: { partnerId: string; partnerName: string; creditsRequired: number }): { success: boolean; error?: string; reservation?: UnifiedReservation } => {
+      const userId = getStoredUser()?.id ?? null;
+      const currentCredits = getCreditsFromUnified(reservations, purchasedCredits);
+      if (currentCredits < input.creditsRequired) {
+        return { success: false, error: "Créditos insuficientes." };
+      }
+      const now = new Date();
+      const dateYMD = now.toISOString().slice(0, 10);
+      const timeHM = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+      const id = generateUnifiedReservationId("gym");
+      const r: UnifiedReservation = {
+        id,
+        partnerId: input.partnerId,
+        partnerName: input.partnerName,
+        type: "gym",
+        date: dateYMD,
+        time: timeHM,
+        people: 1,
+        peopleLabel: "pessoas",
+        creditsUsed: input.creditsRequired,
+        creditsRefunded: false,
+        status: "confirmed",
+        createdAt: now.toISOString(),
+        activityTitle: "Acesso ginásio",
+      };
+      setReservations((prev) => {
+        const next = [r, ...prev];
+        setStoredUnifiedReservations(userId, next);
+        return next;
+      });
+      return { success: true, reservation: r };
+    },
+    [reservations, purchasedCredits]
+  );
+
   const addRestaurantReservation = useCallback(
     (input: AddRestaurantReservationInput): { success: boolean; error?: string } => {
       const userId = getStoredUser()?.id ?? null;
@@ -150,27 +188,33 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
     [reservations, purchasedCredits]
   );
 
-  const cancelReservation = useCallback((id: string) => {
+  const cancelReservation = useCallback((id: string): { success: boolean; error?: string } => {
+    const r = reservations.find((x) => x.id === id);
+    if (!r) return { success: false, error: "Reserva não encontrada." };
+    const now = new Date();
+    if (!canCancelReservation(r, now)) {
+      return { success: false, error: "Reservas não podem ser canceladas com menos de 6 horas de antecedência." };
+    }
     const userId = getStoredUser()?.id ?? null;
     setReservations((prev) => {
-      const now = new Date();
-      const next = prev.map((r) => {
-        if (r.id !== id) return r;
-        const refundable = canRefundOnCancellation(r, now);
+      const next = prev.map((res) => {
+        if (res.id !== id) return res;
+        const refundable = canRefundOnCancellation(res, now);
         return {
-          ...r,
+          ...res,
           status: "cancelled" as const,
           cancelledAt: now.toISOString(),
-          creditsRefunded: refundable ? true : r.creditsRefunded === true ? true : false,
+          creditsRefunded: refundable ? true : res.creditsRefunded === true ? true : false,
         };
       });
       setStoredUnifiedReservations(userId, next);
       return next;
     });
-  }, []);
+    return { success: true };
+  }, [reservations]);
 
   const cancelRestaurantReservation = useCallback((id: string) => {
-    cancelReservation(id);
+    return cancelReservation(id);
   }, [cancelReservation]);
 
   const completeReservation = useCallback((id: string) => {
@@ -225,6 +269,7 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
       activeReservationCount,
       credits,
       addReservation,
+      addGymReservation,
       cancelReservation,
       completeReservation,
       clearHistory,
@@ -238,6 +283,7 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
       activeReservationCount,
       credits,
       addReservation,
+      addGymReservation,
       cancelReservation,
       completeReservation,
       clearHistory,

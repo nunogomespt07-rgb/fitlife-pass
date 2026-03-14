@@ -6,6 +6,7 @@ import { useMockReservations } from "@/app/context/MockReservationsContext";
 import GlassCard from "../../components/ui/GlassCard";
 import PrimaryButton from "../../components/ui/PrimaryButton";
 import type { UnifiedReservation } from "@/lib/unifiedReservations";
+import { canCancelReservation, isGymQrExpired, getReservationStatus } from "@/lib/unifiedReservations";
 
 function todayYMD(): string {
   return new Date().toISOString().slice(0, 10);
@@ -20,12 +21,15 @@ export default function DashboardReservasPage() {
   const { reservations, cancelReservation } = useMockReservations();
   const [cancelId, setCancelId] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [cancelError, setCancelError] = useState<string | null>(null);
 
   const proximas = useMemo(
     () =>
-      reservations.filter(
-        (r) => r.status === "confirmed" && r.date >= todayYMD()
-      ),
+      reservations.filter((r) => {
+        if (r.status !== "confirmed") return false;
+        if (r.type === "gym") return !isGymQrExpired(r);
+        return r.date >= todayYMD();
+      }),
     [reservations]
   );
 
@@ -34,7 +38,10 @@ export default function DashboardReservasPage() {
       reservations.filter(
         (r) =>
           r.status === "completed" ||
-          (r.status === "confirmed" && r.date < todayYMD())
+          r.status === "expired" ||
+          r.status === "used" ||
+          (r.status === "confirmed" && r.type === "gym" && isGymQrExpired(r)) ||
+          (r.status === "confirmed" && r.type !== "gym" && r.date < todayYMD())
       ),
     [reservations]
   );
@@ -50,15 +57,23 @@ export default function DashboardReservasPage() {
 
   function handleConfirmCancel() {
     if (!cancelId) return;
-    const r = reservations.find((x) => x.id === cancelId);
-    cancelReservation(cancelId);
+    setCancelError(null);
+    const result = cancelReservation(cancelId);
     setCancelId(null);
-    setSuccessMessage("Reserva cancelada com sucesso");
-    setTimeout(() => setSuccessMessage(null), 5000);
+    if (result.success) {
+      setSuccessMessage("Reserva cancelada com sucesso");
+      setTimeout(() => setSuccessMessage(null), 5000);
+    } else {
+      setCancelError(result.error ?? "Não foi possível cancelar.");
+      setTimeout(() => setCancelError(null), 5000);
+    }
   }
 
   function renderCard(r: UnifiedReservation, showCancel: boolean) {
     const isRestaurant = r.type === "restaurant";
+    const isGym = r.type === "gym";
+    const status = getReservationStatus(r);
+    const canCancel = showCancel && canCancelReservation(r);
     return (
       <GlassCard
         key={r.id}
@@ -71,12 +86,19 @@ export default function DashboardReservasPage() {
           {formatDate(r.date)} — {r.time}
         </p>
         <p className="mt-2 text-xs font-semibold uppercase tracking-wider text-white/65">
-          {isRestaurant
-            ? r.bookingMode === "credits"
-              ? "Reserva com créditos"
-              : "Reserva FitLife Pass — desconto"
-            : "Reserva de atividade"}
+          {isGym
+            ? "Acesso ginásio"
+            : isRestaurant
+              ? r.bookingMode === "credits"
+                ? "Reserva com créditos"
+                : "Reserva FitLife Pass — desconto"
+              : "Reserva de atividade"}
         </p>
+        {isGym && status === "expired" && (
+          <span className="mt-2 inline-block rounded-full bg-amber-500/20 px-2.5 py-1 text-xs font-medium text-amber-200">
+            Expirada
+          </span>
+        )}
         {isRestaurant && r.bookingMode !== "credits" && r.discountLabel && (
           <p className="mt-1 text-sm text-white/70">{r.discountLabel}</p>
         )}
@@ -93,13 +115,19 @@ export default function DashboardReservasPage() {
           </p>
         )}
         {showCancel && (
-          <button
-            type="button"
-            onClick={() => handleCancelClick(r.id)}
-            className="mt-4 app-btn-secondary rounded-xl px-4 py-2.5 text-sm font-medium"
-          >
-            Cancelar reserva
-          </button>
+          canCancel ? (
+            <button
+              type="button"
+              onClick={() => handleCancelClick(r.id)}
+              className="mt-4 app-btn-secondary rounded-xl px-4 py-2.5 text-sm font-medium"
+            >
+              Cancelar reserva
+            </button>
+          ) : !isGym ? (
+            <p className="mt-4 text-xs text-white/55">
+              Reservas não podem ser canceladas com menos de 6 horas de antecedência.
+            </p>
+          ) : null
         )}
       </GlassCard>
     );
@@ -240,7 +268,7 @@ export default function DashboardReservasPage() {
         >
           <div
             className="absolute inset-0 bg-[#070f2b]/85 backdrop-blur-sm"
-            onClick={() => setCancelId(null)}
+            onClick={() => { setCancelId(null); setCancelError(null); }}
             aria-hidden
           />
           <div
@@ -252,11 +280,11 @@ export default function DashboardReservasPage() {
             <h2 id="cancel-reservation-title" className="app-section-title text-white">
               Cancelar esta reserva?
             </h2>
+            {cancelError && (
+              <p className="mt-2 text-sm text-amber-200">{cancelError}</p>
+            )}
             <p className="mt-2 text-[15px] text-white/65">
-              Se cancelares com pelo menos 12 horas de antecedência, os créditos serão devolvidos.
-            </p>
-            <p className="mt-1 text-xs text-white/55">
-              Cancelamentos com menos de 12 horas não têm reembolso de créditos.
+              Reservas não podem ser canceladas com menos de 6 horas de antecedência. Com 12h ou mais, os créditos são devolvidos.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <button
@@ -268,7 +296,7 @@ export default function DashboardReservasPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setCancelId(null)}
+                onClick={() => { setCancelId(null); setCancelError(null); }}
                 className="app-btn-secondary rounded-xl px-4 py-2.5 text-sm font-semibold"
               >
                 Voltar

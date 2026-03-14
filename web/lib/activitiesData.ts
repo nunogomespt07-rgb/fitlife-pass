@@ -445,142 +445,125 @@ export type MockActivity = {
   location?: string;
 };
 
-/** Mock activities per partner id for the partner activities page. Only for class_booking, court_booking, pool_access. */
-export const MOCK_ACTIVITIES_BY_PARTNER: Record<string, MockActivity[]> = {
+/** Format date as DD/MM/YYYY for display. */
+function formatDateYMD(d: Date): string {
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
+}
+
+/** Convert DD/MM/YYYY to YYYY-MM-DD for reservation storage and comparisons. */
+export function activityDateToISO(ddMmYyyy: string): string {
+  const parts = ddMmYyyy.trim().split("/");
+  if (parts.length !== 3) return ddMmYyyy;
+  const [day, month, year] = parts;
+  return `${year}-${month!.padStart(2, "0")}-${day!.padStart(2, "0")}`;
+}
+
+/** Slot template for generating activities (today + next 7 days). */
+type ActivitySlot = {
+  title: string;
+  time: string;
+  durationMinutes: number;
+  credits: number;
+  spots: number;
+  location?: string;
+};
+
+/** Weekly slot templates per partner (class_booking, court_booking, pool_access). */
+const ACTIVITY_SLOTS_BY_PARTNER: Record<string, ActivitySlot[]> = {
   "clube-padel-lisboa": [
-    {
-      id: "cp-1",
-      title: "Pista 1 - 1h",
-      date: "10/03/2026",
-      time: "14:00",
-      durationMinutes: 60,
-      credits: 10,
-      spots: 4,
-      location: "Campo indoor",
-    },
-    {
-      id: "cp-2",
-      title: "Pista 2 - 1h",
-      date: "10/03/2026",
-      time: "16:00",
-      durationMinutes: 60,
-      credits: 10,
-      spots: 4,
-    },
+    { title: "Pista 1 - 1h", time: "14:00", durationMinutes: 60, credits: 10, spots: 4, location: "Campo indoor" },
+    { title: "Pista 2 - 1h", time: "16:00", durationMinutes: 60, credits: 10, spots: 4 },
   ],
   "padel-line-porto": [
-    {
-      id: "pl-1",
-      title: "Reserva Pista",
-      date: "11/03/2026",
-      time: "18:00",
-      durationMinutes: 60,
-      credits: 10,
-      spots: 4,
-      location: "Matosinhos",
-    },
+    { title: "Reserva Pista", time: "18:00", durationMinutes: 60, credits: 10, spots: 4, location: "Matosinhos" },
   ],
   "zen-yoga-lisboa": [
-    {
-      id: "zy-1",
-      title: "Vinyasa Flow",
-      date: "10/03/2026",
-      time: "08:00",
-      durationMinutes: 60,
-      credits: 8,
-      spots: 12,
-      location: "Estúdio principal",
-    },
-    {
-      id: "zy-2",
-      title: "Yin Yoga",
-      date: "11/03/2026",
-      time: "19:00",
-      durationMinutes: 75,
-      credits: 8,
-      spots: 10,
-    },
+    { title: "Vinyasa Flow", time: "08:00", durationMinutes: 60, credits: 8, spots: 12, location: "Estúdio principal" },
+    { title: "Yin Yoga", time: "19:00", durationMinutes: 75, credits: 8, spots: 10 },
   ],
   "flow-yoga-porto": [
-    {
-      id: "fy-1",
-      title: "Yoga ao Nascer do Sol",
-      date: "12/03/2026",
-      time: "07:00",
-      durationMinutes: 60,
-      credits: 8,
-      spots: 15,
-      location: "Foz",
-    },
+    { title: "Yoga ao Nascer do Sol", time: "07:00", durationMinutes: 60, credits: 8, spots: 15, location: "Foz" },
   ],
   "pulse-cycling": [
-    {
-      id: "pc-1",
-      title: "Cycling 45'",
-      date: "10/03/2026",
-      time: "19:00",
-      durationMinutes: 45,
-      credits: 8,
-      spots: 20,
-      location: "Campo Pequeno",
-    },
+    { title: "Cycling 45'", time: "19:00", durationMinutes: 45, credits: 8, spots: 20, location: "Campo Pequeno" },
   ],
   "core-pilates": [
-    {
-      id: "cpl-1",
-      title: "Pilates Reformer",
-      date: "11/03/2026",
-      time: "10:30",
-      durationMinutes: 55,
-      credits: 8,
-      spots: 8,
-      location: "Cedofeita",
-    },
+    { title: "Pilates Reformer", time: "10:30", durationMinutes: 55, credits: 8, spots: 8, location: "Cedofeita" },
   ],
   "smash-court-club": [
-    { id: "scc-1", title: "Pista 1h", date: "10/03/2026", time: "15:00", durationMinutes: 60, credits: 10, spots: 4, location: "Belém" },
+    { title: "Pista 1h", time: "15:00", durationMinutes: 60, credits: 10, spots: 4, location: "Belém" },
   ],
   "arena-padel-studio": [
-    { id: "aps-1", title: "Reserva Pista", date: "11/03/2026", time: "18:00", durationMinutes: 60, credits: 10, spots: 4, location: "Campanhã" },
+    { title: "Reserva Pista", time: "18:00", durationMinutes: 60, credits: 10, spots: 4, location: "Campanhã" },
   ],
   "alma-studio-lisboa": [
-    { id: "asl-1", title: "Yoga & Mindfulness", date: "10/03/2026", time: "09:00", durationMinutes: 60, credits: 8, spots: 14, location: "Lapa" },
-    { id: "asl-2", title: "Vinyasa", date: "12/03/2026", time: "18:30", durationMinutes: 75, credits: 8, spots: 12 },
+    { title: "Yoga & Mindfulness", time: "09:00", durationMinutes: 60, credits: 8, spots: 14, location: "Lapa" },
+    { title: "Vinyasa", time: "18:30", durationMinutes: 75, credits: 8, spots: 12 },
   ],
   "reformer-pilates-club": [
-    { id: "rpc-1", title: "Pilates Reformer", date: "11/03/2026", time: "10:00", durationMinutes: 55, credits: 8, spots: 8, location: "Chiado" },
+    { title: "Pilates Reformer", time: "10:00", durationMinutes: 55, credits: 8, spots: 8, location: "Chiado" },
   ],
   "mind-body-studio": [
-    { id: "mbs-1", title: "HIIT 45'", date: "10/03/2026", time: "19:00", durationMinutes: 45, credits: 8, spots: 16, location: "Foz" },
+    { title: "HIIT 45'", time: "19:00", durationMinutes: 45, credits: 8, spots: 16, location: "Foz" },
   ],
   "urban-flow-studio": [
-    { id: "ufs-1", title: "Barre & Flow", date: "11/03/2026", time: "09:30", durationMinutes: 60, credits: 8, spots: 12, location: "Arroios" },
+    { title: "Barre & Flow", time: "09:30", durationMinutes: 60, credits: 8, spots: 12, location: "Arroios" },
   ],
   "porto-crossfit-box": [
-    { id: "pcb-1", title: "WOD", date: "10/03/2026", time: "18:30", durationMinutes: 60, credits: 10, spots: 14, location: "Bonfim" },
+    { title: "WOD", time: "18:30", durationMinutes: 60, credits: 10, spots: 14, location: "Bonfim" },
   ],
   "forge-training-club": [
-    { id: "ftc-1", title: "WOD Manhã", date: "10/03/2026", time: "07:00", durationMinutes: 60, credits: 10, spots: 12, location: "Alcântara" },
+    { title: "WOD Manhã", time: "07:00", durationMinutes: 60, credits: 10, spots: 12, location: "Alcântara" },
   ],
   "alpha-box-lisboa": [
-    { id: "abl-1", title: "WOD", date: "10/03/2026", time: "07:00", durationMinutes: 60, credits: 10, spots: 12, location: "Alfama" },
+    { title: "WOD", time: "07:00", durationMinutes: 60, credits: 10, spots: 12, location: "Alfama" },
   ],
   "motion-lab-crossfit": [
-    { id: "mlc-1", title: "Metcon", date: "11/03/2026", time: "18:00", durationMinutes: 60, credits: 10, spots: 14, location: "Ramalde" },
+    { title: "Metcon", time: "18:00", durationMinutes: 60, credits: 10, spots: 14, location: "Ramalde" },
   ],
   "blue-water-center": [
-    { id: "bwc-1", title: "Natação Livre", date: "10/03/2026", time: "12:00", durationMinutes: 60, credits: 8, spots: 20, location: "Benfica" },
+    { title: "Natação Livre", time: "12:00", durationMinutes: 60, credits: 8, spots: 20, location: "Benfica" },
   ],
   "atlantic-pool-studio": [
-    { id: "aps2-1", title: "Pista de Treino", date: "11/03/2026", time: "08:00", durationMinutes: 60, credits: 8, spots: 12, location: "Matosinhos" },
+    { title: "Pista de Treino", time: "08:00", durationMinutes: 60, credits: 8, spots: 12, location: "Matosinhos" },
   ],
   "aqua-lisboa": [
-    { id: "aq-1", title: "Natação Livre", date: "10/03/2026", time: "12:00", durationMinutes: 60, credits: 8, spots: 16, location: "Telheiras" },
+    { title: "Natação Livre", time: "12:00", durationMinutes: 60, credits: 8, spots: 16, location: "Telheiras" },
   ],
   "wave-porto": [
-    { id: "wv-1", title: "Pista de Treino", date: "11/03/2026", time: "08:00", durationMinutes: 60, credits: 8, spots: 10, location: "Vila Nova de Gaia" },
+    { title: "Pista de Treino", time: "08:00", durationMinutes: 60, credits: 8, spots: 10, location: "Vila Nova de Gaia" },
   ],
 };
+
+/** Generate activities for today and the next 7 days. */
+export function getMockActivitiesForPartner(partnerId: string): MockActivity[] {
+  const slots = ACTIVITY_SLOTS_BY_PARTNER[partnerId];
+  if (!slots || slots.length === 0) return [];
+  const activities: MockActivity[] = [];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  for (let dayOffset = 0; dayOffset < 8; dayOffset++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() + dayOffset);
+    const dateStr = formatDateYMD(d);
+    slots.forEach((slot, slotIndex) => {
+      activities.push({
+        id: `${partnerId}-${dayOffset}-${slotIndex}`,
+        title: slot.title,
+        date: dateStr,
+        time: slot.time,
+        durationMinutes: slot.durationMinutes,
+        credits: slot.credits,
+        spots: slot.spots,
+        location: slot.location,
+      });
+    });
+  }
+  return activities;
+}
 
 export function getPartnerBySlugAndId(
   slug: string,
@@ -666,14 +649,10 @@ export function getPartnersNearby(
   return withDistance.slice(0, maxResults).map(({ p }) => p);
 }
 
-export function getMockActivitiesForPartner(partnerId: string): MockActivity[] {
-  return MOCK_ACTIVITIES_BY_PARTNER[partnerId] ?? [];
-}
-
 export function getMockActivity(
   partnerId: string,
   activityId: string
 ): MockActivity | null {
-  const list = MOCK_ACTIVITIES_BY_PARTNER[partnerId] ?? [];
+  const list = getMockActivitiesForPartner(partnerId);
   return list.find((a) => a.id === activityId) ?? null;
 }
