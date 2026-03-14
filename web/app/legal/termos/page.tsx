@@ -95,14 +95,17 @@ export default function TermosPage() {
             As reservas podem ser canceladas até 6 horas antes da atividade.
           </p>
           <p className="mt-2">
-            Cancelamentos fora deste prazo podem resultar na perda dos créditos utilizados.
+            Quando o cancelamento for efetuado com pelo menos 12 horas de antecedência, os créditos poderão ser devolvidos. Fora deste prazo, os créditos utilizados não são reembolsados.
+          </p>
+          <p className="mt-2">
+            A plataforma aplica um limite de 3 cancelamentos por mês civil por utilizador.
           </p>
         </section>
 
         <section className="mb-7">
           <h2 className="text-[22px] font-semibold text-white mt-10 mb-[14px]">6. No-show</h2>
           <p className="mt-3">
-            Se um utilizador não comparecer a uma atividade reservada e não cancelar dentro do prazo permitido, a reserva será considerada no-show.
+            Se um utilizador não comparecer a uma atividade reservada e não cancelar dentro do prazo permitido, ou se o QR code de ginásio expirar sem utilização, a reserva será considerada no-show.
           </p>
           <p className="mt-2">Nestes casos:</p>
           <ul className="mt-2 list-inside list-disc space-y-2 pl-2">
@@ -116,7 +119,7 @@ export default function TermosPage() {
             Algumas atividades podem exigir QR code para check-in.
           </p>
           <p className="mt-2">
-            O QR code pode ter validade limitada, incluindo a validade temporária aplicável às reservas de ginásio.
+            O QR code das reservas de ginásio tem validade de 8 horas a partir da sua criação. Outros QR codes podem ter validade limitada conforme definido na plataforma.
           </p>
           <p className="mt-2">
             QR codes expirados deixam de ser válidos.
