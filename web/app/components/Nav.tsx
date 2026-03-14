@@ -93,13 +93,13 @@ export default function Nav() {
     return () => document.removeEventListener("keydown", handleKey);
   }, []);
 
-  // Mobile search: focus input when opened (no outside-tap close; dedicated search mode)
+  // Mobile search: autofocus input when opened
   useEffect(() => {
     if (!isMobileSearchOpen) return;
-    const t = requestAnimationFrame(() => {
+    const id = window.setTimeout(() => {
       mobileSearchInputRef.current?.focus();
-    });
-    return () => cancelAnimationFrame(t);
+    }, 50);
+    return () => window.clearTimeout(id);
   }, [isMobileSearchOpen]);
 
   // Lock body scroll while mobile search is open
@@ -557,54 +557,56 @@ export default function Nav() {
         </div>
       </nav>
 
-      {/* Mobile search – isolated overlay (results/helper only inside overlay) */}
+      {/* Mobile search – full-screen fixed search screen */}
       {showAuthenticatedUI && isMobileSearchOpen && (
         <div
           ref={mobileSearchPanelRef}
-          className="fixed inset-0 z-[120] sm:hidden"
+          className="fixed inset-0 z-[140] sm:hidden"
         >
-          <div className="absolute inset-0 bg-[rgba(5,10,25,0.96)] backdrop-blur-xl" />
+          <div className="absolute inset-0 bg-[rgba(5,10,25,0.98)]" />
           <div className="relative z-[1] flex h-full flex-col">
             <div className="shrink-0 px-4 pb-3 pt-[max(16px,env(safe-area-inset-top))]">
               <div className="flex items-center gap-3">
-                <div className="flex min-h-[44px] flex-1 items-center gap-2.5 rounded-full border border-white/[0.08] bg-white/[0.06] pl-4 pr-2 py-2 shadow-[0_4px_24px_rgba(0,0,0,0.25)] backdrop-blur-xl">
-                <svg
-                  className="h-5 w-5 shrink-0 text-white/50"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden
-                >
-                  <circle cx="11" cy="11" r="7" />
-                  <line x1="16.65" y1="16.65" x2="21" y2="21" />
-                </svg>
-                <input
-                  ref={mobileSearchInputRef}
-                  type="text"
-                  inputMode="search"
-                  enterKeyHint="search"
-                  autoComplete="off"
-                  autoCorrect="off"
-                  autoCapitalize="none"
-                  spellCheck={false}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Pesquisar atividades, parceiros ou clubes"
-                  className="min-w-0 flex-1 bg-transparent text-[16px] text-white placeholder:text-white/45 outline-none"
-                />
-                {searchQuery ? (
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery("")}
-                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/15 text-white/80 active:bg-white/25"
-                    aria-label="Limpar pesquisa"
-                  >
-                    <span className="text-sm leading-none">×</span>
-                  </button>
-                ) : null}
+                <div className="flex-1">
+                  <div className="flex items-center rounded-full border border-white/[0.08] bg-[rgba(255,255,255,0.04)] px-4 py-3 shadow-[0_12px_32px_rgba(0,0,0,0.22)] backdrop-blur-xl">
+                    <svg
+                      className="mr-3 h-5 w-5 shrink-0 text-white/50"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden
+                    >
+                      <circle cx="11" cy="11" r="7" />
+                      <line x1="16.65" y1="16.65" x2="21" y2="21" />
+                    </svg>
+                    <input
+                      ref={mobileSearchInputRef}
+                      type="text"
+                      inputMode="search"
+                      enterKeyHint="search"
+                      autoComplete="off"
+                      autoCorrect="off"
+                      autoCapitalize="none"
+                      spellCheck={false}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Pesquisar atividades, parceiros ou clubes"
+                      className="w-full bg-transparent text-[17px] text-white placeholder:text-white/45 outline-none"
+                    />
+                    {searchQuery.trim().length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setSearchQuery("")}
+                        className="ml-3 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/[0.08] text-white/70 transition active:scale-[0.98]"
+                        aria-label="Limpar pesquisa"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <button
                   type="button"
@@ -612,13 +614,13 @@ export default function Nav() {
                     setIsMobileSearchOpen(false);
                     setSearchQuery("");
                   }}
-                  className="shrink-0 px-2 py-2 text-[16px] font-medium text-white/80 active:text-white"
+                  className="shrink-0 text-[17px] font-medium text-white/88 transition active:opacity-70"
                 >
                   Cancelar
                 </button>
               </div>
             </div>
-            <div className="flex-1 overflow-y-auto px-4 pb-[max(24px,env(safe-area-inset-bottom))]">
+            <div className="flex-1 overflow-y-auto px-4 pb-[max(28px,env(safe-area-inset-bottom))] pt-2">
               {searchQuery.trim().length === 0 ? (
                 <div className="rounded-[28px] border border-white/[0.08] bg-[rgba(255,255,255,0.03)] px-5 py-5 text-white/70 shadow-[0_16px_40px_rgba(0,0,0,0.22)]">
                   Procura atividades, parceiros ou clubes
