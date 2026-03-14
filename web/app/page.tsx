@@ -103,9 +103,12 @@ export default function LandingPage() {
           aria-hidden
         />
 
-        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-0 px-4 pt-8 pb-8 sm:px-6 sm:pt-12 sm:pb-10 lg:min-h-[min(92vh,960px)] lg:max-w-[1440px] lg:grid-cols-[1.2fr_1.1fr_0.9fr] lg:items-center lg:gap-x-16 lg:px-12 lg:py-24 xl:gap-x-20 xl:px-16 xl:py-28">
-          {/* LEFT: headline – two lines, clear boundary so no overlap with athlete */}
-          <div className="order-1 flex flex-col justify-center pb-0 sm:pb-4 lg:min-w-0 lg:max-w-[480px] lg:pb-0 lg:pr-6">
+        <div
+          className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-0 px-4 pt-8 pb-8 sm:px-6 sm:pt-12 sm:pb-10 lg:min-h-[min(92vh,960px)] lg:max-w-[1440px] lg:grid-cols-[minmax(380px,1.15fr)_minmax(360px,1fr)_minmax(360px,0.9fr)] lg:items-center lg:gap-x-12 lg:px-14 lg:py-24 xl:gap-x-16 xl:px-16 xl:py-28"
+          style={{ isolation: 'isolate' }}
+        >
+          {/* LEFT: copy only – strict boundary, no overlap */}
+          <div className="order-1 flex flex-col justify-center pb-0 sm:pb-4 lg:min-w-0 lg:max-w-[420px] lg:overflow-hidden lg:pb-0 lg:pr-4">
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/55 sm:text-xs sm:tracking-[0.32em]">
               FitLife Pass
             </p>
@@ -113,18 +116,18 @@ export default function LandingPage() {
               <span className="block lg:whitespace-nowrap">Um só passe.</span>
               <span className="block lg:whitespace-nowrap">Todos os teus treinos.</span>
             </h1>
-            <p className="landing-hero-desc mt-5 max-w-md text-base leading-[1.7] text-white/85 sm:mt-6 sm:text-[1.0625rem] sm:leading-[1.75] lg:mt-7 lg:max-w-[480px] lg:text-[1.0625rem] lg:leading-[1.72]">
+            <p className="landing-hero-desc mt-5 max-w-md text-base leading-[1.7] text-white/85 sm:mt-6 sm:text-[1.0625rem] sm:leading-[1.75] lg:mt-6 lg:max-w-[400px] lg:text-[1.0625rem] lg:leading-[1.72]">
               <span className="block">Ginásio, yoga, padel, crossfit</span>
               <span className="block">e estúdios premium numa só experiência.</span>
             </p>
-            <p className="mt-4 text-sm font-medium text-white/70 sm:mt-5 sm:text-[0.9375rem] lg:mt-5">
+            <p className="mt-4 text-sm font-medium text-white/70 sm:mt-5 sm:text-[0.9375rem] lg:mt-6">
               Uma conta. Vários parceiros. Sem fidelização.
             </p>
           </div>
 
-          {/* CENTER: athlete – no box, soft glow, shifted right on desktop */}
-          <div className="order-2 mt-6 mb-4 flex justify-center sm:mt-8 sm:mb-6 lg:order-2 lg:mt-0 lg:mb-0 lg:flex lg:min-h-0 lg:items-center lg:justify-center lg:overflow-visible lg:px-0">
-            <div className="landing-hero-runner relative w-full max-w-full flex justify-center items-end lg:items-center min-h-[320px] sm:min-h-[420px] lg:min-h-0 pointer-events-none">
+          {/* CENTER: athlete only – contained in column, no spill */}
+          <div className="order-2 mt-6 mb-4 flex justify-center sm:mt-8 sm:mb-6 lg:order-2 lg:mt-0 lg:mb-0 lg:flex lg:min-h-0 lg:items-center lg:justify-center lg:overflow-hidden lg:px-2">
+            <div className="landing-hero-runner relative w-full max-w-full flex justify-center items-end lg:items-center lg:justify-center min-h-[320px] sm:min-h-[420px] lg:min-h-0 lg:w-full pointer-events-none">
               {/* Mobile: existing glow layers (unchanged) */}
               <div
                 className="absolute inset-0 flex items-center justify-center lg:hidden"
@@ -152,23 +155,22 @@ export default function LandingPage() {
                   }}
                 />
               </div>
-              {/* Desktop only: single soft radial behind athlete, no visible container */}
+              {/* Desktop: soft radial behind athlete only, no box */}
               <div
-                className="absolute inset-0 hidden lg:block"
-                style={{ margin: '-25%' }}
+                className="absolute inset-0 hidden lg:block pointer-events-none"
                 aria-hidden
               >
                 <div
-                  className="absolute left-1/2 top-1/2 h-[140%] w-[120%] -translate-x-1/2 -translate-y-1/2 opacity-80"
+                  className="absolute left-1/2 top-1/2 h-full w-[160%] max-w-none -translate-x-1/2 -translate-y-1/2 opacity-70"
                   style={{
-                    background: 'radial-gradient(ellipse 50% 60% at 50% 50%, rgba(90,140,255,0.22) 0%, rgba(60,120,255,0.1) 40%, transparent 70%)',
-                    filter: 'blur(60px)',
+                    background: 'radial-gradient(ellipse 45% 55% at 50% 50%, rgba(90,140,255,0.2) 0%, rgba(60,120,255,0.08) 50%, transparent 72%)',
+                    filter: 'blur(48px)',
                   }}
                 />
               </div>
-              {/* Athlete – larger on desktop, shift right via hero-runner-scale */}
+              {/* Athlete – strictly in center column on desktop, no translate */}
               <div
-                className="relative flex justify-center items-end w-full"
+                className="relative flex justify-center items-end w-full lg:w-full lg:max-w-full"
                 style={{ filter: 'drop-shadow(0 0 88px rgba(90,140,255,0.28))' }}
               >
                 <div className="relative w-full flex justify-center hero-runner-scale">
@@ -177,7 +179,7 @@ export default function LandingPage() {
                     alt="Runner"
                     width={1500}
                     height={2000}
-                    className="h-[340px] w-auto max-w-[92%] object-contain object-center sm:h-[460px] md:h-[580px] lg:h-auto lg:w-[700px] lg:max-w-[100%] lg:object-center scale-[1.02]"
+                    className="h-[340px] w-auto max-w-[92%] object-contain object-center sm:h-[460px] md:h-[580px] lg:h-auto lg:w-full lg:max-w-[420px] lg:object-center scale-[1.02]"
                     style={{
                       maskImage: 'linear-gradient(to bottom, black 0%, black 72%, transparent 100%)',
                       WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 72%, transparent 100%)',
@@ -206,9 +208,9 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* RIGHT: auth card – wider, more padding on desktop */}
-          <div className="order-3 relative z-30 flex items-center justify-center mt-0 pt-0 sm:pt-4 lg:order-3 lg:mt-0 lg:flex lg:items-center lg:justify-start lg:pt-0 lg:pl-6">
-            <div className="hero-float-card w-full max-w-sm rounded-[var(--radius-card)] sm:max-w-[400px] lg:w-full lg:max-w-[440px] lg:min-w-[400px] lg:bg-white/[0.04] lg:border lg:border-white/[0.08] lg:backdrop-blur-[18px] lg:shadow-[0_40px_90px_rgba(0,0,0,0.45)]">
+          {/* RIGHT: auth card only */}
+          <div className="order-3 relative z-30 flex items-center justify-center mt-0 pt-0 sm:pt-4 lg:order-3 lg:mt-0 lg:flex lg:items-center lg:justify-center lg:pt-0 lg:pl-4">
+            <div className="hero-float-card w-full max-w-sm rounded-[var(--radius-card)] sm:max-w-[400px] lg:w-full lg:max-w-[420px] lg:min-w-[360px] lg:bg-white/[0.04] lg:border lg:border-white/[0.08] lg:backdrop-blur-[18px] lg:shadow-[0_40px_90px_rgba(0,0,0,0.45)]">
               <Suspense fallback={null}>
                 <PremiumAuthCard desktopWider />
               </Suspense>

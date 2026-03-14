@@ -155,7 +155,7 @@
       font-size: 68px;
       font-weight: 800;
       letter-spacing: -0.04em;
-      line-height: 1.08;
+      line-height: 1;
     }
     .landing-hero-desc {
       font-size: 18px;
@@ -182,12 +182,12 @@
       filter: blur(40px);
       z-index: -1;
     }
-    /* Desktop: no visible box behind athlete – glow handled inline for soft blend */
+    /* Desktop: no visible box – athlete lives in center column only */
     .landing-hero-runner::before {
       opacity: 0;
     }
     .hero-runner-scale {
-      transform: translateX(10%);
+      transform: none;
     }
   }
   .hero-runner-scale {
