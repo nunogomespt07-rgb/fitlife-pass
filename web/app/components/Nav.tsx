@@ -104,14 +104,12 @@ export default function Nav() {
 
   // Lock body scroll while mobile search is open
   useEffect(() => {
-    if (typeof document === "undefined") return;
-    if (isMobileSearchOpen) {
-      const prev = document.body.style.overflow;
-      document.body.style.overflow = "hidden";
-      return () => {
-        document.body.style.overflow = prev;
-      };
-    }
+    if (!isMobileSearchOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
   }, [isMobileSearchOpen]);
 
   // Mobile account menu: close on outside tap
@@ -559,16 +557,17 @@ export default function Nav() {
         </div>
       </nav>
 
-      {/* Mobile search – true full-screen isolated layer */}
+      {/* Mobile search – isolated overlay (results/helper only inside overlay) */}
       {showAuthenticatedUI && isMobileSearchOpen && (
         <div
           ref={mobileSearchPanelRef}
           className="fixed inset-0 z-[120] sm:hidden"
         >
-          <div className="absolute inset-0 bg-[rgba(5,10,25,0.96)] backdrop-blur-xl" aria-hidden />
+          <div className="absolute inset-0 bg-[rgba(5,10,25,0.96)] backdrop-blur-xl" />
           <div className="relative z-[1] flex h-full flex-col">
-            <div className="flex shrink-0 items-center gap-3 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
-              <div className="flex min-h-[44px] flex-1 items-center gap-2.5 rounded-full border border-white/[0.08] bg-white/[0.06] pl-4 pr-2 py-2 shadow-[0_4px_24px_rgba(0,0,0,0.25)] backdrop-blur-xl">
+            <div className="shrink-0 px-4 pb-3 pt-[max(16px,env(safe-area-inset-top))]">
+              <div className="flex items-center gap-3">
+                <div className="flex min-h-[44px] flex-1 items-center gap-2.5 rounded-full border border-white/[0.08] bg-white/[0.06] pl-4 pr-2 py-2 shadow-[0_4px_24px_rgba(0,0,0,0.25)] backdrop-blur-xl">
                 <svg
                   className="h-5 w-5 shrink-0 text-white/50"
                   viewBox="0 0 24 24"
@@ -606,52 +605,51 @@ export default function Nav() {
                     <span className="text-sm leading-none">×</span>
                   </button>
                 ) : null}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMobileSearchOpen(false);
+                    setSearchQuery("");
+                  }}
+                  className="shrink-0 px-2 py-2 text-[16px] font-medium text-white/80 active:text-white"
+                >
+                  Cancelar
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsMobileSearchOpen(false);
-                  setSearchQuery("");
-                }}
-                className="shrink-0 px-2 py-2 text-[16px] font-medium text-white/80 active:text-white"
-              >
-                Cancelar
-              </button>
             </div>
-            <div className="flex-1 overflow-y-auto px-4 pb-[max(24px,env(safe-area-inset-bottom))] pt-3">
-              {searchQuery.length === 0 ? (
-                <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-6 text-center text-[15px] text-white/60">
-                  Procura atividades, parceiros ou clubes.
+            <div className="flex-1 overflow-y-auto px-4 pb-[max(24px,env(safe-area-inset-bottom))]">
+              {searchQuery.trim().length === 0 ? (
+                <div className="rounded-[28px] border border-white/[0.08] bg-[rgba(255,255,255,0.03)] px-5 py-5 text-white/70 shadow-[0_16px_40px_rgba(0,0,0,0.22)]">
+                  Procura atividades, parceiros ou clubes
                 </div>
               ) : filteredSearchItems.length === 0 ? (
-                <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-6 text-center text-[15px] text-white/60">
-                  Sem resultados.
+                <div className="rounded-[28px] border border-white/[0.08] bg-[rgba(255,255,255,0.03)] px-5 py-5 text-white/70 shadow-[0_16px_40px_rgba(0,0,0,0.22)]">
+                  Sem resultados
                 </div>
               ) : (
-                <ul className="space-y-1">
+                <div className="space-y-3">
                   {filteredSearchItems.map((item) => (
-                    <li key={item.id}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          router.push(item.href);
-                          setIsMobileSearchOpen(false);
-                          setSearchQuery("");
-                          mobileSearchInputRef.current?.blur();
-                        }}
-                        className="flex w-full flex-col items-start rounded-2xl border border-white/[0.06] bg-white/[0.03] px-4 py-3 text-left transition active:bg-white/[0.08]"
-                      >
-                        <span className="truncate text-[15px] font-medium text-white">
-                          {item.name}
-                        </span>
-                        <span className="mt-0.5 text-[13px] text-white/55">
-                          {item.category}
-                          {item.city || item.location ? ` · ${item.city || item.location}` : ""}
-                        </span>
-                      </button>
-                    </li>
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => {
+                        router.push(item.href);
+                        setIsMobileSearchOpen(false);
+                        setSearchQuery("");
+                      }}
+                      className="block w-full rounded-[26px] border border-white/[0.08] bg-[rgba(255,255,255,0.04)] px-5 py-4 text-left shadow-[0_16px_40px_rgba(0,0,0,0.22)] transition hover:bg-white/[0.06] active:bg-white/[0.08]"
+                    >
+                      <div className="text-[17px] font-medium text-white">
+                        {item.name}
+                      </div>
+                      <div className="mt-1 text-sm text-white/60">
+                        {item.category}
+                        {item.city || item.location ? ` · ${item.city || item.location}` : ""}
+                      </div>
+                    </button>
                   ))}
-                </ul>
+                </div>
               )}
             </div>
           </div>
