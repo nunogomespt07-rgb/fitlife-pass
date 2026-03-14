@@ -2,6 +2,7 @@ import "./globals.css"
 import Providers from "./providers"
 import Nav from "./components/Nav"
 import MobileDashboardNav from "./components/MobileDashboardNav"
+import { MobileSearchProvider } from "./components/Nav"
 
 export const metadata = {
   title: "FitLife Pass",
@@ -17,9 +18,11 @@ export default function RootLayout({
     <html lang="pt">
       <body>
         <Providers>
-          <Nav />
-          {children}
-          <MobileDashboardNav />
+          <MobileSearchProvider>
+            <Nav />
+            {children}
+            <MobileDashboardNav />
+          </MobileSearchProvider>
         </Providers>
       </body>
     </html>

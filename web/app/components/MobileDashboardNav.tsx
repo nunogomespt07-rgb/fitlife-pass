@@ -2,9 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useContext } from "react";
+import { MobileSearchOpenContext } from "./Nav";
 
 export default function MobileDashboardNav() {
   const pathname = usePathname();
+  const { isMobileSearchOpen } = useContext(MobileSearchOpenContext);
+
+  if (isMobileSearchOpen) return null;
 
   const isDashboardArea =
     pathname.startsWith("/dashboard") || pathname.startsWith("/activities");

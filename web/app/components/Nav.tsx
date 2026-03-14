@@ -2,13 +2,27 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, useEffect, useRef, useMemo } from "react";
+import { createContext, useContext, useState, useEffect, useRef, useMemo } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useNotifications } from "@/app/context/NotificationsContext";
 import { useMockReservations } from "@/app/context/MockReservationsContext";
 import { getStoredUser, getStoredUserDisplayName } from "@/lib/storedUser";
 import { getAllPartnersWithCategory } from "@/lib/activitiesData";
 import { RESTAURANTS } from "@/lib/restaurantsData";
+
+export const MobileSearchOpenContext = createContext<{
+  isMobileSearchOpen: boolean;
+  setIsMobileSearchOpen: (v: boolean) => void;
+}>({ isMobileSearchOpen: false, setIsMobileSearchOpen: () => {} });
+
+export function MobileSearchProvider({ children }: { children: React.ReactNode }) {
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  return (
+    <MobileSearchOpenContext.Provider value={{ isMobileSearchOpen, setIsMobileSearchOpen }}>
+      {children}
+    </MobileSearchOpenContext.Provider>
+  );
+}
 
 type StoredUser = {
   id: string;
@@ -33,7 +47,7 @@ export default function Nav() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const { isMobileSearchOpen, setIsMobileSearchOpen } = useContext(MobileSearchOpenContext);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const mobileSearchInputRef = useRef<HTMLInputElement | null>(null);
@@ -220,7 +234,7 @@ export default function Nav() {
 
   if (showAuthenticatedUI && isMobileSearchOpen) {
     return (
-      <div className="fixed inset-0 z-[140] sm:hidden bg-[rgba(5,10,25,0.98)]">
+      <div className="fixed inset-0 z-[140] sm:hidden bg-[rgba(5,10,25,0.985)]">
         <div className="flex h-full flex-col">
           <div className="shrink-0 px-4 pb-3 pt-[max(16px,env(safe-area-inset-top))]">
             <div className="flex items-center gap-3">
