@@ -104,8 +104,8 @@ export default function LandingPage() {
         />
 
         <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-0 px-4 pt-8 pb-8 sm:px-6 sm:pt-12 sm:pb-10 lg:min-h-[min(92vh,960px)] lg:max-w-[1440px] lg:grid-cols-[1.2fr_1.1fr_0.9fr] lg:items-center lg:gap-x-16 lg:px-12 lg:py-24 xl:gap-x-20 xl:px-16 xl:py-28">
-          {/* LEFT: headline – two lines on desktop */}
-          <div className="order-1 flex flex-col justify-center pb-0 sm:pb-4 lg:min-w-0 lg:pb-0 lg:pr-6">
+          {/* LEFT: headline – two lines, clear boundary so no overlap with athlete */}
+          <div className="order-1 flex flex-col justify-center pb-0 sm:pb-4 lg:min-w-0 lg:max-w-[480px] lg:pb-0 lg:pr-6">
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/55 sm:text-xs sm:tracking-[0.32em]">
               FitLife Pass
             </p>
@@ -122,52 +122,51 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* CENTER: athlete – integrated, no square container on desktop */}
-          <div className="order-2 mt-6 mb-4 flex justify-center sm:mt-8 sm:mb-6 lg:order-2 lg:mt-0 lg:mb-0 lg:flex lg:min-h-0 lg:items-center lg:justify-center lg:overflow-visible lg:px-2">
+          {/* CENTER: athlete – no box, soft glow, shifted right on desktop */}
+          <div className="order-2 mt-6 mb-4 flex justify-center sm:mt-8 sm:mb-6 lg:order-2 lg:mt-0 lg:mb-0 lg:flex lg:min-h-0 lg:items-center lg:justify-center lg:overflow-visible lg:px-0">
             <div className="landing-hero-runner relative w-full max-w-full flex justify-center items-end lg:items-center min-h-[320px] sm:min-h-[420px] lg:min-h-0 pointer-events-none">
-              {/* Desktop: subtle radial behind athlete to blend into background */}
+              {/* Mobile: existing glow layers (unchanged) */}
               <div
-                className="absolute inset-0 hidden items-center justify-center lg:flex"
-                style={{ margin: '-15%' }}
-                aria-hidden
-              >
-                <div
-                  className="h-[85%] w-[75%] rounded-full opacity-90"
-                  style={{
-                    background: 'radial-gradient(ellipse 60% 80% at 50% 55%, rgba(90,140,255,0.25) 0%, rgba(60,120,255,0.12) 45%, transparent 75%)',
-                    filter: 'blur(48px)',
-                  }}
-                />
-              </div>
-              {/* Soft radial glow – ambient light (mobile + desktop) */}
-              <div
-                className="absolute inset-0 flex items-center justify-center"
+                className="absolute inset-0 flex items-center justify-center lg:hidden"
                 style={{ margin: '-12%' }}
                 aria-hidden
               >
                 <div
-                  className="w-[85%] max-w-[520px] aspect-[3/4] rounded-full opacity-95 lg:w-[100%] lg:max-w-[680px]"
+                  className="w-[85%] max-w-[520px] aspect-[3/4] rounded-full opacity-95"
                   style={{
-                    background: 'radial-gradient(ellipse 70% 90% at 50% 58%, rgba(90,140,255,0.4) 0%, rgba(60,120,255,0.22) 38%, rgba(59,130,246,0.08) 62%, transparent 82%)',
+                    background: 'radial-gradient(ellipse 70% 90% at 50% 58%, rgba(90,140,255,0.4) 0%, rgba(60,120,255,0.22) 38%, transparent 82%)',
                     filter: 'blur(56px)',
                   }}
                 />
               </div>
-              {/* Second blur layer – softer mist */}
               <div
-                className="absolute inset-0 flex items-center justify-center opacity-80"
+                className="absolute inset-0 flex items-center justify-center opacity-80 lg:hidden"
                 style={{ margin: '-6%' }}
                 aria-hidden
               >
                 <div
-                  className="w-[72%] max-w-[440px] h-[58%] rounded-full lg:w-[90%] lg:max-w-[560px]"
+                  className="w-[72%] max-w-[440px] h-[58%] rounded-full"
                   style={{
                     background: 'radial-gradient(ellipse 80% 70% at 50% 72%, rgba(147,197,253,0.18) 0%, transparent 58%)',
                     filter: 'blur(64px)',
                   }}
                 />
               </div>
-              {/* Athlete – centered on desktop, glow preserved */}
+              {/* Desktop only: single soft radial behind athlete, no visible container */}
+              <div
+                className="absolute inset-0 hidden lg:block"
+                style={{ margin: '-25%' }}
+                aria-hidden
+              >
+                <div
+                  className="absolute left-1/2 top-1/2 h-[140%] w-[120%] -translate-x-1/2 -translate-y-1/2 opacity-80"
+                  style={{
+                    background: 'radial-gradient(ellipse 50% 60% at 50% 50%, rgba(90,140,255,0.22) 0%, rgba(60,120,255,0.1) 40%, transparent 70%)',
+                    filter: 'blur(60px)',
+                  }}
+                />
+              </div>
+              {/* Athlete – larger on desktop, shift right via hero-runner-scale */}
               <div
                 className="relative flex justify-center items-end w-full"
                 style={{ filter: 'drop-shadow(0 0 88px rgba(90,140,255,0.28))' }}
@@ -178,7 +177,7 @@ export default function LandingPage() {
                     alt="Runner"
                     width={1500}
                     height={2000}
-                    className="h-[340px] w-auto max-w-[92%] object-contain object-center sm:h-[460px] md:h-[580px] lg:h-auto lg:w-[620px] lg:max-w-[100%] lg:object-center scale-[1.02]"
+                    className="h-[340px] w-auto max-w-[92%] object-contain object-center sm:h-[460px] md:h-[580px] lg:h-auto lg:w-[700px] lg:max-w-[100%] lg:object-center scale-[1.02]"
                     style={{
                       maskImage: 'linear-gradient(to bottom, black 0%, black 72%, transparent 100%)',
                       WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 72%, transparent 100%)',
