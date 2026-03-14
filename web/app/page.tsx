@@ -104,15 +104,14 @@ export default function LandingPage() {
         />
 
         <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-0 px-4 pt-8 pb-8 sm:px-6 sm:pt-12 sm:pb-10 lg:min-h-[min(92vh,960px)] lg:max-w-[1440px] lg:grid-cols-[1.2fr_1.1fr_0.9fr] lg:items-center lg:gap-x-16 lg:px-12 lg:py-24 xl:gap-x-20 xl:px-16 xl:py-28">
-          {/* LEFT: headline – one line for first sentence on desktop */}
+          {/* LEFT: headline – two lines on desktop */}
           <div className="order-1 flex flex-col justify-center pb-0 sm:pb-4 lg:min-w-0 lg:pb-0 lg:pr-6">
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/55 sm:text-xs sm:tracking-[0.32em]">
               FitLife Pass
             </p>
-            <h1 className="landing-hero-title hero-title mt-5 font-extrabold text-white sm:mt-6 lg:mt-8 lg:leading-[1.08]">
+            <h1 className="landing-hero-title hero-title mt-5 font-extrabold text-white sm:mt-6 lg:mt-8">
               <span className="block lg:whitespace-nowrap">Um só passe.</span>
-              <span className="block">Todos os teus</span>
-              <span className="block">treinos.</span>
+              <span className="block lg:whitespace-nowrap">Todos os teus treinos.</span>
             </h1>
             <p className="landing-hero-desc mt-5 max-w-md text-base leading-[1.7] text-white/85 sm:mt-6 sm:text-[1.0625rem] sm:leading-[1.75] lg:mt-7 lg:max-w-[480px] lg:text-[1.0625rem] lg:leading-[1.72]">
               <span className="block">Ginásio, yoga, padel, crossfit</span>
