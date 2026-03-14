@@ -18,7 +18,7 @@ function formatDate(dateStr: string): string {
 }
 
 export default function DashboardReservasPage() {
-  const { reservations, cancelReservation } = useMockReservations();
+  const { reservations, cancelReservation, monthlyCancellationCount, monthlyCancellationLimit } = useMockReservations();
   const [cancelId, setCancelId] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [cancelError, setCancelError] = useState<string | null>(null);
@@ -40,6 +40,7 @@ export default function DashboardReservasPage() {
           r.status === "completed" ||
           r.status === "expired" ||
           r.status === "used" ||
+          r.status === "no_show" ||
           (r.status === "confirmed" && r.type === "gym" && isGymQrExpired(r)) ||
           (r.status === "confirmed" && r.type !== "gym" && r.date < todayYMD())
       ),
@@ -99,6 +100,16 @@ export default function DashboardReservasPage() {
             Expirada
           </span>
         )}
+        {status === "no_show" && (
+          <>
+            <span className="mt-2 inline-block rounded-full bg-amber-500/20 px-2.5 py-1 text-xs font-medium text-amber-200">
+              Não compareceste
+            </span>
+            <p className="mt-2 text-xs text-white/60">
+              Não compareceste à reserva. Os créditos da reserva foram debitados.
+            </p>
+          </>
+        )}
         {isRestaurant && r.bookingMode !== "credits" && r.discountLabel && (
           <p className="mt-1 text-sm text-white/70">{r.discountLabel}</p>
         )}
@@ -125,7 +136,7 @@ export default function DashboardReservasPage() {
             </button>
           ) : !isGym ? (
             <p className="mt-4 text-xs text-white/55">
-              Reservas não podem ser canceladas com menos de 6 horas de antecedência.
+              Não é possível cancelar com menos de 6 horas de antecedência.
             </p>
           ) : null
         )}
@@ -141,6 +152,9 @@ export default function DashboardReservasPage() {
         </h1>
         <p className="mt-3 text-[15px] text-white/65">
           As tuas reservas ativas e histórico.
+        </p>
+        <p className="mt-1 text-sm text-white/55">
+          Cancelamentos este mês: {monthlyCancellationCount}/{monthlyCancellationLimit}
         </p>
 
         {successMessage && (
@@ -284,7 +298,7 @@ export default function DashboardReservasPage() {
               <p className="mt-2 text-sm text-amber-200">{cancelError}</p>
             )}
             <p className="mt-2 text-[15px] text-white/65">
-              Reservas não podem ser canceladas com menos de 6 horas de antecedência. Com 12h ou mais, os créditos são devolvidos.
+              Não é possível cancelar com menos de 6 horas de antecedência. Com 12h ou mais, os créditos são devolvidos.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <button

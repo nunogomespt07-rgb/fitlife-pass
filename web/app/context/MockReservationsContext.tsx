@@ -21,6 +21,11 @@ import {
   getCreditsFromUnified,
   canRefundOnCancellation,
   canCancelReservation,
+  applyNoShowToReservations,
+  getMonthlyCancellationCount,
+  incrementMonthlyCancellationCount,
+  getCurrentMonthKey,
+  MONTHLY_CANCELLATION_LIMIT,
 } from "@/lib/unifiedReservations";
 import { getStoredUser } from "@/lib/storedUser";
 import type { MockReservation } from "@/lib/mockReservations";
@@ -35,6 +40,10 @@ type MockReservationsContextValue = {
   /** Number of active (confirmed, non-expired) reservations. */
   activeReservationCount: number;
   credits: number;
+  /** Cancellations this calendar month (for display). */
+  monthlyCancellationCount: number;
+  /** Max cancellations per month. */
+  monthlyCancellationLimit: number;
   addReservation: (input: AddReservationInput) => { success: boolean; error?: string };
   addGymReservation: (input: { partnerId: string; partnerName: string; creditsRequired: number }) => { success: boolean; error?: string; reservation?: UnifiedReservation };
   cancelReservation: (id: string) => { success: boolean; error?: string };
@@ -60,7 +69,15 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
 
   useEffect(() => {
     const userId = getStoredUser()?.id ?? null;
-    setReservations(getStoredUnifiedReservations(userId));
+    let list = getStoredUnifiedReservations(userId);
+    const now = new Date();
+    const withNoShow = applyNoShowToReservations(list, now);
+    const hasNoShowChanges = list.some((r, i) => withNoShow[i].status !== r.status);
+    if (hasNoShowChanges) {
+      setStoredUnifiedReservations(userId, withNoShow);
+      list = withNoShow;
+    }
+    setReservations(list);
     setPurchasedCredits(getStoredPurchasedCredits(userId));
   }, [pathname, session]);
 
@@ -193,9 +210,15 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
     if (!r) return { success: false, error: "Reserva não encontrada." };
     const now = new Date();
     if (!canCancelReservation(r, now)) {
-      return { success: false, error: "Reservas não podem ser canceladas com menos de 6 horas de antecedência." };
+      return { success: false, error: "Não é possível cancelar com menos de 6 horas de antecedência." };
     }
     const userId = getStoredUser()?.id ?? null;
+    const monthKey = getCurrentMonthKey(now);
+    const currentCount = getMonthlyCancellationCount(userId, now);
+    if (currentCount >= MONTHLY_CANCELLATION_LIMIT) {
+      return { success: false, error: "Atingiste o limite mensal de cancelamentos." };
+    }
+    incrementMonthlyCancellationCount(userId, monthKey);
     setReservations((prev) => {
       const next = prev.map((res) => {
         if (res.id !== id) return res;
@@ -263,11 +286,15 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
     });
   }, []);
 
+  const monthlyCancellationCount = getMonthlyCancellationCount(getStoredUser()?.id ?? null);
+
   const value = useMemo<MockReservationsContextValue>(
     () => ({
       reservations,
       activeReservationCount,
       credits,
+      monthlyCancellationCount,
+      monthlyCancellationLimit: MONTHLY_CANCELLATION_LIMIT,
       addReservation,
       addGymReservation,
       cancelReservation,
@@ -282,6 +309,7 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
       reservations,
       activeReservationCount,
       credits,
+      monthlyCancellationCount,
       addReservation,
       addGymReservation,
       cancelReservation,

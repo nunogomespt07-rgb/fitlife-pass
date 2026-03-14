@@ -3,7 +3,7 @@
  * Persisted in localStorage under one key.
  */
 
-export type ReservationStatus = "confirmed" | "cancelled" | "completed" | "expired" | "used";
+export type ReservationStatus = "confirmed" | "cancelled" | "completed" | "expired" | "used" | "no_show";
 
 export type PeopleLabel = "pessoas" | "jogadores";
 
@@ -52,6 +52,10 @@ const CANCELLATION_REFUND_HOURS = 12;
 export const GYM_ACCESS_VALID_HOURS = 8;
 /** Minimum hours before scheduled start to allow cancellation. */
 export const CANCELLATION_MIN_HOURS_BEFORE = 6;
+/** Max cancellations per user per calendar month. */
+export const MONTHLY_CANCELLATION_LIMIT = 3;
+
+const CANCELLATION_COUNT_KEY_PREFIX = "fitlife-cancellation-count";
 
 function safeParse<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -83,6 +87,44 @@ function getReservationsKey(userId: string | null): string | null {
 function getCreditsKey(userId: string | null): string | null {
   if (userId == null || String(userId).trim() === "") return null;
   return `${STORAGE_KEY_PURCHASED_PREFIX}-${userId}`;
+}
+
+/** Current calendar month key YYYY-MM for cancellation tracking. */
+export function getCurrentMonthKey(now: Date = new Date()): string {
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  return `${y}-${m}`;
+}
+
+function getCancellationCountKey(userId: string | null): string | null {
+  if (userId == null || String(userId).trim() === "") return null;
+  return `${CANCELLATION_COUNT_KEY_PREFIX}-${userId}`;
+}
+
+/** Get per-month cancellation counts: { "YYYY-MM": number }. */
+export function getStoredMonthlyCancellationCounts(userId: string | null): Record<string, number> {
+  const key = getCancellationCountKey(userId);
+  if (key == null) return {};
+  const raw = safeParse<Record<string, number> | null>(key, null);
+  if (raw != null && typeof raw === "object") return raw;
+  return {};
+}
+
+/** Increment cancellation count for the given month; returns new count for that month. */
+export function incrementMonthlyCancellationCount(userId: string | null, monthKey: string): number {
+  const key = getCancellationCountKey(userId);
+  if (key == null) return 0;
+  const counts = getStoredMonthlyCancellationCounts(userId);
+  const next = (counts[monthKey] ?? 0) + 1;
+  safeSet(key, { ...counts, [monthKey]: next });
+  return next;
+}
+
+/** Get cancellation count for current month (read-only). */
+export function getMonthlyCancellationCount(userId: string | null, now: Date = new Date()): number {
+  const monthKey = getCurrentMonthKey(now);
+  const counts = getStoredMonthlyCancellationCounts(userId);
+  return counts[monthKey] ?? 0;
 }
 
 function todayYMD(): string {
@@ -128,15 +170,45 @@ export function isGymQrExpired(reservation: UnifiedReservation, now: Date = new 
   return now >= expiry;
 }
 
-/** Display status for a reservation (active, used, expired, etc.). */
+/** True if reservation should be treated as no-show: time passed, still confirmed, no check-in. */
+export function shouldMarkAsNoShow(reservation: UnifiedReservation, now: Date = new Date()): boolean {
+  if (reservation.status !== "confirmed") return false;
+  if (reservation.completedAt) return false;
+  if (reservation.type === "gym") {
+    return isGymQrExpired(reservation, now);
+  }
+  if (reservation.type === "activity") {
+    const scheduled = getScheduledDateTime(reservation);
+    if (!scheduled) return false;
+    return now >= scheduled;
+  }
+  return false;
+}
+
+/** Apply no-show status to reservations that qualify; returns new array (mutates stored only if caller persists). */
+export function applyNoShowToReservations(
+  reservations: UnifiedReservation[],
+  now: Date = new Date()
+): UnifiedReservation[] {
+  return reservations.map((r) =>
+    shouldMarkAsNoShow(r, now) ? { ...r, status: "no_show" as const } : r
+  );
+}
+
+/** Display status for a reservation (active, used, expired, no_show, etc.). */
 export function getReservationStatus(
   reservation: UnifiedReservation,
   now: Date = new Date()
 ): ReservationStatus {
+  if (reservation.status === "no_show") return "no_show";
   if (reservation.status !== "confirmed") return reservation.status;
   if (reservation.type === "gym") {
     if (reservation.completedAt) return "used";
-    if (isGymQrExpired(reservation, now)) return "expired";
+    if (isGymQrExpired(reservation, now)) return "no_show";
+  }
+  if (reservation.type === "activity") {
+    const scheduled = getScheduledDateTime(reservation);
+    if (scheduled && now >= scheduled && !reservation.completedAt) return "no_show";
   }
   return "confirmed";
 }
@@ -293,7 +365,7 @@ export function generateUnifiedReservationId(prefix = "res"): string {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 }
 
-/** Count reservations that are active (confirmed, not expired for gym). */
+/** Count reservations that are active (confirmed, not expired/no_show for gym). */
 export function getActiveReservationCount(reservations: UnifiedReservation[]): number {
   const now = new Date();
   return reservations.filter((r) => {
@@ -303,7 +375,7 @@ export function getActiveReservationCount(reservations: UnifiedReservation[]): n
   }).length;
 }
 
-/** Credits = purchased (from plan/bonus) - used. No demo default for new users. */
+/** Credits = purchased (from plan/bonus) - used. Activity and gym bookings consume credits; no refund for no_show. */
 export function getCreditsFromUnified(
   reservations: UnifiedReservation[],
   purchasedCredits: number
@@ -311,7 +383,7 @@ export function getCreditsFromUnified(
   const used = reservations
     .filter(
       (r) =>
-        r.type === "activity" &&
+        (r.type === "activity" || r.type === "gym") &&
         r.creditsUsed > 0 &&
         r.creditsRefunded !== true
     )
