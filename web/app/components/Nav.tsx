@@ -559,104 +559,100 @@ export default function Nav() {
         </div>
       </nav>
 
-      {/* Mobile search – full-screen dedicated mode (Apple / Airbnb style) */}
+      {/* Mobile search – isolated full-screen layer (no dashboard interference) */}
       {showAuthenticatedUI && isMobileSearchOpen && (
         <div
           ref={mobileSearchPanelRef}
-          className="fixed inset-0 z-[100] flex flex-col bg-[#020617] sm:hidden"
+          className="fixed inset-0 z-[9999] flex flex-col bg-[#020617] sm:hidden"
           style={{
-            background: "linear-gradient(180deg, #030712 0%, #020617 40%, #0a0f1a 100%)",
+            background: "linear-gradient(180deg, #030712 0%, #020617 35%, #0a0f1a 100%)",
           }}
         >
-          <div className="relative flex shrink-0 flex-col px-4 pt-[max(0.75rem,env(safe-area-inset-top))]">
-            <div className="flex items-center gap-3 pb-3">
-              <div className="flex min-h-[44px] flex-1 items-center gap-2.5 rounded-full border border-white/[0.08] bg-white/[0.06] pl-4 pr-2 py-2 shadow-[0_4px_24px_rgba(0,0,0,0.25)] backdrop-blur-xl">
-                <svg
-                  className="h-5 w-5 shrink-0 text-white/50"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden
-                >
-                  <circle cx="11" cy="11" r="7" />
-                  <line x1="16.65" y1="16.65" x2="21" y2="21" />
-                </svg>
-                <input
-                  ref={mobileSearchInputRef}
-                  type="text"
-                  inputMode="search"
-                  enterKeyHint="search"
-                  autoComplete="off"
-                  autoCorrect="off"
-                  autoCapitalize="none"
-                  spellCheck={false}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Pesquisar atividades, parceiros ou clubes"
-                  className="min-w-0 flex-1 bg-transparent text-[16px] text-white placeholder:text-white/45 outline-none"
-                />
-                {searchQuery ? (
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery("")}
-                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/15 text-white/80 active:bg-white/25"
-                    aria-label="Limpar pesquisa"
-                  >
-                    <span className="text-sm leading-none">×</span>
-                  </button>
-                ) : null}
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsMobileSearchOpen(false);
-                  setSearchQuery("");
-                }}
-                className="shrink-0 px-2 py-2 text-[16px] font-medium text-white/80 active:text-white"
+          <div className="flex shrink-0 items-center gap-3 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+            <div className="flex min-h-[44px] flex-1 items-center gap-2.5 rounded-full border border-white/[0.08] bg-white/[0.06] pl-4 pr-2 py-2 shadow-[0_4px_24px_rgba(0,0,0,0.25)] backdrop-blur-xl">
+              <svg
+                className="h-5 w-5 shrink-0 text-white/50"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
               >
-                Cancelar
-              </button>
+                <circle cx="11" cy="11" r="7" />
+                <line x1="16.65" y1="16.65" x2="21" y2="21" />
+              </svg>
+              <input
+                ref={mobileSearchInputRef}
+                type="text"
+                inputMode="search"
+                enterKeyHint="search"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="none"
+                spellCheck={false}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Pesquisar atividades, parceiros ou clubes"
+                className="min-w-0 flex-1 bg-transparent text-[16px] text-white placeholder:text-white/45 outline-none"
+              />
+              {searchQuery ? (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/15 text-white/80 active:bg-white/25"
+                  aria-label="Limpar pesquisa"
+                >
+                  <span className="text-sm leading-none">×</span>
+                </button>
+              ) : null}
             </div>
-            {searchQuery.length > 0 ? (
-              <div className="absolute left-4 right-4 top-full z-[110] mt-2 max-h-[min(65vh,420px)] overflow-y-auto rounded-2xl border border-white/[0.08] bg-[#0a0f1a]/98 shadow-[0_24px_48px_rgba(0,0,0,0.4)] backdrop-blur-xl">
-                {filteredSearchItems.length === 0 ? (
-                  <div className="px-5 py-6 text-center text-[15px] text-white/60">
-                    Sem resultados.
-                  </div>
-                ) : (
-                  <ul className="space-y-1 p-2">
-                    {filteredSearchItems.map((item) => (
-                      <li key={item.id}>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            router.push(item.href);
-                            setIsMobileSearchOpen(false);
-                            setSearchQuery("");
-                            mobileSearchInputRef.current?.blur();
-                          }}
-                          className="flex w-full flex-col items-start rounded-2xl border border-white/[0.06] bg-white/[0.03] px-4 py-3 text-left transition active:bg-white/[0.08]"
-                        >
-                          <span className="truncate text-[15px] font-medium text-white">
-                            {item.name}
-                          </span>
-                          <span className="mt-0.5 text-[13px] text-white/55">
-                            {item.category}
-                            {item.city || item.location ? ` · ${item.city || item.location}` : ""}
-                          </span>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            ) : (
+            <button
+              type="button"
+              onClick={() => {
+                setIsMobileSearchOpen(false);
+                setSearchQuery("");
+              }}
+              className="shrink-0 px-2 py-2 text-[16px] font-medium text-white/80 active:text-white"
+            >
+              Cancelar
+            </button>
+          </div>
+          <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-1">
+            {searchQuery.length === 0 ? (
               <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-6 text-center text-[15px] text-white/60">
                 Procura atividades, parceiros ou clubes.
               </div>
+            ) : filteredSearchItems.length === 0 ? (
+              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-6 text-center text-[15px] text-white/60">
+                Sem resultados.
+              </div>
+            ) : (
+              <ul className="space-y-1">
+                {filteredSearchItems.map((item) => (
+                  <li key={item.id}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        router.push(item.href);
+                        setIsMobileSearchOpen(false);
+                        setSearchQuery("");
+                        mobileSearchInputRef.current?.blur();
+                      }}
+                      className="flex w-full flex-col items-start rounded-2xl border border-white/[0.06] bg-white/[0.03] px-4 py-3 text-left transition active:bg-white/[0.08]"
+                    >
+                      <span className="truncate text-[15px] font-medium text-white">
+                        {item.name}
+                      </span>
+                      <span className="mt-0.5 text-[13px] text-white/55">
+                        {item.category}
+                        {item.city || item.location ? ` · ${item.city || item.location}` : ""}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
             )}
           </div>
         </div>
