@@ -93,23 +93,13 @@ export default function Nav() {
     return () => document.removeEventListener("keydown", handleKey);
   }, []);
 
-  // Mobile search: focus input & close on outside tap
+  // Mobile search: focus input when opened (no outside-tap close; dedicated search mode)
   useEffect(() => {
     if (!isMobileSearchOpen) return;
-    if (mobileSearchInputRef.current) {
-      mobileSearchInputRef.current.focus();
-    }
-    function handleClickOutside(e: MouseEvent) {
-      if (
-        mobileSearchPanelRef.current &&
-        !mobileSearchPanelRef.current.contains(e.target as Node)
-      ) {
-        setIsMobileSearchOpen(false);
-        setSearchQuery("");
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    const t = requestAnimationFrame(() => {
+      mobileSearchInputRef.current?.focus();
+    });
+    return () => cancelAnimationFrame(t);
   }, [isMobileSearchOpen]);
 
   // Lock body scroll while mobile search is open
@@ -569,83 +559,77 @@ export default function Nav() {
         </div>
       </nav>
 
-      {/* Mobile search – full-screen dedicated mode */}
+      {/* Mobile search – full-screen dedicated mode (Apple / Airbnb style) */}
       {showAuthenticatedUI && isMobileSearchOpen && (
-        <div className="fixed inset-0 z-40 flex flex-col bg-[rgba(5,10,25,0.98)] bg-[radial-gradient(circle_at_20%_0%,rgba(59,130,246,0.28),transparent_55%),radial-gradient(circle_at_80%_100%,rgba(37,99,235,0.22),transparent_55%),linear-gradient(180deg,#020617,#020617)] sm:hidden">
-          <div className="h-4" aria-hidden />
-          <div className="px-4 pt-4 pb-2">
-            <div
-              ref={mobileSearchPanelRef}
-              className="mx-auto flex max-w-6xl flex-col gap-2"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex flex-1 items-center gap-2 rounded-full border border-white/[0.14] bg-white/[0.06] px-3 py-2.5 shadow-[0_12px_35px_rgba(15,23,42,0.9)] backdrop-blur-lg">
-                  <svg
-                    className="h-4 w-4 text-white/65"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden
-                  >
-                    <circle cx="11" cy="11" r="7" />
-                    <line x1="16.65" y1="16.65" x2="21" y2="21" />
-                  </svg>
-                  <input
-                    ref={mobileSearchInputRef}
-                    type="text"
-                    inputMode="search"
-                    enterKeyHint="search"
-                    autoComplete="off"
-                    autoCorrect="off"
-                    autoCapitalize="none"
-                    spellCheck={false}
-                    value={searchQuery}
-                    onChange={(e) => {
-                      setSearchQuery(e.target.value);
-                    }}
-                    placeholder="Pesquisar atividades, parceiros ou clubes"
-                    className="w-full bg-transparent text-[15px] text-white placeholder:text-white/45 outline-none"
-                  />
-                  {searchQuery && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSearchQuery("");
-                      }}
-                      className="flex h-6 w-6 items-center justify-center rounded-full bg-white/15 text-white/80 hover:bg-white/25"
-                      aria-label="Limpar pesquisa"
-                    >
-                      <span className="text-[11px] leading-none">×</span>
-                    </button>
-                  )}
-                </div>
+        <div
+          ref={mobileSearchPanelRef}
+          className="fixed inset-0 z-[100] flex flex-col bg-[#020617] sm:hidden"
+          style={{
+            background: "linear-gradient(180deg, #030712 0%, #020617 40%, #0a0f1a 100%)",
+          }}
+        >
+          <div className="flex shrink-0 items-center gap-3 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+            <div className="flex min-h-[44px] flex-1 items-center gap-2.5 rounded-full border border-white/[0.08] bg-white/[0.06] pl-4 pr-2 py-2 shadow-[0_4px_24px_rgba(0,0,0,0.25)] backdrop-blur-xl">
+              <svg
+                className="h-5 w-5 shrink-0 text-white/50"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <circle cx="11" cy="11" r="7" />
+                <line x1="16.65" y1="16.65" x2="21" y2="21" />
+              </svg>
+              <input
+                ref={mobileSearchInputRef}
+                type="text"
+                inputMode="search"
+                enterKeyHint="search"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="none"
+                spellCheck={false}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Pesquisar atividades, parceiros ou clubes"
+                className="min-w-0 flex-1 bg-transparent text-[16px] text-white placeholder:text-white/45 outline-none"
+              />
+              {searchQuery ? (
                 <button
                   type="button"
-                  onClick={() => {
-                    setIsMobileSearchOpen(false);
-                    setSearchQuery("");
-                  }}
-                  className="px-1 py-1 text-[13px] font-medium text-white/80"
+                  onClick={() => setSearchQuery("")}
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/15 text-white/80 active:bg-white/25"
+                  aria-label="Limpar pesquisa"
                 >
-                  Cancelar
+                  <span className="text-sm leading-none">×</span>
                 </button>
-              </div>
+              ) : null}
             </div>
+            <button
+              type="button"
+              onClick={() => {
+                setIsMobileSearchOpen(false);
+                setSearchQuery("");
+              }}
+              className="shrink-0 px-2 py-2 text-[16px] font-medium text-white/80 active:text-white"
+            >
+              Cancelar
+            </button>
           </div>
-          <div className="mx-auto w-full max-w-6xl flex-1 px-4 pb-6 pt-1 overflow-y-auto">
+          <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-1">
             {searchQuery.length === 0 ? (
-              <div className="mt-6 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-4 py-5 text-sm text-white/70 text-center">
+              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-6 text-center text-[15px] text-white/60">
                 Procura atividades, parceiros ou clubes.
               </div>
             ) : filteredSearchItems.length === 0 ? (
-              <div className="mt-6 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-4 py-5 text-sm text-white/70 text-center">
+              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-6 text-center text-[15px] text-white/60">
                 Sem resultados.
               </div>
             ) : (
-              <ul className="mt-3 space-y-1.5">
+              <ul className="space-y-1">
                 {filteredSearchItems.map((item) => (
                   <li key={item.id}>
                     <button
@@ -656,19 +640,14 @@ export default function Nav() {
                         setSearchQuery("");
                         mobileSearchInputRef.current?.blur();
                       }}
-                      className="flex w-full flex-col items-start rounded-2xl border border-white/[0.06] bg-white/[0.03] px-3.5 py-2.5 text-left text-xs text-white/90 transition hover:bg-white/[0.08] hover:border-white/[0.14]"
+                      className="flex w-full flex-col items-start rounded-2xl border border-white/[0.06] bg-white/[0.03] px-4 py-3 text-left transition active:bg-white/[0.08]"
                     >
-                      <span className="w-full truncate text-[13px] font-semibold text-white">
+                      <span className="truncate text-[15px] font-medium text-white">
                         {item.name}
                       </span>
-                      <span className="mt-0.5 text-[11px] text-white/65">
+                      <span className="mt-0.5 text-[13px] text-white/55">
                         {item.category}
-                        {item.city || item.location ? (
-                          <>
-                            {" · "}
-                            {item.city || item.location}
-                          </>
-                        ) : null}
+                        {item.city || item.location ? ` · ${item.city || item.location}` : ""}
                       </span>
                     </button>
                   </li>
