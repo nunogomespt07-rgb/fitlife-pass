@@ -1,4 +1,4 @@
-import Link from "next/link";
+import LegalBackLink from "../LegalBackLink";
 
 export const metadata = {
   title: "Política de Privacidade | FitLife Pass",
@@ -107,11 +107,7 @@ export default function PrivacidadePage() {
         </section>
       </div>
 
-      <p className="mt-12 text-base">
-        <Link href="/" className="font-medium text-[#5f86ff] underline underline-offset-2 hover:opacity-90">
-          ← Voltar
-        </Link>
-      </p>
+      <LegalBackLink />
     </article>
   );
 }
