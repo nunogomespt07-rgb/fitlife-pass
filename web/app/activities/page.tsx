@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { MapPin, Clock, CreditCard } from "lucide-react";
 import GlassCard from "../components/ui/GlassCard";
 import FavoriteButton from "../components/ui/FavoriteButton";
 import {
@@ -154,23 +155,34 @@ export default function ActivitiesPage() {
                   padding="lg"
                   hover
                   activityStyle
-                  className="flex h-full min-h-[200px] flex-col items-center justify-between text-center"
+                  className="flex h-full min-h-[200px] flex-col items-center justify-between text-center transition-[150ms] ease-out border-white/[0.1] shadow-[0_12px_32px_rgba(0,0,0,0.28)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.32)]"
                 >
-                  <div>
-                    <h2 className="app-card-title text-white sm:text-xl">
+                  <div className="w-full">
+                    <h2 className="mb-2 text-[18px] font-semibold text-white sm:text-[20px]">
                       {cat.label}
                     </h2>
-                    <p className="mt-2 text-[15px] text-white/75">
+                    <p className="mb-3 text-[15px] text-white/75 sm:mb-[14px]">
                       {cat.description}
                     </p>
-                    <p className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-white/65">
-                      <span>📍 {cat.city}</span>
-                      <span>⏱ Sessões disponíveis</span>
-                      <span>💳 desde {cat.creditsFrom} créditos</span>
+                    <p className="mb-[18px] flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-xs text-white/70">
+                      <span className="inline-flex items-center gap-1.5">
+                        <MapPin className="h-3.5 w-3.5 shrink-0 text-white/55" aria-hidden />
+                        {cat.city}
+                      </span>
+                      <span className="text-white/40" aria-hidden>·</span>
+                      <span className="inline-flex items-center gap-1.5">
+                        <Clock className="h-3.5 w-3.5 shrink-0 text-white/55" aria-hidden />
+                        Sessões disponíveis
+                      </span>
+                      <span className="text-white/40" aria-hidden>·</span>
+                      <span className="inline-flex items-center gap-1.5">
+                        <CreditCard className="h-3.5 w-3.5 shrink-0 text-white/55" aria-hidden />
+                        desde {cat.creditsFrom} créditos
+                      </span>
                     </p>
                   </div>
-                  <span className="mt-5 inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/10 px-4 py-2.5 text-sm font-medium text-white transition duration-[180ms] group-hover:bg-white/15 group-hover:border-white/25 group-hover:translate-y-[-2px]">
-                    Ver parceiros →
+                  <span className="mt-2 inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/10 px-4 py-2.5 text-sm font-medium text-white transition duration-[150ms] ease-out group-hover:bg-white/15 group-hover:border-white/25 group-hover:translate-y-[-2px]">
+                    Explorar parceiros →
                   </span>
                 </GlassCard>
               </Link>
