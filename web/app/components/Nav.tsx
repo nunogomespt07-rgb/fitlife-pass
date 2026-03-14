@@ -85,6 +85,7 @@ export default function Nav() {
     }
   }, [pathname, session]);
 
+  /* Outside click only closes dropdown UI; must never trigger logout. */
   useEffect(() => {
     if (!dropdownOpen) return;
     function handleClickOutside(e: MouseEvent) {
@@ -126,7 +127,7 @@ export default function Nav() {
     };
   }, [isMobileSearchOpen]);
 
-  // Mobile account menu: close on outside tap
+  /* Mobile account menu: close on outside tap only; must never trigger logout. */
   useEffect(() => {
     if (!isMobileMenuOpen) return;
     function handleClickOutside(e: MouseEvent | TouchEvent) {
@@ -221,10 +222,12 @@ export default function Nav() {
     searchQuery.length > 0 &&
     filteredSearchItems.length > 0;
 
+  /** Only ever called from explicit "Sair" button click. Do not trigger from outside-click, menu close, or navigation. */
   const handleLogout = () => {
     if (typeof window !== "undefined") {
       localStorage.removeItem("token");
       localStorage.removeItem("fitlife-user");
+      /* Do NOT remove fitlife-unified-reservations-{userId} or fitlife-purchased-credits-{userId}: credits and reservations persist for correct balance on re-login. */
     }
     setHasToken(false);
     setUser(null);

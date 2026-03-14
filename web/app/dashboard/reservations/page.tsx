@@ -86,7 +86,7 @@ export default function ReservationsHistoryPage() {
           setError(
             "Sessão inválida ou expirada. Faz login novamente para ver o histórico.",
           );
-          if (typeof window !== "undefined") localStorage.removeItem("token");
+          /* Do not clear token here; logout only on explicit "Sair" to preserve credit consistency. */
         } else {
           setError(
                 err?.data &&

@@ -68,7 +68,13 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
   const [purchasedCredits, setPurchasedCredits] = useState(0);
 
   useEffect(() => {
-    const userId = getStoredUser()?.id ?? null;
+    const stored = getStoredUser();
+    const sessionUser = session?.user;
+    const sessionUserId =
+      sessionUser != null
+        ? (sessionUser as { id?: string }).id ?? (sessionUser.email ?? null)
+        : null;
+    const userId = stored?.id ?? sessionUserId ?? null;
     let list = getStoredUnifiedReservations(userId);
     const now = new Date();
     const withNoShow = applyNoShowToReservations(list, now);

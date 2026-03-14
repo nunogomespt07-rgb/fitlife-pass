@@ -375,7 +375,7 @@ export function getActiveReservationCount(reservations: UnifiedReservation[]): n
   }).length;
 }
 
-/** Credits = purchased (from plan/bonus) - used. Activity and gym bookings consume credits; no refund for no_show. */
+/** Single source of truth for credit balance: purchased - used (activity/gym, excluding refunded). No double debit; no refund for no_show. */
 export function getCreditsFromUnified(
   reservations: UnifiedReservation[],
   purchasedCredits: number
