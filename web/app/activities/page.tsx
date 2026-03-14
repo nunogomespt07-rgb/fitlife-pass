@@ -50,6 +50,12 @@ const CATEGORY_ACCENT: Record<string, string> = {
   "healthy-food": "border-t-rose-400/25",
 };
 
+const CTA_LABEL: Record<string, string> = {
+  ginasios: "Explorar clubes",
+  crossfit: "Explorar boxes",
+  piscinas: "Explorar piscinas",
+};
+
 const ACTIVITY_CATEGORIES = [
   { slug: "ginasios", label: "Ginásios", description: "Health clubs e ginásios completos.", city: "Lisboa", creditsFrom: 6 },
   { slug: "padel", label: "Padel", description: "Campos de padel em clubes parceiros.", city: "Lisboa", creditsFrom: 8 },
@@ -179,49 +185,54 @@ export default function ActivitiesPage() {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {ACTIVITY_CATEGORIES.map((cat) => {
               const Icon = CATEGORY_ICONS[cat.slug] ?? Sparkles;
+              const ctaLabel = CTA_LABEL[cat.slug] ?? "Explorar parceiros";
               return (
                 <Link
                   key={cat.slug}
                   href={`/activities/categorias/${cat.slug}`}
                   className="group block h-full"
-                  aria-label={`Explorar parceiros ${cat.label}`}
+                  aria-label={`${ctaLabel} ${cat.label}`}
                 >
                   <article
-                    className={`relative flex h-full min-h-[240px] flex-col overflow-hidden rounded-2xl border border-white/[0.12] border-t-2 bg-gradient-to-b from-[#0f1a3a] via-[#0a1435] to-[#070f2b] p-6 text-center shadow-[0_16px_40px_rgba(0,0,0,0.35),0_0_0_1px_rgba(255,255,255,0.04)_inset] transition-all duration-[160ms] ease-out hover:-translate-y-0.5 hover:border-white/[0.18] hover:shadow-[0_24px_52px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.06)_inset] active:translate-y-0 ${CATEGORY_ACCENT[cat.slug] ?? "border-t-blue-400/30"}`}
+                    className={`relative flex h-full min-h-[260px] flex-col overflow-hidden rounded-2xl border border-white/[0.12] border-t-2 bg-gradient-to-b from-[#0f1b3c] via-[#0b1638] to-[#080f2c] p-7 text-center shadow-[0_18px_44px_rgba(0,0,0,0.38),0_0_0_1px_rgba(255,255,255,0.05)_inset] transition-all duration-[140ms] ease-out hover:-translate-y-1 hover:border-white/[0.2] hover:shadow-[0_28px_56px_rgba(0,0,0,0.42),0_0_0_1px_rgba(255,255,255,0.08)_inset] active:translate-y-0 ${CATEGORY_ACCENT[cat.slug] ?? "border-t-blue-400/30"}`}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-b from-white/[0.06] via-transparent to-transparent pointer-events-none" aria-hidden />
-                    <div className="absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" aria-hidden />
+                    <div className="absolute inset-0 bg-gradient-to-b from-white/[0.07] via-transparent to-transparent pointer-events-none" aria-hidden />
+                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_0%,rgba(255,255,255,0.06),transparent_70%)] pointer-events-none" aria-hidden />
+                    <div className="absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent pointer-events-none" aria-hidden />
 
                     <div className="relative flex flex-1 flex-col items-center justify-between">
                       <div className="w-full">
-                        <div className="mb-4 flex justify-center">
-                          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.08] text-white/90 ring-1 ring-white/10 transition duration-[160ms] group-hover:bg-white/[0.12] group-hover:ring-white/20">
-                            <Icon className="h-6 w-6" strokeWidth={1.75} aria-hidden />
+                        <div className="mb-6 flex justify-center">
+                          <span className="relative flex h-14 w-14 items-center justify-center rounded-full bg-white/[0.06] text-white/95 ring-1 ring-white/12 transition duration-[140ms] group-hover:bg-white/[0.1] group-hover:ring-white/20 group-hover:shadow-[0_0_28px_rgba(255,255,255,0.12)]">
+                            <span className="absolute inset-0 rounded-full bg-white/[0.08] blur-xl transition duration-[140ms] group-hover:bg-white/[0.12]" aria-hidden />
+                            <Icon className="relative h-7 w-7" strokeWidth={1.6} aria-hidden />
                           </span>
                         </div>
-                        <h2 className="mb-3 text-[20px] font-bold leading-tight text-white sm:text-[22px]">
+                        <h2 className="mb-4 text-[22px] font-extrabold leading-tight tracking-tight text-white sm:text-[24px]">
                           {cat.label}
                         </h2>
                         <p className="mx-auto mb-5 max-w-[260px] text-[15px] leading-relaxed text-white/80">
                           {cat.description}
                         </p>
-                        <div className="mb-6 flex flex-wrap items-center justify-center gap-2">
-                          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.06] px-3 py-1.5 text-[12px] font-medium text-white/85 ring-1 ring-white/[0.08]">
-                            <MapPin className="h-3 w-3 shrink-0 text-white/60" aria-hidden />
+                        <p className="mb-7 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-[13px] text-white/70">
+                          <span className="inline-flex items-center gap-1.5">
+                            <MapPin className="h-3.5 w-3.5 shrink-0 text-white/50" aria-hidden />
                             {cat.city}
                           </span>
-                          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.06] px-3 py-1.5 text-[12px] font-medium text-white/85 ring-1 ring-white/[0.08]">
-                            <Clock className="h-3 w-3 shrink-0 text-white/60" aria-hidden />
+                          <span className="text-white/40" aria-hidden>•</span>
+                          <span className="inline-flex items-center gap-1.5">
+                            <Clock className="h-3.5 w-3.5 shrink-0 text-white/50" aria-hidden />
                             Sessões disponíveis
                           </span>
-                          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.06] px-3 py-1.5 text-[12px] font-medium text-white/85 ring-1 ring-white/[0.08]">
-                            <CreditCard className="h-3 w-3 shrink-0 text-white/60" aria-hidden />
-                            desde {cat.creditsFrom} cr.
+                          <span className="text-white/40" aria-hidden>•</span>
+                          <span className="inline-flex items-center gap-1.5">
+                            <CreditCard className="h-3.5 w-3.5 shrink-0 text-white/50" aria-hidden />
+                            A partir de {cat.creditsFrom} créditos
                           </span>
-                        </div>
+                        </p>
                       </div>
-                      <span className="inline-flex min-w-0 items-center justify-center gap-2 rounded-xl bg-white/10 px-5 py-3.5 text-[15px] font-semibold text-white ring-1 ring-white/15 transition duration-[160ms] group-hover:bg-white/15 group-hover:ring-white/25 group-hover:brightness-105">
-                        Explorar parceiros
+                      <span className="inline-flex min-w-0 items-center justify-center gap-2 rounded-xl bg-white/12 px-6 py-4 text-[15px] font-semibold text-white ring-1 ring-white/20 transition duration-[140ms] group-hover:bg-white/18 group-hover:ring-white/30 group-hover:brightness-110">
+                        {ctaLabel}
                         <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
                       </span>
                     </div>
