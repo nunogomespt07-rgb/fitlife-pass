@@ -596,14 +596,6 @@ export default function Nav() {
                       Conta
                     </Link>
                     <Link
-                      href="/dashboard/perfil"
-                      onClick={() => setDropdownOpen(false)}
-                      className="block rounded-lg mx-1.5 px-3.5 py-2.5 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-white"
-                      role="menuitem"
-                    >
-                      Perfil
-                    </Link>
-                    <Link
                       href="/dashboard/favoritos"
                       onClick={() => setDropdownOpen(false)}
                       className="block rounded-lg mx-1.5 px-3.5 py-2.5 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-white"
@@ -693,14 +685,6 @@ export default function Nav() {
                 className="flex min-h-[44px] items-center rounded-[18px] px-3.5 text-[17px] font-medium text-white/92 transition active:bg-white/10 active:scale-[0.99] hover:bg-white/5"
               >
                 Conta
-              </Link>
-
-              <Link
-                href="/dashboard/perfil"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex min-h-[44px] items-center rounded-[18px] px-3.5 text-[17px] font-medium text-white/92 transition active:bg-white/10 active:scale-[0.99] hover:bg-white/5"
-              >
-                Perfil
               </Link>
 
               <Link
