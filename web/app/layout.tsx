@@ -2,6 +2,7 @@ import "./globals.css"
 import Providers from "./providers"
 import Nav from "./components/Nav"
 import MobileDashboardNav from "./components/MobileDashboardNav"
+import Footer from "./components/Footer"
 import { MobileSearchProvider } from "./components/Nav"
 
 export const metadata = {
@@ -21,6 +22,7 @@ export default function RootLayout({
           <MobileSearchProvider>
             <Nav />
             {children}
+            <Footer />
             <MobileDashboardNav />
           </MobileSearchProvider>
         </Providers>
