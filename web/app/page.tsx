@@ -205,7 +205,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-6xl px-4 pb-24 pt-16 sm:px-6 lg:px-10">
+      <div className="mx-auto max-w-6xl px-4 pb-16 pt-16 sm:px-6 lg:px-10">
         {/* Partner logos */}
         <section
           ref={partnersRef}
