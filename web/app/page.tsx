@@ -142,29 +142,29 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* DESKTOP HERO — fixed grid, no overflow. Visible only at lg+. */}
+        {/* DESKTOP HERO — safe container 1280px, grid 360+300+340, no clip. */}
         <div
-          className="hidden lg:grid relative z-10 box-border w-full max-w-[1360px] min-h-[min(92vh,960px)] grid-cols-[420px_340px_360px] items-center gap-x-12 px-10 py-20 xl:px-12"
+          className="hidden lg:grid relative z-10 box-border w-full max-w-[1280px] min-h-[min(92vh,920px)] grid-cols-[360px_300px_340px] items-center gap-x-8 px-8 py-20"
           style={{ marginLeft: "auto", marginRight: "auto" }}
         >
-          {/* LEFT — Copy. Fixed 420px column, no clip. */}
-          <div className="flex w-full max-w-[420px] flex-col justify-center">
+          {/* LEFT — Copy. max-width 360px. */}
+          <div className="flex w-full max-w-[360px] flex-col justify-center min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/55">FitLife Pass</p>
-            <h1 className="landing-hero-title mt-6 font-extrabold text-white">
+            <h1 className="landing-hero-title-desktop mt-6 font-extrabold text-white">
               <span className="block whitespace-nowrap">Um só passe.</span>
               <span className="block whitespace-nowrap">Todos os teus treinos.</span>
             </h1>
-            <p className="mt-5 max-w-[400px] text-[1.0625rem] leading-[1.72] text-white/85">Ginásio, yoga, padel, crossfit e estúdios premium numa só experiência.</p>
-            <p className="mt-4 text-sm font-medium text-white/70">Uma conta. Vários parceiros. Sem fidelização.</p>
+            <p className="mt-4 max-w-[340px] text-[1rem] leading-[1.65] text-white/85">Ginásio, yoga, padel, crossfit e estúdios premium numa só experiência.</p>
+            <p className="mt-3 text-sm font-medium text-white/70">Uma conta. Vários parceiros. Sem fidelização.</p>
           </div>
 
-          {/* CENTER — Athlete. Fixed 340px column, flow only, no absolute/transform. */}
-          <div className="flex w-full max-w-[340px] items-center justify-center">
+          {/* CENTER — Athlete. 300px column. */}
+          <div className="flex w-full max-w-[300px] items-center justify-center min-w-0">
             <div
-              className="flex w-full max-w-[320px] flex-col items-center justify-center"
+              className="flex w-full max-w-[280px] flex-col items-center justify-center"
               style={{
-                background: "radial-gradient(ellipse 55% 60% at 50% 50%, rgba(90,140,255,0.18) 0%, transparent 65%)",
-                filter: "drop-shadow(0 0 56px rgba(90,140,255,0.16))",
+                background: "radial-gradient(ellipse 55% 60% at 50% 50%, rgba(90,140,255,0.16) 0%, transparent 65%)",
+                filter: "drop-shadow(0 0 48px rgba(90,140,255,0.14))",
               }}
             >
               <div className="w-full" style={{ background: "linear-gradient(to top, #070f2b 0%, rgba(7,15,43,0.88) 32%, transparent 100%)" }}>
@@ -173,9 +173,9 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* RIGHT — Auth. Fixed 360px column, align end. */}
-          <div className="flex w-full max-w-[360px] justify-end">
-            <div className="hero-float-card w-full max-w-[360px] rounded-[var(--radius-card)] bg-white/[0.04] border border-white/[0.08] backdrop-blur-[18px] shadow-[0_40px_90px_rgba(0,0,0,0.45)]">
+          {/* RIGHT — Auth. max-width 340px, justify-end. */}
+          <div className="flex w-full max-w-[340px] justify-end min-w-0">
+            <div className="hero-float-card w-full max-w-[340px] rounded-[var(--radius-card)] bg-white/[0.04] border border-white/[0.08] backdrop-blur-[18px] shadow-[0_40px_90px_rgba(0,0,0,0.45)]">
               <Suspense fallback={null}><PremiumAuthCard desktopWider /></Suspense>
             </div>
           </div>
