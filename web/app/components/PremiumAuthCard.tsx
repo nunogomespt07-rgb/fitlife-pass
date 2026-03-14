@@ -33,7 +33,9 @@ function passwordValid(pwd: string): boolean {
   return minLength && hasNumberOrSymbol;
 }
 
-export default function PremiumAuthCard() {
+type PremiumAuthCardProps = { desktopWider?: boolean };
+
+export default function PremiumAuthCard({ desktopWider }: PremiumAuthCardProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [screen, setScreen] = useState<"entry" | "email">("entry");
@@ -372,7 +374,7 @@ export default function PremiumAuthCard() {
   }
 
   return (
-    <div className="glass-dark w-full max-w-sm rounded-[var(--radius-card)] p-6 shadow-[var(--shadow-glass)] sm:max-w-[400px] sm:p-8">
+    <div className={`glass-dark w-full max-w-sm rounded-[var(--radius-card)] p-6 shadow-[var(--shadow-glass)] sm:max-w-[400px] sm:p-8 ${desktopWider ? "lg:max-w-none lg:p-10" : ""}`}>
       <div className="mt-0.5">
         <div className="flex items-center justify-between">
           {screen === "email" ? (
