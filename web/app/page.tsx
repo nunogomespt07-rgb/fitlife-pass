@@ -145,7 +145,7 @@ export default function LandingPage() {
         {/* DESKTOP HERO — safe constrained layout, no clipping. */}
         <div className="hidden lg:block landing-desktop-hero-container">
           <div
-            className="grid relative z-10 box-border w-full min-h-[min(92vh,920px)] grid-cols-[360px_280px_340px] items-stretch gap-x-10 pt-16 pb-20"
+            className="grid relative z-10 box-border w-full min-h-[min(92vh,920px)] grid-cols-[360px_280px_340px] items-stretch gap-x-10 pt-14 pb-16"
           >
             {/* Column 1 — Text. max-width 360px, fully visible. */}
             <div className="flex w-full max-w-[360px] flex-col justify-start pt-8 min-w-0 self-start">
@@ -153,13 +153,13 @@ export default function LandingPage() {
                 <span className="block whitespace-nowrap">Um só passe.</span>
                 <span className="block whitespace-nowrap">Todos os teus treinos.</span>
               </h1>
-              <p className="landing-hero-subtitle-desktop mt-5 max-w-[340px] leading-[1.65] text-white/85">Ginásio, yoga, padel, crossfit e estúdios premium numa só experiência.</p>
+              <p className="landing-hero-subtitle-desktop mt-6 max-w-[320px] leading-[1.65] text-white/85">Ginásio, yoga, padel, crossfit e estúdios premium numa só experiência.</p>
               <p className="landing-hero-secondary-desktop mt-4 font-medium text-white/70">Uma conta. Vários parceiros. Sem fidelização.</p>
             </div>
 
-            {/* Column 2 — Athlete. max-width 260px, centered, no extra offsets. */}
+            {/* Column 2 — Athlete. max-width 260px, slightly right for gap from text. */}
             <div className="flex w-full max-w-[280px] items-center justify-center min-w-0">
-              <div className="desktop-hero-athlete relative mx-auto w-full max-w-[260px] p-0">
+              <div className="desktop-hero-athlete relative ml-6 w-full max-w-[260px] p-0">
                 <div className="relative w-full h-auto">
                   <Image src="/images/runner-hero.png" alt="Runner" width={1500} height={2000} className="h-auto w-full object-contain object-center" style={{ maskImage: "linear-gradient(to bottom, black 0%, black 72%, transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 72%, transparent 100%)" }} priority unoptimized />
                 </div>
