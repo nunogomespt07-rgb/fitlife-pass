@@ -147,8 +147,8 @@ export default function LandingPage() {
           className="hidden lg:grid relative z-10 box-border w-full max-w-[1280px] min-h-[min(92vh,920px)] grid-cols-[420px_300px_360px] items-stretch gap-x-16 px-10 pt-12 pb-20"
           style={{ marginLeft: "auto", marginRight: "auto" }}
         >
-          {/* Column 1 — Text. Align to top so block sits higher. */}
-          <div className="flex w-full max-w-[420px] flex-col justify-start pt-0 min-w-0 lg:self-start">
+          {/* Column 1 — Text. Slight top offset to reduce dead space below. */}
+          <div className="flex w-full max-w-[420px] flex-col justify-start pt-6 min-w-0 lg:self-start">
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/55">FitLife Pass</p>
             <h1 className="landing-hero-title-desktop mt-5 font-extrabold text-white">
               <span className="block whitespace-nowrap">Um só passe.</span>
@@ -165,8 +165,8 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Column 3 — Login card. Vertically centered. */}
-          <div className="flex w-full max-w-[360px] items-center justify-end min-w-0">
+          {/* Column 3 — Login card. Extra top breathing room. */}
+          <div className="flex w-full max-w-[360px] items-center justify-end min-w-0 pt-10">
             <div className="hero-float-card w-full max-w-[360px] rounded-[var(--radius-card)] bg-white/[0.04] border border-white/[0.08] backdrop-blur-[18px] shadow-[0_40px_90px_rgba(0,0,0,0.45)]">
               <Suspense fallback={null}><PremiumAuthCard desktopWider /></Suspense>
             </div>
