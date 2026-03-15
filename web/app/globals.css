@@ -144,8 +144,8 @@
   }
   /* Desktop hero – premium depth */
   @keyframes hero-float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-6px); }
+    0%, 100% { transform: scale(1.1) translateY(0); }
+    50% { transform: scale(1.1) translateY(-6px); }
   }
   /* Landing hero – desktop-only enhancements */
   @media (min-width: 1024px) {
@@ -176,6 +176,12 @@
     .landing-hero-subtitle-desktop {
       font-size: 1.1875rem;
     }
+    .landing-hero-text-col {
+      padding-left: 80px;
+    }
+    .landing-hero-subtitle-mt {
+      margin-top: 20px;
+    }
     .landing-hero-secondary-desktop {
       font-size: 0.9375rem;
     }
@@ -192,6 +198,7 @@
       box-shadow: 0 15px 45px rgba(80, 120, 255, 0.55);
     }
     .desktop-hero-athlete {
+      transform: scale(1.1);
       animation: hero-float 3.5s ease-in-out infinite;
     }
     .landing-hero-runner {
@@ -232,6 +239,9 @@
       border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 20px;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    }
+    .desktop-hero-auth-card-mt {
+      margin-top: 40px;
     }
   }
 
