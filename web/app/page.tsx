@@ -142,38 +142,37 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* DESKTOP HERO — safe container 1280px, grid 360+300+340, no clip. */}
+        {/* DESKTOP HERO — 1280px container, grid 420+260+340, athlete right-aligned. */}
         <div
-          className="hidden lg:grid relative z-10 box-border w-full max-w-[1280px] min-h-[min(92vh,920px)] grid-cols-[360px_300px_340px] items-center gap-x-8 px-8 py-20"
+          className="hidden lg:grid relative z-10 box-border w-full max-w-[1280px] min-h-[min(92vh,920px)] grid-cols-[420px_260px_340px] items-center gap-x-14 px-10 py-20"
           style={{ marginLeft: "auto", marginRight: "auto" }}
         >
-          {/* LEFT — Copy. max-width 360px. */}
-          <div className="flex w-full max-w-[360px] flex-col justify-center min-w-0">
+          {/* LEFT — Copy. max-width 420px. */}
+          <div className="flex w-full max-w-[420px] flex-col justify-center min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/55">FitLife Pass</p>
             <h1 className="landing-hero-title-desktop mt-6 font-extrabold text-white">
               <span className="block whitespace-nowrap">Um só passe.</span>
               <span className="block whitespace-nowrap">Todos os teus treinos.</span>
             </h1>
-            <p className="mt-4 max-w-[340px] text-[1rem] leading-[1.65] text-white/85">Ginásio, yoga, padel, crossfit e estúdios premium numa só experiência.</p>
-            <p className="mt-3 text-sm font-medium text-white/70">Uma conta. Vários parceiros. Sem fidelização.</p>
+            <p className="mt-5 max-w-[400px] text-[1.0625rem] leading-[1.7] text-white/85">Ginásio, yoga, padel, crossfit e estúdios premium numa só experiência.</p>
+            <p className="mt-4 text-sm font-medium text-white/70">Uma conta. Vários parceiros. Sem fidelização.</p>
           </div>
 
-          {/* CENTER — Athlete. 300px column. */}
-          <div className="flex w-full max-w-[300px] items-center justify-center min-w-0">
-            <div
-              className="flex w-full max-w-[280px] flex-col items-center justify-center"
-              style={{
-                background: "radial-gradient(ellipse 55% 60% at 50% 50%, rgba(90,140,255,0.16) 0%, transparent 65%)",
-                filter: "drop-shadow(0 0 48px rgba(90,140,255,0.14))",
-              }}
-            >
-              <div className="w-full" style={{ background: "linear-gradient(to top, #070f2b 0%, rgba(7,15,43,0.88) 32%, transparent 100%)" }}>
-                <Image src="/images/runner-hero.png" alt="Runner" width={1500} height={2000} className="h-auto w-full object-contain object-center" style={{ maskImage: "linear-gradient(to bottom, black 0%, black 72%, transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 72%, transparent 100%)" }} priority unoptimized />
+          {/* CENTER — Athlete column. Athlete shifted right. Soft glow, no box. */}
+          <div
+            className="flex w-full max-w-[260px] items-center justify-end min-w-0"
+            style={{ background: "radial-gradient(ellipse 70% 80% at 100% 50%, rgba(90,140,255,0.12) 0%, transparent 60%)" }}
+          >
+            <div className="flex max-w-[240px] flex-col items-end justify-center">
+              <div className="w-full" style={{ filter: "drop-shadow(0 0 48px rgba(90,140,255,0.16))" }}>
+                <div className="w-full" style={{ background: "linear-gradient(to top, #070f2b 0%, rgba(7,15,43,0.88) 30%, transparent 100%)" }}>
+                  <Image src="/images/runner-hero.png" alt="Runner" width={1500} height={2000} className="h-auto w-full object-contain object-right" style={{ maskImage: "linear-gradient(to bottom, black 0%, black 72%, transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 72%, transparent 100%)" }} priority unoptimized />
+                </div>
               </div>
             </div>
           </div>
 
-          {/* RIGHT — Auth. max-width 340px, justify-end. */}
+          {/* RIGHT — Auth. max-width 340px, align right. */}
           <div className="flex w-full max-w-[340px] justify-end min-w-0">
             <div className="hero-float-card w-full max-w-[340px] rounded-[var(--radius-card)] bg-white/[0.04] border border-white/[0.08] backdrop-blur-[18px] shadow-[0_40px_90px_rgba(0,0,0,0.45)]">
               <Suspense fallback={null}><PremiumAuthCard desktopWider /></Suspense>
