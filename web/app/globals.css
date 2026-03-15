@@ -142,10 +142,10 @@
       font-size: var(--text-hero-desktop);
     }
   }
-  /* Desktop hero – premium depth */
+  /* Desktop hero – subtle float only, no scale */
   @keyframes hero-float {
-    0%, 100% { transform: scale(1.1) translateY(0); }
-    50% { transform: scale(1.1) translateY(-6px); }
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
   }
   /* Landing hero – desktop-only enhancements */
   @media (min-width: 1024px) {
@@ -164,10 +164,10 @@
       line-height: 0.95;
     }
     .landing-hero-title-desktop {
-      font-size: 60px;
+      font-size: 52px;
       font-weight: 800;
       letter-spacing: -0.04em;
-      line-height: 0.95;
+      line-height: 0.96;
     }
     .landing-hero-desc {
       font-size: 18px;
@@ -175,12 +175,6 @@
     }
     .landing-hero-subtitle-desktop {
       font-size: 1.1875rem;
-    }
-    .landing-hero-text-col {
-      padding-left: 80px;
-    }
-    .landing-hero-subtitle-mt {
-      margin-top: 20px;
     }
     .landing-hero-secondary-desktop {
       font-size: 0.9375rem;
@@ -198,7 +192,6 @@
       box-shadow: 0 15px 45px rgba(80, 120, 255, 0.55);
     }
     .desktop-hero-athlete {
-      transform: scale(1.1);
       animation: hero-float 3.5s ease-in-out infinite;
     }
     .landing-hero-runner {
@@ -240,9 +233,6 @@
       border-radius: 20px;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
     }
-    .desktop-hero-auth-card-mt {
-      margin-top: 40px;
-    }
   }
 
   /* Desktop landing – stable container system (hero isolated; content below uses same container) */
@@ -252,9 +242,10 @@
       max-width: 1280px;
       margin-left: auto;
       margin-right: auto;
-      padding-left: 40px;
-      padding-right: 40px;
+      padding-left: 32px;
+      padding-right: 32px;
       box-sizing: border-box;
+      overflow: visible;
     }
     .landing-desktop-content {
       width: 100%;
