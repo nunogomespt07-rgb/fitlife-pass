@@ -165,7 +165,7 @@ export default function LandingPage() {
 
             {/* Column 3 — Login card. 360px column, card 380px. */}
             <div className="landing-desktop-card-col flex w-full max-w-[360px] min-w-0 items-center justify-end">
-              <div className="desktop-hero-auth-card-ref w-full max-w-[380px]">
+              <div className="desktop-hero-auth-card-ref w-full max-w-[344px]">
                 <Suspense fallback={null}><PremiumAuthCard desktopWider /></Suspense>
               </div>
             </div>
