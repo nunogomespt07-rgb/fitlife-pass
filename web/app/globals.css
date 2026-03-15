@@ -142,10 +142,10 @@
       font-size: var(--text-hero-desktop);
     }
   }
-  /* Desktop hero – subtle float, slight scale for balance */
+  /* Desktop hero – subtle float */
   @keyframes hero-float {
-    0%, 100% { transform: scale(0.97) translateY(0); }
-    50% { transform: scale(0.97) translateY(-6px); }
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
   }
   /* Landing hero – desktop-only enhancements */
   @media (min-width: 1024px) {
@@ -192,7 +192,6 @@
       box-shadow: 0 15px 45px rgba(80, 120, 255, 0.55);
     }
     .desktop-hero-athlete {
-      transform: scale(0.97);
       animation: hero-float 3.5s ease-in-out infinite;
     }
     .landing-hero-runner {

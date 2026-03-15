@@ -157,18 +157,18 @@ export default function LandingPage() {
               <p className="landing-hero-secondary-desktop mt-4 font-medium text-white/70">Uma conta. Vários parceiros. Sem fidelização.</p>
             </div>
 
-            {/* Column 2 — Athlete. max-width 260px, slightly right for gap from text. */}
+            {/* Column 2 — Athlete. max-width 280px (~8% larger), offset right. */}
             <div className="flex w-full max-w-[280px] items-center justify-center min-w-0">
-              <div className="desktop-hero-athlete relative ml-6 w-full max-w-[260px] p-0">
+              <div className="desktop-hero-athlete relative ml-12 w-full max-w-[280px] p-0">
                 <div className="relative w-full h-auto">
                   <Image src="/images/runner-hero.png" alt="Runner" width={1500} height={2000} className="h-auto w-full object-contain object-center" style={{ maskImage: "linear-gradient(to bottom, black 0%, black 72%, transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 72%, transparent 100%)" }} priority unoptimized />
                 </div>
               </div>
             </div>
 
-            {/* Column 3 — Auth card. max-width 340px, margin-top 16px. */}
+            {/* Column 3 — Auth card. max-width 340px, margin-top 16px, pushed right. */}
             <div className="flex w-full max-w-[340px] items-start justify-end min-w-0 pt-4">
-              <div className="desktop-hero-auth-card hero-float-card w-full max-w-[340px] rounded-[var(--radius-card)]">
+              <div className="desktop-hero-auth-card hero-float-card ml-6 w-full max-w-[340px] rounded-[var(--radius-card)]">
               <Suspense fallback={null}><PremiumAuthCard desktopWider /></Suspense>
             </div>
             </div>
