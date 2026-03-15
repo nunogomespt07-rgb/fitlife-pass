@@ -142,35 +142,38 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* DESKTOP HERO — safe constrained layout, no clipping. */}
+        {/* DESKTOP HERO — fixed premium composition: 420 320 320, gap 48px. */}
         <div className="hidden lg:block landing-desktop-hero-container">
           <div
-            className="grid relative z-10 box-border w-full min-h-[min(92vh,920px)] grid-cols-[360px_280px_340px] items-stretch gap-x-10 pt-14 pb-16"
+            className="landing-desktop-hero-grid grid relative z-10 box-border w-full min-h-[min(92vh,920px)] items-center pt-16 pb-20"
           >
-            {/* Column 1 — Text. max-width 360px, fully visible. */}
-            <div className="flex w-full max-w-[360px] flex-col justify-start pt-8 min-w-0 self-start">
+            {/* Column 1 — Text. 420px. */}
+            <div className="flex w-full max-w-[420px] flex-col justify-start min-w-0 pt-6">
               <h1 className="landing-hero-title-desktop font-extrabold text-white">
                 <span className="block whitespace-nowrap">Um só passe.</span>
                 <span className="block whitespace-nowrap">Todos os teus treinos.</span>
               </h1>
-              <p className="landing-hero-subtitle-desktop mt-6 max-w-[320px] leading-[1.65] text-white/85">Ginásio, yoga, padel, crossfit e estúdios premium numa só experiência.</p>
+              <p className="landing-hero-subtitle-desktop mt-5 max-w-[400px] leading-[1.65] text-white/85">Ginásio, yoga, padel, crossfit e estúdios premium numa só experiência.</p>
               <p className="landing-hero-secondary-desktop mt-4 font-medium text-white/70">Uma conta. Vários parceiros. Sem fidelização.</p>
             </div>
 
-            {/* Column 2 — Athlete. max-width 280px (~8% larger), offset right. */}
-            <div className="flex w-full max-w-[280px] items-center justify-center min-w-0">
-              <div className="desktop-hero-athlete relative ml-12 w-full max-w-[280px] p-0">
+            {/* Column 2 — Athlete. 320px, centered, subtle glow behind. */}
+            <div className="flex w-full max-w-[320px] items-center justify-center min-w-0">
+              <div className="desktop-hero-athlete relative mx-auto w-full max-w-[320px] p-0">
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden>
+                  <div className="h-[120%] w-[100%] rounded-full opacity-40" style={{ background: "radial-gradient(circle at 50% 50%, rgba(90,140,255,0.25) 0%, transparent 65%)", filter: "blur(32px)" }} />
+                </div>
                 <div className="relative w-full h-auto">
                   <Image src="/images/runner-hero.png" alt="Runner" width={1500} height={2000} className="h-auto w-full object-contain object-center" style={{ maskImage: "linear-gradient(to bottom, black 0%, black 72%, transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 72%, transparent 100%)" }} priority unoptimized />
                 </div>
               </div>
             </div>
 
-            {/* Column 3 — Auth card. max-width 340px, margin-top 16px, pushed right. */}
-            <div className="flex w-full max-w-[340px] items-start justify-end min-w-0 pt-4">
-              <div className="desktop-hero-auth-card hero-float-card ml-6 w-full max-w-[340px] rounded-[var(--radius-card)]">
-              <Suspense fallback={null}><PremiumAuthCard desktopWider /></Suspense>
-            </div>
+            {/* Column 3 — Auth card. 320px, close to athlete. */}
+            <div className="flex w-full max-w-[320px] items-center justify-end min-w-0">
+              <div className="desktop-hero-auth-card hero-float-card w-full max-w-[320px] rounded-[var(--radius-card)]">
+                <Suspense fallback={null}><PremiumAuthCard desktopWider /></Suspense>
+              </div>
             </div>
           </div>
         </div>

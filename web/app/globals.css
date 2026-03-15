@@ -164,7 +164,7 @@
       line-height: 0.95;
     }
     .landing-hero-title-desktop {
-      font-size: 49px;
+      font-size: 52px;
       font-weight: 800;
       letter-spacing: -0.04em;
       line-height: 0.96;
@@ -242,10 +242,14 @@
       max-width: 1280px;
       margin-left: auto;
       margin-right: auto;
-      padding-left: 32px;
-      padding-right: 32px;
+      padding-left: 40px;
+      padding-right: 40px;
       box-sizing: border-box;
       overflow: visible;
+    }
+    .landing-desktop-hero-grid {
+      grid-template-columns: 420px 320px 320px;
+      column-gap: 48px;
     }
     .landing-desktop-content {
       width: 100%;
