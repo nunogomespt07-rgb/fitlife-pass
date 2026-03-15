@@ -144,22 +144,22 @@ export default function LandingPage() {
 
         {/* DESKTOP HERO — premium layout: 420 320 360, gap 64px. No small label; headline first. */}
         <div
-          className="hidden lg:grid relative z-10 box-border w-full max-w-[1280px] min-h-[min(92vh,920px)] grid-cols-[420px_320px_360px] items-stretch gap-x-16 px-10 pt-12 pb-20"
+          className="hidden lg:grid relative z-10 box-border w-full max-w-[1280px] min-h-[min(92vh,920px)] grid-cols-[420px_320px_360px] items-stretch gap-x-16 pl-16 pr-10 pt-16 pb-20"
           style={{ marginLeft: "auto", marginRight: "auto" }}
         >
           {/* Column 1 — Headline, subheadline, secondary. No eyebrow. */}
-          <div className="flex w-full max-w-[420px] flex-col justify-start pt-6 min-w-0 lg:self-start">
+          <div className="flex w-full max-w-[420px] flex-col justify-start pl-6 pt-8 min-w-0 lg:self-start">
             <h1 className="landing-hero-title-desktop font-extrabold text-white">
               <span className="block whitespace-nowrap">Um só passe.</span>
               <span className="block whitespace-nowrap">Todos os teus treinos.</span>
             </h1>
-            <p className="mt-5 max-w-[400px] text-[1.0625rem] leading-[1.7] text-white/85">Ginásio, yoga, padel, crossfit e estúdios premium numa só experiência.</p>
-            <p className="mt-4 text-sm font-medium text-white/70">Uma conta. Vários parceiros. Sem fidelização.</p>
+            <p className="landing-hero-subtitle-desktop mt-5 max-w-[400px] leading-[1.65] text-white/85">Ginásio, yoga, padel, crossfit e estúdios premium numa só experiência.</p>
+            <p className="landing-hero-secondary-desktop mt-4 font-medium text-white/70">Uma conta. Vários parceiros. Sem fidelização.</p>
           </div>
 
-          {/* Column 2 — Athlete. max-w 300px, glow behind, subtle float. */}
-          <div className="flex w-full max-w-[320px] items-center justify-center min-w-0 p-0">
-            <div className="desktop-hero-athlete relative mx-auto w-full max-w-[300px] p-0">
+          {/* Column 2 — Athlete. max-w 300px, glow behind, subtle float. Slightly lower and right. */}
+          <div className="flex w-full max-w-[320px] items-center justify-center min-w-0 pt-20 pb-4">
+            <div className="desktop-hero-athlete relative ml-5 w-full max-w-[300px] p-0">
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden>
                 <div className="h-[100%] w-[100%] rounded-full opacity-50" style={{ background: "radial-gradient(circle at 50% 50%, rgba(90,140,255,0.22) 0%, transparent 65%)", filter: "blur(40px)" }} />
               </div>
@@ -170,7 +170,7 @@ export default function LandingPage() {
           </div>
 
           {/* Column 3 — Login card. Premium glass style. */}
-          <div className="flex w-full max-w-[360px] items-center justify-end min-w-0 pt-10">
+          <div className="flex w-full max-w-[360px] items-center justify-end min-w-0 pt-24">
             <div className="desktop-hero-auth-card hero-float-card w-full max-w-[360px] rounded-[var(--radius-card)]">
               <Suspense fallback={null}><PremiumAuthCard desktopWider /></Suspense>
             </div>

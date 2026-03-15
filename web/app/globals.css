@@ -173,6 +173,12 @@
       font-size: 18px;
       opacity: 0.85;
     }
+    .landing-hero-subtitle-desktop {
+      font-size: 1.1875rem;
+    }
+    .landing-hero-secondary-desktop {
+      font-size: 0.9375rem;
+    }
     .landing-primary-cta {
       min-height: 48px;
       border-radius: 12px;
