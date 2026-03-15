@@ -235,6 +235,32 @@
     }
   }
 
+  /* Desktop landing – stable container system (hero isolated; content below uses same container) */
+  @media (min-width: 1024px) {
+    .landing-desktop-hero-container {
+      width: 100%;
+      max-width: 1280px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 40px;
+      padding-right: 40px;
+      box-sizing: border-box;
+    }
+    .landing-desktop-content {
+      width: 100%;
+      max-width: 1280px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 40px;
+      padding-right: 40px;
+      box-sizing: border-box;
+    }
+    .landing-steps-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 32px;
+    }
+  }
+
   /* ========== Internal app design system (dashboard / activities only) ========== */
   /* Dashboard / internal app background – layered lighting */
   .page-bg-dashboard {

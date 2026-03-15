@@ -142,13 +142,13 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* DESKTOP HERO — premium layout: 420 320 360, gap 64px. No small label; headline first. */}
-        <div
-          className="hidden lg:grid relative z-10 box-border w-full max-w-[1280px] min-h-[min(92vh,920px)] grid-cols-[420px_320px_360px] items-stretch gap-x-16 pl-16 pr-10 pt-16 pb-20"
-          style={{ marginLeft: "auto", marginRight: "auto" }}
-        >
-          {/* Column 1 — Headline, subheadline, secondary. No eyebrow. */}
-          <div className="flex w-full max-w-[420px] flex-col justify-start pl-6 pt-8 min-w-0 lg:self-start">
+        {/* DESKTOP HERO — isolated in own container; does not affect sections below. */}
+        <div className="hidden lg:block landing-desktop-hero-container">
+          <div
+            className="grid relative z-10 box-border w-full min-h-[min(92vh,920px)] grid-cols-[420px_320px_360px] items-stretch gap-x-16 px-10 pt-16 pb-20"
+          >
+            {/* Column 1 — Headline, subheadline, secondary. No eyebrow. */}
+            <div className="flex w-full max-w-[420px] flex-col justify-start pl-6 pt-8 min-w-0 self-start">
             <h1 className="landing-hero-title-desktop font-extrabold text-white">
               <span className="block whitespace-nowrap">Um só passe.</span>
               <span className="block whitespace-nowrap">Todos os teus treinos.</span>
@@ -174,11 +174,12 @@ export default function LandingPage() {
             <div className="desktop-hero-auth-card hero-float-card w-full max-w-[360px] rounded-[var(--radius-card)]">
               <Suspense fallback={null}><PremiumAuthCard desktopWider /></Suspense>
             </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <div className="mx-auto max-w-6xl px-4 pb-16 pt-16 sm:px-6 lg:px-10">
+      <div className="landing-desktop-content mx-auto w-full max-w-6xl px-4 pb-16 pt-16 sm:px-6 lg:max-w-[1280px] lg:px-10 lg:box-border">
         {/* Partner logos */}
         <section
           ref={partnersRef}
@@ -238,10 +239,10 @@ export default function LandingPage() {
           <SectionHeader
             title="Como Funciona"
             subtitle="Cria conta grátis, recebe créditos e reserva aulas em ginásios e estúdios parceiros. Uma única app para todas as tuas atividades."
-            className="mt-24 sm:mt-28"
+            className="mt-24 sm:mt-28 lg:mt-24"
           />
         </div>
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8 landing-steps-grid">
           {[
             {
               step: "Passo 1",
@@ -263,7 +264,7 @@ export default function LandingPage() {
               key={step}
               variant="dark"
               padding="lg"
-              className="text-left hover-lift"
+              className="min-w-0 text-left hover-lift"
             >
               <div className="flex items-start gap-3">
                 <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white/80">
@@ -290,7 +291,7 @@ export default function LandingPage() {
           <SectionHeader
             title="Para Ginásios"
             subtitle="Queres listar as tuas aulas na FitLife Pass? Contacta-nos para parceria e mais visibilidade."
-            className="mt-32 sm:mt-40"
+            className="mt-32 sm:mt-40 lg:mt-24"
           />
           <GlassCard
             variant="dark"
