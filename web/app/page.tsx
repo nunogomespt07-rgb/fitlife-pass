@@ -142,31 +142,30 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* DESKTOP HERO — 420 360 360, gap 64px. Runner: clean PNG, no glow. */}
+        {/* DESKTOP HERO — reference layout: 420 320 360, gap 56px. */}
         <div className="hidden lg:block landing-desktop-hero-container">
-          <div
-            className="landing-desktop-hero-grid grid relative z-10 box-border w-full min-h-[min(92vh,920px)] items-center pt-16 pb-20"
-          >
-            {/* Column 1 — Text. 420px. */}
-            <div className="flex w-full max-w-[420px] flex-col justify-start min-w-0 pt-6">
-              <h1 className="landing-hero-title-desktop font-extrabold text-white">
-                <span className="block whitespace-nowrap">Um só passe.</span>
-                <span className="block whitespace-nowrap">Todos os teus treinos.</span>
+          <div className="landing-desktop-hero-grid grid relative z-10 box-border w-full items-center">
+            {/* Column 1 — Text. 420px, brand + headline + subtitle + supporting. */}
+            <div className="landing-desktop-text-col flex w-full max-w-[420px] flex-col min-w-0">
+              <p className="landing-desktop-hero-brand">FitLife Pass</p>
+              <h1 className="landing-desktop-hero-headline font-extrabold text-white">
+                <span className="block">Um só passe.</span>
+                <span className="block">Todos os teus treinos.</span>
               </h1>
-              <p className="landing-hero-subtitle-desktop mt-5 max-w-[400px] leading-[1.65] text-white/85">Ginásio, yoga, padel, crossfit e estúdios premium numa só experiência.</p>
-              <p className="landing-hero-secondary-desktop mt-4 font-medium text-white/70">Uma conta. Vários parceiros. Sem fidelização.</p>
+              <p className="landing-desktop-hero-subtitle">Ginásio, yoga, padel, crossfit e estúdios premium numa só experiência.</p>
+              <p className="landing-desktop-hero-supporting">Uma conta. Vários parceiros. Sem fidelização.</p>
             </div>
 
-            {/* Column 2 — Runner. Clean PNG, no glow, centered. */}
-            <div className="flex w-full max-w-[360px] min-w-0 items-center justify-center">
-              <div className="desktop-hero-athlete w-full max-w-full">
-                <Image src="/images/runner-hero.png" alt="Runner" width={1500} height={2000} className="h-auto w-[420px] max-w-full object-contain object-center" priority unoptimized />
+            {/* Column 2 — Runner. 320px column, runner centered, no glow. */}
+            <div className="landing-desktop-runner-col flex w-full min-w-0 items-center justify-center">
+              <div className="desktop-hero-athlete flex items-center justify-center">
+                <Image src="/images/runner-hero.png" alt="Runner" width={1500} height={2000} className="landing-desktop-runner-img h-auto w-[420px] max-w-full object-contain object-center block" priority unoptimized />
               </div>
             </div>
 
-            {/* Column 3 — Auth card. 360px. */}
-            <div className="flex w-full max-w-[360px] items-center justify-end min-w-0">
-              <div className="desktop-hero-auth-card hero-float-card w-full max-w-[360px] rounded-[var(--radius-card)]">
+            {/* Column 3 — Login card. 360px column, card 380px. */}
+            <div className="landing-desktop-card-col flex w-full max-w-[360px] min-w-0 items-center justify-end">
+              <div className="desktop-hero-auth-card-ref w-full max-w-[380px]">
                 <Suspense fallback={null}><PremiumAuthCard desktopWider /></Suspense>
               </div>
             </div>
