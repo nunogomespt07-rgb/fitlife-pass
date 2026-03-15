@@ -142,31 +142,31 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* DESKTOP HERO — grid 420 300 360, gap 64px. Athlete: no box, alignment only. */}
+        {/* DESKTOP HERO — grid 420 300 360, gap 64px. Text block aligned higher; athlete & auth centered. */}
         <div
-          className="hidden lg:grid relative z-10 box-border w-full max-w-[1280px] min-h-[min(92vh,920px)] grid-cols-[420px_300px_360px] items-center gap-x-16 px-10 py-20"
+          className="hidden lg:grid relative z-10 box-border w-full max-w-[1280px] min-h-[min(92vh,920px)] grid-cols-[420px_300px_360px] items-stretch gap-x-16 px-10 pt-12 pb-20"
           style={{ marginLeft: "auto", marginRight: "auto" }}
         >
-          {/* Column 1 — Text */}
-          <div className="flex w-full max-w-[420px] flex-col justify-center min-w-0">
+          {/* Column 1 — Text. Align to top so block sits higher. */}
+          <div className="flex w-full max-w-[420px] flex-col justify-start pt-0 min-w-0 lg:self-start">
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/55">FitLife Pass</p>
-            <h1 className="landing-hero-title-desktop mt-6 font-extrabold text-white">
+            <h1 className="landing-hero-title-desktop mt-5 font-extrabold text-white">
               <span className="block whitespace-nowrap">Um só passe.</span>
               <span className="block whitespace-nowrap">Todos os teus treinos.</span>
             </h1>
-            <p className="mt-5 max-w-[400px] text-[1.0625rem] leading-[1.7] text-white/85">Ginásio, yoga, padel, crossfit e estúdios premium numa só experiência.</p>
-            <p className="mt-4 text-sm font-medium text-white/70">Uma conta. Vários parceiros. Sem fidelização.</p>
+            <p className="mt-4 max-w-[400px] text-[1.0625rem] leading-[1.7] text-white/85">Ginásio, yoga, padel, crossfit e estúdios premium numa só experiência.</p>
+            <p className="mt-3 text-sm font-medium text-white/70">Uma conta. Vários parceiros. Sem fidelização.</p>
           </div>
 
-          {/* Column 2 — Athlete. No background, no padding, no fixed height. Alignment only. */}
+          {/* Column 2 — Athlete. Vertically centered in column. */}
           <div className="flex w-full max-w-[300px] items-center justify-center min-w-0 p-0">
             <div className="mx-auto h-auto w-full max-w-[260px] p-0" style={{ background: "none" }}>
               <Image src="/images/runner-hero.png" alt="Runner" width={1500} height={2000} className="h-auto w-full object-contain object-center" style={{ maskImage: "linear-gradient(to bottom, black 0%, black 72%, transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 72%, transparent 100%)" }} priority unoptimized />
             </div>
           </div>
 
-          {/* Column 3 — Login card */}
-          <div className="flex w-full max-w-[360px] justify-end min-w-0">
+          {/* Column 3 — Login card. Vertically centered. */}
+          <div className="flex w-full max-w-[360px] items-center justify-end min-w-0">
             <div className="hero-float-card w-full max-w-[360px] rounded-[var(--radius-card)] bg-white/[0.04] border border-white/[0.08] backdrop-blur-[18px] shadow-[0_40px_90px_rgba(0,0,0,0.45)]">
               <Suspense fallback={null}><PremiumAuthCard desktopWider /></Suspense>
             </div>
