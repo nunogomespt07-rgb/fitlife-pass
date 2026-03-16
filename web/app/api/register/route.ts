@@ -1,8 +1,6 @@
-import { NextRequest } from "next/server";
+const BACKEND_API_BASE = process.env.BACKEND_API_BASE?.replace(/\/$/, "");
 
-const BACKEND_API_BASE = (process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_API_URL)?.replace(/\/$/, "");
-
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
     if (!BACKEND_API_BASE) {
       return Response.json(
