@@ -290,8 +290,9 @@
 }
 
 .login-card {
-  /* desktop: slightly lower for balance */
+  /* desktop: slightly lower for balance and inset from right edge */
   transform: translateY(10px);
+  margin-right: 64px;
 }
 
 .hero-text {
