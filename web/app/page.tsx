@@ -185,16 +185,25 @@ export default function LandingPage() {
               <p className="landing-desktop-hero-supporting">Uma conta. Vários parceiros. Sem fidelização.</p>
             </div>
 
-            {/* Column 2 — Runner. Center column, runner centered, no glow. */}
-            <div className="landing-desktop-runner-col hero-runner flex w-full min-w-0 items-center justify-center lg:-translate-x-4 lg:translate-y-4">
-              <div className="desktop-hero-athlete flex items-center justify-center">
-                <Image src="/images/runner-hero.png" alt="Runner" width={1500} height={2000} className="landing-desktop-runner-img h-auto w-[420px] max-w-full object-contain object-center block" priority unoptimized />
+            {/* Column 2 — Runner. Center column, runner centered, with subtle glow. */}
+            <div className="landing-desktop-runner-col hero-runner flex w-full min-w-0 items-center justify-center lg:-translate-x-3 lg:translate-y-2">
+              <div className="desktop-hero-athlete relative flex items-center justify-center">
+                <div className="pointer-events-none absolute inset-[-80px] hidden rounded-full bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.32),transparent_60%)] blur-3xl lg:block" />
+                <Image
+                  src="/images/runner-hero.png"
+                  alt="Runner"
+                  width={1500}
+                  height={2000}
+                  className="landing-desktop-runner-img h-auto w-[420px] max-w-full object-contain object-center block"
+                  priority
+                  unoptimized
+                />
               </div>
             </div>
 
             {/* Column 3 — Login card. Right column. */}
             <div className="landing-desktop-card-col flex w-full min-w-0 items-center justify-end">
-              <div className="desktop-hero-auth-card-ref login-card w-full max-w-[380px]">
+              <div className="desktop-hero-auth-card-ref login-card w-full max-w-[380px] lg:shadow-[0_18px_55px_rgba(0,0,0,0.65)] lg:backdrop-blur-sm">
                 <Suspense fallback={null}><PremiumAuthCard desktopWider /></Suspense>
               </div>
             </div>
