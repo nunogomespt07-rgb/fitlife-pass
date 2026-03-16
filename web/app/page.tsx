@@ -142,9 +142,9 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* DESKTOP HERO — reference layout: 420 320 360, gap 56px. */}
+        {/* DESKTOP HERO — reference layout: 1.1 0.9 0.9 fr, gap 40px. */}
         <div className="hidden lg:block landing-desktop-hero-container hero-container">
-          <div className="landing-desktop-hero-grid grid relative z-10 box-border w-full items-center">
+          <div className="landing-desktop-hero-grid relative z-10 box-border w-full">
             {/* Column 1 — Text. 420px, brand + headline + subtitle + supporting. */}
             <div className="landing-desktop-text-col hero-text flex w-full max-w-[420px] flex-col min-w-0">
               <p className="landing-desktop-hero-brand">FitLife Pass</p>
@@ -156,15 +156,15 @@ export default function LandingPage() {
               <p className="landing-desktop-hero-supporting">Uma conta. Vários parceiros. Sem fidelização.</p>
             </div>
 
-            {/* Column 2 — Runner. 320px column, runner centered, no glow. */}
+            {/* Column 2 — Runner. Center column, runner centered, no glow. */}
             <div className="landing-desktop-runner-col hero-runner flex w-full min-w-0 items-center justify-center">
               <div className="desktop-hero-athlete flex items-center justify-center">
                 <Image src="/images/runner-hero.png" alt="Runner" width={1500} height={2000} className="landing-desktop-runner-img h-auto w-[420px] max-w-full object-contain object-center block" priority unoptimized />
               </div>
             </div>
 
-            {/* Column 3 — Login card. 360px column, card 380px. */}
-            <div className="landing-desktop-card-col flex w-full max-w-[360px] min-w-0 items-center justify-end">
+            {/* Column 3 — Login card. Right column, card 344px. */}
+            <div className="landing-desktop-card-col flex w-full min-w-0 items-center justify-end">
               <div className="desktop-hero-auth-card-ref login-card w-full max-w-[344px]">
                 <Suspense fallback={null}><PremiumAuthCard desktopWider /></Suspense>
               </div>

@@ -211,7 +211,7 @@
       opacity: 0.72;
       color: #fff;
     }
-    /* Desktop hero – runner column (no glow) */
+    /* Desktop hero – runner column (no glow), safe sizing */
     .landing-desktop-runner-col {
       display: flex;
       justify-content: center;
@@ -220,6 +220,7 @@
     .landing-desktop-runner-img {
       width: 420px;
       max-width: 100%;
+      max-height: 430px;
       object-fit: contain;
       display: block;
     }
@@ -280,75 +281,20 @@
 }
 
 .hero-runner {
-  position: absolute;
-  left: 53%;
-  top: 56%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-  z-index: 2;
-}
-
-.hero-runner img {
-  max-height: 430px;
-  width: auto;
-  object-fit: contain;
-  display: block;
+  /* desktop layout handled by grid; keep class as hook only */
 }
 
 .login-card {
-  position: absolute;
-  right: 120px;
-  top: 58%;
-  transform: translateY(-50%);
-  width: 344px;
-  max-width: 344px;
-  z-index: 3;
+  /* desktop layout handled by grid; keep class as hook only */
 }
 
 .hero-text {
-  position: absolute;
-  left: 120px;
-  top: 56%;
-  transform: translateY(-50%);
-  max-width: 420px;
-  z-index: 3;
+  /* desktop layout handled by grid; keep class as hook only */
 }
 
 @media (max-width: 768px) {
-  .hero-text,
-  .hero-runner,
-  .login-card {
+  .hero-container {
     position: static;
-    left: auto;
-    right: auto;
-    top: auto;
-    transform: none;
-    max-width: none;
-    width: 100%;
-  }
-
-  .hero-runner {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 12px;
-    margin-bottom: 24px;
-  }
-
-  .hero-runner img {
-    height: 320px;
-    max-height: 320px;
-    width: auto;
-    object-fit: contain;
-    display: block;
-  }
-
-  .login-card {
-    width: 100%;
-    max-width: none;
   }
 }
   }
@@ -380,15 +326,15 @@
       max-width: 1280px;
       margin-left: auto;
       margin-right: auto;
-      padding-left: 48px;
-      padding-right: 48px;
+      padding-left: 32px;
+      padding-right: 32px;
       box-sizing: border-box;
       overflow: visible;
     }
     .landing-desktop-hero-grid {
       display: grid;
-      grid-template-columns: 420px 320px 360px;
-      column-gap: 56px;
+      grid-template-columns: 1.1fr 0.9fr 0.9fr;
+      column-gap: 40px;
       align-items: center;
     }
     .landing-desktop-content {
