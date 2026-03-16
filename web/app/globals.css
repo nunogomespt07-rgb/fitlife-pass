@@ -293,7 +293,8 @@
 }
 
 .hero-text {
-  /* layout handled by grid; hook preserved */
+  /* layout handled by grid; small vertical offset for balance */
+  margin-top: 56px;
 }
 
 @media (min-width: 1024px) {
