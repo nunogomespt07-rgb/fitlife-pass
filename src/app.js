@@ -9,6 +9,7 @@ const creditsRoutes = require("./routes/creditsRoutes");
 const activityRoutes = require("./routes/activityRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
 const subscriptionRoutes = require("./routes/subscriptionRoutes");
+const stripeRoutes = require("./routes/stripeRoutes");
 const partnerRoutes = require("./routes/partnerRoutes");
 const sportActivityRoutes = require("./routes/sportActivityRoutes");
 const apiBookingRoutes = require("./routes/apiBookingRoutes");
@@ -56,6 +57,7 @@ app.use("/api/activities", sportActivityRoutes);
 app.use("/api/bookings", apiBookingRoutes);
 app.use("/bookings", bookingRoutes);
 app.use("/subscriptions", subscriptionRoutes);
+app.use("/stripe", stripeRoutes);
 app.use("/partners", partnerRoutes);
 
 // Error handler (JSON) para evitar respostas HTML / crashes silenciosos

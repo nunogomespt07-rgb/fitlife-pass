@@ -27,6 +27,12 @@ const userSchema = new mongoose.Schema(
     planRenewAt: {
       type: Date,
     },
+    stripeCustomerId: {
+      type: String,
+    },
+    stripeSubscriptionId: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

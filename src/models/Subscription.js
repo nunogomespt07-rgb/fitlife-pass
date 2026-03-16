@@ -30,6 +30,13 @@ const subscriptionSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    stripeCustomerId: {
+      type: String,
+    },
+    stripeSubscriptionId: {
+      type: String,
+      index: true,
+    },
   },
   { timestamps: true }
 );
