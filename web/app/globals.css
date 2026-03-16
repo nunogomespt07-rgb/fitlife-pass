@@ -193,7 +193,8 @@
     .landing-desktop-hero-subtitle {
       font-size: 20px;
       line-height: 1.45;
-      opacity: 0.92;
+      opacity: 0.88;
+      font-weight: 400;
       max-width: 410px;
       margin-bottom: 28px;
       color: #fff;
@@ -343,6 +344,7 @@
     align-self: center;
     min-height: 420px;
     margin: 0;
+    transform: translateX(12px);
   }
 
   .hero-runner img {
@@ -352,9 +354,8 @@
     object-fit: contain;
   }
 
-  /* Slight shared downward offset for hero text + runner on desktop */
-  .hero-text,
-  .hero-runner {
+  /* Slight shared downward offset for hero text on desktop */
+  .hero-text {
     transform: translateY(24px);
   }
 
