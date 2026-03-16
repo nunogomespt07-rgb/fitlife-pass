@@ -151,7 +151,8 @@ export default function Nav() {
   const isPublicRoute =
     pathname === "/" ||
     pathname === "/register" ||
-    pathname.startsWith("/onboarding");
+    pathname.startsWith("/onboarding") ||
+    pathname.startsWith("/legal");
   const isAuthRoute =
     pathname === "/" || pathname === "/register";
   const isOnboardingOrRegister =
