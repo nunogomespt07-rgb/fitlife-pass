@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import GlassCard from "../../components/ui/GlassCard";
 import PrimaryButton from "../../components/ui/PrimaryButton";
 import { useMockReservations } from "@/app/context/MockReservationsContext";
+import { useCreditActivity } from "@/app/context/CreditActivityContext";
 import { getStoredUser, setStoredUser } from "@/lib/storedUser";
 import {
   MOCK_CREDIT_PACKS,
@@ -16,6 +17,7 @@ import {
 
 export default function DashboardPagamentosPage() {
   const { addPurchasedCredits } = useMockReservations();
+  const creditActivity = useCreditActivity();
   const [activePlanId, setActivePlanId] = useState<string | null>(null);
   const [purchaseSuccess, setPurchaseSuccess] = useState<string | null>(null);
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
@@ -147,7 +149,8 @@ export default function DashboardPagamentosPage() {
       pendingPlanId: null,
       pendingPlanName: null,
     });
-    addPurchasedCredits(plan.creditsIncluded);
+    addPurchasedCredits(plan.creditsIncluded, `Plano ${plan.planName} ativado`);
+    creditActivity?.showToast("Plano ativado", `+${plan.creditsIncluded} créditos adicionados`);
     setPurchaseSuccess(
       `Subscrição ${plan.planName} ativada. ${plan.creditsIncluded} créditos adicionados.`
     );

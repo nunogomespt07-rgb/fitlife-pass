@@ -30,6 +30,7 @@ import {
 import { getStoredUser } from "@/lib/storedUser";
 import type { MockReservation } from "@/lib/mockReservations";
 import type { RestaurantReservation } from "@/lib/mockRestaurantReservations";
+import { useCreditActivity } from "@/app/context/CreditActivityContext";
 
 type AddReservationInput = Omit<MockReservation, "id" | "status">;
 type AddRestaurantReservationInput = Omit<RestaurantReservation, "id" | "status">;
@@ -49,7 +50,7 @@ type MockReservationsContextValue = {
   cancelReservation: (id: string) => { success: boolean; error?: string };
   completeReservation: (id: string) => void;
   clearHistory: () => void;
-  addPurchasedCredits: (amount: number) => void;
+  addPurchasedCredits: (amount: number, reason?: string) => void;
   countReservationsForActivity: (partnerId: string, activityId: string) => number;
   addRestaurantReservation: (input: AddRestaurantReservationInput) => { success: boolean; error?: string };
   cancelRestaurantReservation: (id: string) => { success: boolean; error?: string };
@@ -64,6 +65,7 @@ function todayYMD(): string {
 export function MockReservationsProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const creditActivity = useCreditActivity();
   const [reservations, setReservations] = useState<UnifiedReservation[]>([]);
   const [purchasedCredits, setPurchasedCredits] = useState(0);
 
@@ -128,9 +130,19 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
         setStoredUnifiedReservations(userId, next);
         return next;
       });
+      if (creditActivity && input.creditsRequired > 0) {
+        creditActivity.addTransaction({
+          type: "debit",
+          amount: input.creditsRequired,
+          reason: "Reserva confirmada",
+          activityName: input.activityTitle ?? input.partnerName,
+          clubName: input.partnerName,
+        });
+        creditActivity.showToast("Reserva confirmada", `-${input.creditsRequired} créditos usados`);
+      }
       return { success: true };
     },
-    [reservations, purchasedCredits]
+    [reservations, purchasedCredits, creditActivity]
   );
 
   const addGymReservation = useCallback(
@@ -164,9 +176,19 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
         setStoredUnifiedReservations(userId, next);
         return next;
       });
+      if (creditActivity && input.creditsRequired > 0) {
+        creditActivity.addTransaction({
+          type: "debit",
+          amount: input.creditsRequired,
+          reason: "Reserva confirmada",
+          activityName: "Acesso ginásio",
+          clubName: input.partnerName,
+        });
+        creditActivity.showToast("Reserva confirmada", `-${input.creditsRequired} créditos usados`);
+      }
       return { success: true, reservation: r };
     },
-    [reservations, purchasedCredits]
+    [reservations, purchasedCredits, creditActivity]
   );
 
   const addRestaurantReservation = useCallback(
@@ -206,9 +228,19 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
         setStoredUnifiedReservations(userId, next);
         return next;
       });
+      if (creditActivity && creditsToUse > 0) {
+        creditActivity.addTransaction({
+          type: "debit",
+          amount: creditsToUse,
+          reason: "Reserva confirmada",
+          activityName: input.restaurantName,
+          clubName: input.restaurantName,
+        });
+        creditActivity.showToast("Reserva confirmada", `-${creditsToUse} créditos usados`);
+      }
       return { success: true };
     },
-    [reservations, purchasedCredits]
+    [reservations, purchasedCredits, creditActivity]
   );
 
   const cancelReservation = useCallback((id: string): { success: boolean; error?: string } => {
@@ -225,22 +257,33 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
       return { success: false, error: "Atingiste o limite mensal de cancelamentos." };
     }
     incrementMonthlyCancellationCount(userId, monthKey);
-    setReservations((prev) => {
-      const next = prev.map((res) => {
-        if (res.id !== id) return res;
-        const refundable = canRefundOnCancellation(res, now);
-        return {
-          ...res,
-          status: "cancelled" as const,
-          cancelledAt: now.toISOString(),
-          creditsRefunded: refundable ? true : res.creditsRefunded === true ? true : false,
-        };
+      const refundable = canRefundOnCancellation(r, now);
+      const refundAmount = refundable && r.creditsUsed > 0 ? r.creditsUsed : 0;
+      if (creditActivity && refundAmount > 0) {
+        creditActivity.addTransaction({
+          type: "credit",
+          amount: refundAmount,
+          reason: "Reserva cancelada",
+          activityName: r.activityTitle,
+          clubName: r.partnerName,
+        });
+        creditActivity.showToast("Reserva cancelada", `+${refundAmount} créditos devolvidos`);
+      }
+      setReservations((prev) => {
+        const next = prev.map((res) => {
+          if (res.id !== id) return res;
+          return {
+            ...res,
+            status: "cancelled" as const,
+            cancelledAt: now.toISOString(),
+            creditsRefunded: refundable ? true : res.creditsRefunded === true ? true : false,
+          };
+        });
+        setStoredUnifiedReservations(userId, next);
+        return next;
       });
-      setStoredUnifiedReservations(userId, next);
-      return next;
-    });
-    return { success: true };
-  }, [reservations]);
+      return { success: true };
+  }, [reservations, creditActivity]);
 
   const cancelRestaurantReservation = useCallback((id: string) => {
     return cancelReservation(id);
@@ -282,7 +325,7 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
     });
   }, []);
 
-  const addPurchasedCredits = useCallback((amount: number) => {
+  const addPurchasedCredits = useCallback((amount: number, reason?: string) => {
     const userId = getStoredUser()?.id ?? null;
     const n = Math.max(0, Math.floor(amount));
     setPurchasedCredits((prev) => {
@@ -290,7 +333,17 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
       setStoredPurchasedCredits(userId, next);
       return next;
     });
-  }, []);
+    if (creditActivity && n > 0) {
+      creditActivity.addTransaction({
+        type: "credit",
+        amount: n,
+        reason: reason ?? "Compra de créditos extra",
+      });
+      if (!reason) {
+        creditActivity.showToast("Créditos adicionados", `+${n} créditos`);
+      }
+    }
+  }, [creditActivity]);
 
   const monthlyCancellationCount = getMonthlyCancellationCount(getStoredUser()?.id ?? null);
 

@@ -206,7 +206,7 @@ export default function DashboardPage() {
             )}
             <Link href="/dashboard/creditos">
               <span className="mt-4 inline-flex items-center text-sm font-medium text-white/90 underline-offset-2 hover:underline">
-                Ver detalhes de créditos →
+                Ver atividade →
               </span>
             </Link>
           </DashboardCard>
