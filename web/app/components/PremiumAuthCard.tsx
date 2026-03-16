@@ -329,7 +329,7 @@ export default function PremiumAuthCard({ desktopWider }: PremiumAuthCardProps) 
         type="button"
         onClick={disabled ? undefined : onClick}
         disabled={disabled}
-        className={`relative flex w-full items-center justify-center rounded-2xl border px-4 py-3.5 text-sm font-semibold transition-all duration-200 ${
+        className={`auth-provider-button relative flex w-full items-center justify-center rounded-2xl border px-4 py-3.5 text-sm font-semibold transition-all duration-200 ${
           disabled
             ? "border-white/[0.08] bg-white/[0.02] text-white/30"
             : "border-[var(--ref-glass-border-strong)] bg-white/[0.06] text-white hover:bg-white/[0.10] hover:border-white/25 focus:outline-none focus:ring-2 focus:ring-blue-400/40 focus:border-blue-400/50"
@@ -337,10 +337,12 @@ export default function PremiumAuthCard({ desktopWider }: PremiumAuthCardProps) 
         aria-disabled={disabled}
         title={disabled && hint ? hint : undefined}
       >
-        <span className="absolute left-4 text-white/80">
-          <OptionIcon kind={kind} />
+        <span className="auth-provider-button-content flex w-full items-center justify-center gap-3">
+          <span className="text-white/80">
+            <OptionIcon kind={kind} />
+          </span>
+          <span>{label}</span>
         </span>
-        <span>{label}</span>
       </button>
     );
   }
@@ -392,7 +394,7 @@ export default function PremiumAuthCard({ desktopWider }: PremiumAuthCardProps) 
           <span />
         </div>
 
-        <h2 className="mt-5 text-xl font-semibold tracking-tight text-white sm:mt-6 sm:text-[1.25rem]">
+        <h2 className="login-card-title mt-5 text-xl font-semibold tracking-tight text-white sm:mt-6 sm:text-[1.25rem]">
           Entrar ou registar-se
         </h2>
 
@@ -404,12 +406,12 @@ export default function PremiumAuthCard({ desktopWider }: PremiumAuthCardProps) 
                 type="button"
                 variant="primary"
                 onClick={() => openEmailFlow("login")}
-                className="w-full h-12 rounded-xl text-[15px] py-4 lg:landing-primary-cta"
+                className="primary-auth-button w-full h-12 rounded-xl text-[15px] py-4 lg:landing-primary-cta"
               >
                 Continuar com e-mail
               </PrimaryButton>
 
-              <div className="relative mt-5 mb-2 flex items-center gap-3">
+              <div className="auth-divider relative mt-5 mb-2 flex items-center gap-3">
                 <span className="flex-1 border-t border-white/20" />
                 <span className="text-xs font-medium uppercase tracking-wider text-white/45">ou</span>
                 <span className="flex-1 border-t border-white/20" />
