@@ -405,7 +405,13 @@ export default function PremiumAuthCard({ desktopWider }: PremiumAuthCardProps) 
               <PrimaryButton
                 type="button"
                 variant="primary"
-                onClick={() => openEmailFlow("login")}
+                onClick={() => {
+                  if (typeof window !== "undefined" && window.matchMedia("(min-width: 1024px)").matches) {
+                    router.push("/auth");
+                  } else {
+                    openEmailFlow("login");
+                  }
+                }}
                 className="primary-auth-button w-full h-12 rounded-xl text-[15px] py-4 lg:landing-primary-cta"
               >
                 Continuar com e-mail
