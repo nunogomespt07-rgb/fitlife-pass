@@ -320,7 +320,7 @@
     right: auto !important;
     left: auto !important;
     bottom: auto !important;
-    transform: none !important;
+    transform: translateY(40px);
     margin: 0 !important;
     width: 360px;
     max-width: 360px;
