@@ -281,8 +281,7 @@
 }
 
 .hero-runner {
-  /* desktop: slight nudge to the right for breathing room */
-  transform: translateX(20px);
+  /* layout handled by grid; hook preserved */
 }
 
 .hero-runner img {
@@ -290,30 +289,44 @@
 }
 
 .login-card {
-  /* desktop: slightly lower for balance and inset from right edge */
-  transform: translateY(10px);
-  margin-right: 64px;
+  /* layout handled by grid on desktop; hook preserved */
 }
 
 .hero-text {
   /* layout handled by grid; hook preserved */
 }
 
+@media (min-width: 1024px) {
+  .login-card {
+    position: static !important;
+    top: auto !important;
+    right: auto !important;
+    left: auto !important;
+    transform: none !important;
+    margin: 0 !important;
+    width: 344px;
+    max-width: 344px;
+    justify-self: end;
+    align-self: center;
+  }
+
+  .hero-login,
+  .login-wrapper,
+  .auth-card-wrapper {
+    position: static !important;
+    top: auto !important;
+    right: auto !important;
+    left: auto !important;
+    transform: none !important;
+    margin: 0 !important;
+    justify-self: end;
+    align-self: center;
+  }
+}
+
 @media (max-width: 768px) {
   .hero-container {
     position: static;
-  }
-
-  .hero-runner {
-    transform: none;
-  }
-
-  .hero-runner img {
-    max-height: 320px;
-  }
-
-  .login-card {
-    transform: none;
   }
 }
   }
