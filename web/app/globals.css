@@ -322,8 +322,8 @@
     bottom: auto !important;
     transform: none !important;
     margin: 0 !important;
-    width: 356px;
-    max-width: 356px;
+    width: 360px;
+    max-width: 360px;
     justify-self: end;
     align-self: center;
     overflow: visible;
@@ -339,6 +339,8 @@
     bottom: auto !important;
     transform: none !important;
     margin: 0 !important;
+    width: 360px;
+    max-width: 360px;
     justify-self: end;
     align-self: center;
   }
