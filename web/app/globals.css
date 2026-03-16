@@ -223,41 +223,6 @@
       object-fit: contain;
       display: block;
     }
-    /* Desktop hero – container and absolute positioning for text, runner and login card */
-    .hero-container {
-      position: relative;
-    }
-    .hero-text {
-      position: absolute;
-      left: 120px;
-      top: 56%;
-      transform: translateY(-50%);
-      max-width: 420px;
-    }
-    .hero-runner {
-      position: absolute;
-      left: 53%;
-      top: 56%;
-      transform: translate(-50%, -50%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-    }
-    .hero-runner img {
-      max-height: 430px;
-      width: auto;
-      object-fit: contain;
-      display: block;
-    }
-    .login-card {
-      position: absolute;
-      right: 120px;
-      top: 58%;
-      transform: translateY(-50%);
-      width: 344px;
-      max-width: 344px;
-    }
     /* Desktop hero – login card (reference): lighter, fitted */
     .desktop-hero-auth-card-ref {
       width: 344px;
@@ -308,6 +273,84 @@
     .hero-runner-scale {
       transform: none;
     }
+
+/* Desktop & mobile hero positioning – text, runner, login card */
+.hero-container {
+  position: relative;
+}
+
+.hero-runner {
+  position: absolute;
+  left: 53%;
+  top: 56%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.hero-runner img {
+  max-height: 430px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.login-card {
+  position: absolute;
+  right: 120px;
+  top: 58%;
+  transform: translateY(-50%);
+  width: 344px;
+  max-width: 344px;
+  z-index: 3;
+}
+
+.hero-text {
+  position: absolute;
+  left: 120px;
+  top: 56%;
+  transform: translateY(-50%);
+  max-width: 420px;
+  z-index: 3;
+}
+
+@media (max-width: 768px) {
+  .hero-text,
+  .hero-runner,
+  .login-card {
+    position: static;
+    left: auto;
+    right: auto;
+    top: auto;
+    transform: none;
+    max-width: none;
+    width: 100%;
+  }
+
+  .hero-runner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 12px;
+    margin-bottom: 24px;
+  }
+
+  .hero-runner img {
+    height: 320px;
+    max-height: 320px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+  }
+
+  .login-card {
+    width: 100%;
+    max-width: none;
+  }
+}
   }
   .hero-runner-scale {
     transform: none;
