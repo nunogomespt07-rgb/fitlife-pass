@@ -427,7 +427,7 @@ export default function Nav() {
 
         {/* Right side – nav links + actions */}
         <div className="mobileHeaderRight ml-auto flex items-center gap-2.5 sm:gap-4">
-          {!isOnboardingOrRegister && !isAuthRoute && (
+          {showAuthenticatedUI && !isOnboardingOrRegister && !isAuthRoute && (
             <Link
               href="/activities"
               className={`hidden md:inline-flex ${navLinkBase} ${isActive("/activities") ? navLinkActive : ""}`}
@@ -645,20 +645,7 @@ export default function Nav() {
                 )}
               </div>
             </>
-          ) : (
-            !isOnboardingOrRegister && !isAuthRoute && (
-              <Link
-                href="/"
-                className={`rounded-full px-4 py-2.5 text-sm font-semibold tracking-tight transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/15 focus:ring-offset-2 focus:ring-offset-transparent ${
-                  isActive("/")
-                    ? "bg-white/[0.08] text-white"
-                    : "border border-white/[0.1] text-white/90 hover:bg-white/[0.05] hover:text-white"
-                }`}
-              >
-                Entrar
-              </Link>
-            )
-          )}
+          ) : null}
         </div>
       </nav>
 

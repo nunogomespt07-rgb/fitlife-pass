@@ -371,7 +371,7 @@ export default function PremiumAuthCard({ desktopWider, mode = "landing" }: Prem
   }
 
   return (
-    <div className={`glass-dark w-full max-w-sm rounded-[var(--radius-card)] p-6 shadow-[var(--shadow-glass)] sm:max-w-[400px] sm:p-8 ${desktopWider ? "lg:max-w-none lg:px-6 lg:py-8" : ""}`}>
+    <div className={`glass-dark w-full max-w-[340px] rounded-[var(--radius-card)] p-5 shadow-[var(--shadow-glass)] sm:max-w-[360px] sm:p-6 ${desktopWider ? "lg:max-w-none lg:px-6 lg:py-6" : ""}`}>
       <div className="mt-0.5">
         <div className="flex items-center justify-between">
           {mode === "landing" && screen === "email" ? (
@@ -389,12 +389,12 @@ export default function PremiumAuthCard({ desktopWider, mode = "landing" }: Prem
           <span />
         </div>
 
-        <h2 className="login-card-title mt-5 text-xl font-semibold tracking-tight text-white sm:mt-6 sm:text-[1.25rem]">
+        <h2 className="login-card-title mt-4 text-xl font-semibold tracking-tight text-white sm:mt-5 sm:text-[1.25rem]">
           Entrar ou registar-se
         </h2>
 
         {/* Content area – stable min-height */}
-        <div className="mt-5 min-h-[300px] sm:min-h-[320px]">
+        <div className="mt-4 min-h-[280px] sm:min-h-[300px]">
           {mode === "landing" && screen === "entry" ? (
             <div className="animate-in">
               <PrimaryButton
@@ -408,13 +408,13 @@ export default function PremiumAuthCard({ desktopWider, mode = "landing" }: Prem
                 Continuar com e-mail
               </PrimaryButton>
 
-              <div className="auth-divider relative mt-5 mb-2 flex items-center gap-3">
+              <div className="auth-divider relative mt-4 mb-1.5 flex items-center gap-3">
                 <span className="flex-1 border-t border-white/20" />
                 <span className="text-xs font-medium uppercase tracking-wider text-white/45">ou</span>
                 <span className="flex-1 border-t border-white/20" />
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 <AuthOptionBar
                   kind="google"
                   label="Continuar com Google"
