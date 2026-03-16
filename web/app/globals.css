@@ -320,7 +320,7 @@
     right: auto !important;
     left: auto !important;
     bottom: auto !important;
-    transform: translateY(40px);
+    transform: translateY(56px);
     margin: 0 !important;
     width: 360px;
     max-width: 360px;
@@ -343,6 +343,37 @@
     max-width: 360px;
     justify-self: end;
     align-self: center;
+  }
+
+  .login-card-inner,
+  .desktop-hero-auth-card-ref,
+  .auth-card-inner {
+    padding-top: 28px;
+    padding-bottom: 28px;
+  }
+
+  .login-card button,
+  .login-card .social-button,
+  .login-card .auth-provider-button {
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .login-card .social-button-content,
+  .login-card .auth-provider-button-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .login-card .social-button svg,
+  .login-card .auth-provider-button svg,
+  .login-card .social-button img,
+  .login-card .auth-provider-button img {
+    flex-shrink: 0;
   }
 }
   }
