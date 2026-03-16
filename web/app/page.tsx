@@ -176,7 +176,7 @@ export default function LandingPage() {
         <div className="hidden lg:block landing-desktop-hero-container hero-container">
           <div className="hero-content relative z-10 box-border">
             {/* Column 1 — Text. 420px max-width, headline + subtitle + supporting. */}
-            <div className="landing-desktop-text-col hero-text flex w-full max-w-[420px] flex-col min-w-0 lg:translate-y-[18px]">
+            <div className="landing-desktop-text-col hero-text flex w-full max-w-[420px] flex-col min-w-0 lg:translate-y-5">
               <h1 className="landing-desktop-hero-headline font-extrabold text-white">
                 <span className="block">Um só passe.</span>
                 <span className="block">Todos os teus treinos.</span>
@@ -186,7 +186,7 @@ export default function LandingPage() {
             </div>
 
             {/* Column 2 — Runner. Center column, runner centered, no glow. */}
-            <div className="landing-desktop-runner-col hero-runner flex w-full min-w-0 items-center justify-center lg:-translate-x-4 lg:translate-y-[14px]">
+            <div className="landing-desktop-runner-col hero-runner flex w-full min-w-0 items-center justify-center lg:-translate-x-4 lg:translate-y-4">
               <div className="desktop-hero-athlete flex items-center justify-center">
                 <Image src="/images/runner-hero.png" alt="Runner" width={1500} height={2000} className="landing-desktop-runner-img h-auto w-[420px] max-w-full object-contain object-center block" priority unoptimized />
               </div>
