@@ -217,21 +217,18 @@
       object-fit: contain;
       display: block;
     }
-    /* Desktop hero – login card (reference): lighter, fitted */
+    /* Desktop hero – login card outer wrapper: no visible frame on desktop */
     .desktop-hero-auth-card-ref {
-      width: 344px;
-      max-width: 344px;
-      margin-top: 18px;
-      border-radius: 24px;
-      padding: 26px 24px;
-      background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
-    }
-    .desktop-hero-auth-card-ref .landing-primary-cta {
-      white-space: nowrap;
+      width: auto;
+      max-width: none;
+      margin-top: 0;
+      padding: 0;
+      border-radius: 0;
+      background: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      border: none;
+      box-shadow: none;
     }
     .landing-primary-cta {
       min-height: 48px;
@@ -353,6 +350,12 @@
     max-height: 460px;
     width: auto;
     object-fit: contain;
+  }
+
+  /* Slight shared downward offset for hero text + runner on desktop */
+  .hero-text,
+  .hero-runner {
+    transform: translateY(24px);
   }
 
   .login-card {
