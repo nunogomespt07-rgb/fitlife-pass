@@ -148,17 +148,18 @@ export default function Nav() {
 
   const isActive = (path: string) => pathname === path;
 
-  const isPublicRoute =
-    pathname === "/" ||
-    pathname === "/register" ||
-    pathname.startsWith("/onboarding") ||
-    pathname.startsWith("/legal");
   const isAuthRoute =
-    pathname === "/" || pathname === "/register";
-  const isOnboardingOrRegister =
+    pathname === "/login" ||
+    pathname === "/auth" ||
     pathname === "/register" ||
     pathname === "/forgot-password" ||
     pathname.startsWith("/onboarding");
+
+  const isPublicRoute =
+    pathname === "/" ||
+    isAuthRoute ||
+    pathname.startsWith("/legal");
+  const isOnboardingOrRegister = isAuthRoute;
   const showAuthenticatedUI = hasToken && !isPublicRoute;
 
   const navLinkBase =

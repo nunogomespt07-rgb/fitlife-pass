@@ -33,12 +33,12 @@ function passwordValid(pwd: string): boolean {
   return minLength && hasNumberOrSymbol;
 }
 
-type PremiumAuthCardProps = { desktopWider?: boolean };
+type PremiumAuthCardProps = { desktopWider?: boolean; mode?: "landing" | "full" };
 
-export default function PremiumAuthCard({ desktopWider }: PremiumAuthCardProps) {
+export default function PremiumAuthCard({ desktopWider, mode = "landing" }: PremiumAuthCardProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [screen, setScreen] = useState<"entry" | "email">("entry");
+  const [screen, setScreen] = useState<"entry" | "email">(mode === "full" ? "email" : "entry");
   const [emailMode, setEmailMode] = useState<"login" | "signup">("login");
   const [signupStep, setSignupStep] = useState<0 | 1>(0);
   const [email, setEmail] = useState("");
@@ -379,7 +379,7 @@ export default function PremiumAuthCard({ desktopWider }: PremiumAuthCardProps) 
     <div className={`glass-dark w-full max-w-sm rounded-[var(--radius-card)] p-6 shadow-[var(--shadow-glass)] sm:max-w-[400px] sm:p-8 ${desktopWider ? "lg:max-w-none lg:px-6 lg:py-8" : ""}`}>
       <div className="mt-0.5">
         <div className="flex items-center justify-between">
-          {screen === "email" ? (
+          {mode === "landing" && screen === "email" ? (
             <button
               type="button"
               onClick={backToEntry}
@@ -400,17 +400,13 @@ export default function PremiumAuthCard({ desktopWider }: PremiumAuthCardProps) 
 
         {/* Content area – stable min-height */}
         <div className="mt-5 min-h-[300px] sm:min-h-[320px]">
-          {screen === "entry" ? (
+          {mode === "landing" && screen === "entry" ? (
             <div className="animate-in">
               <PrimaryButton
                 type="button"
                 variant="primary"
                 onClick={() => {
-                  if (typeof window !== "undefined" && window.matchMedia("(min-width: 1024px)").matches) {
-                    router.push("/auth");
-                  } else {
-                    openEmailFlow("login");
-                  }
+                  router.push("/auth");
                 }}
                 className="primary-auth-button w-full h-12 rounded-xl text-[15px] py-4 lg:landing-primary-cta"
               >
