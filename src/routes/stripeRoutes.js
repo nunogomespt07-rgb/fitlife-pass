@@ -10,7 +10,7 @@ if (!process.env.NEXT_PUBLIC_APP_URL) {
 }
 
 // Simple auth middleware reusing JWT logic from other routes
-const authMiddleware = require("../middleware/authMiddleware");
+const authMiddleware = require("../middlewares/authMiddleware");
 
 router.post("/create-checkout-session", authMiddleware, async (req, res) => {
   try {

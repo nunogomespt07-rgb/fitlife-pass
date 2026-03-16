@@ -1,21 +1,21 @@
-const BACKEND_API_BASE = process.env.BACKEND_API_BASE?.replace(/\/$/, "");
+const BACKEND_API_URL = process.env.BACKEND_API_URL?.replace(/\/$/, "");
 
 export async function POST(req: Request) {
   try {
-    if (!BACKEND_API_BASE) {
+    if (!BACKEND_API_URL) {
       return Response.json(
-        { message: "Backend API URL não configurada (BACKEND_API_URL ou NEXT_PUBLIC_API_URL)." },
+        { message: "Backend API URL não configurada (BACKEND_API_URL)." },
         { status: 503 }
       );
     }
-    if (/localhost|127\.0\.0\.1/i.test(BACKEND_API_BASE)) {
+    if (/localhost|127\.0\.0\.1/i.test(BACKEND_API_URL)) {
       return Response.json(
         { message: "Backend API URL não pode ser localhost em produção." },
         { status: 503 }
       );
     }
     const body = await req.json();
-    const targetUrl = `${BACKEND_API_BASE}/auth/register`;
+    const targetUrl = `${BACKEND_API_URL}/auth/register`;
     const upstreamRes = await fetch(targetUrl, {
       method: "POST",
       headers: {
