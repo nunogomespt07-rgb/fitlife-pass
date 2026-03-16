@@ -4,8 +4,7 @@ import { useState, useEffect } from "react";
 import GlassCard from "../../components/ui/GlassCard";
 import PrimaryButton from "../../components/ui/PrimaryButton";
 import { useMockReservations } from "@/app/context/MockReservationsContext";
-import { getStoredUser } from "@/lib/storedUser";
-import { loadStripe } from "@stripe/stripe-js";
+import { getStoredUser, setStoredUser } from "@/lib/storedUser";
 import {
   MOCK_CREDIT_PACKS,
   SUBSCRIPTION_PLANS,
@@ -141,40 +140,20 @@ export default function DashboardPagamentosPage() {
     setCreditsModalOpen(false);
   }
 
-  async function handleSubscribe(_plan: SubscriptionPlan) {
-    try {
-      const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
-      if (!publishableKey) {
-        console.error("Stripe publishable key em falta");
-        return;
-      }
-      const stripe = await loadStripe(publishableKey);
-      if (!stripe) return;
-
-      const token = localStorage.getItem("token");
-      if (!token) {
-        console.error("Token em falta para criar sessão Stripe");
-        return;
-      }
-
-      const res = await fetch("/api/stripe/create-checkout-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token }),
-      });
-
-      const data = (await res.json().catch(() => null)) as { id?: string } | null;
-      if (!res.ok || !data?.id) {
-        console.error("Erro ao criar sessão Stripe", data);
-        return;
-      }
-
-      await (stripe as any)?.redirectToCheckout({ sessionId: data.id });
-    } catch (err) {
-      console.error("Erro no fluxo Stripe:", err);
-    } finally {
-      setSubscribeModalPlan(null);
-    }
+  function handleSubscribe(plan: SubscriptionPlan) {
+    setStoredUser({
+      subscriptionPlanId: plan.id,
+      subscriptionPlanName: plan.planName,
+      pendingPlanId: null,
+      pendingPlanName: null,
+    });
+    addPurchasedCredits(plan.creditsIncluded);
+    setPurchaseSuccess(
+      `Subscrição ${plan.planName} ativada. ${plan.creditsIncluded} créditos adicionados.`
+    );
+    setTimeout(() => setPurchaseSuccess(null), 5000);
+    setSubscribeModalPlan(null);
+    setActivePlanId(plan.id);
   }
 
   return (
