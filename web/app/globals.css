@@ -357,7 +357,7 @@
   /* Slight shared downward offset for hero text on desktop */
   .hero-text {
     transform: translateY(18px);
-  }*** End Patch`}/>
+  }
 
   .login-card {
     position: static !important;
