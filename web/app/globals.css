@@ -304,8 +304,9 @@
     left: auto !important;
     transform: none !important;
     margin: 0 !important;
-    width: 344px;
-    max-width: 344px;
+    width: 320px;
+    max-width: 320px;
+    margin-right: 48px;
     justify-self: end;
     align-self: center;
   }
