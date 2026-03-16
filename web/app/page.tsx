@@ -103,8 +103,8 @@ export default function LandingPage() {
           aria-hidden
         />
 
-        {/* MOBILE HERO — unchanged. Hidden on desktop. */}
-        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-0 px-4 pt-8 pb-8 sm:px-6 sm:pt-12 sm:pb-10 lg:hidden">
+        {/* MOBILE HERO — unchanged. Hidden on tablet/desktop. */}
+        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-0 px-4 pt-8 pb-8 sm:px-6 sm:pt-12 sm:pb-10 md:hidden">
           <div className="order-1 flex flex-col justify-center pb-0 sm:pb-4">
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/55 sm:text-xs sm:tracking-[0.32em]">FitLife Pass</p>
             <h1 className="hero-title mt-5 font-extrabold text-white sm:mt-6">
@@ -138,6 +138,36 @@ export default function LandingPage() {
           <div className="order-3 relative z-30 flex items-center justify-center mt-0 pt-0 sm:pt-4">
             <div className="hero-float-card w-full max-w-sm rounded-[var(--radius-card)] sm:max-w-[400px]">
               <Suspense fallback={null}><PremiumAuthCard /></Suspense>
+            </div>
+          </div>
+        </div>
+
+        {/* TABLET HERO — tablet-only layer (md), mobile/desktop unchanged. */}
+        <div className="hidden md:block lg:hidden">
+          <div className="hero-content relative z-10 box-border">
+            {/* Left: text */}
+            <div className="hero-text flex w-full flex-col min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/55">FitLife Pass</p>
+              <h1 className="hero-title mt-5 font-extrabold text-white">
+                <span className="block">Um só passe.</span>
+                <span className="block">Todos os teus</span>
+                <span className="block">treinos.</span>
+              </h1>
+              <p className="landing-hero-desc mt-5 max-w-md text-base leading-[1.7] text-white/85">
+                <span className="block">Ginásio, yoga, padel, crossfit</span>
+                <span className="block">e estúdios premium numa só experiência.</span>
+              </p>
+              <p className="mt-4 text-sm font-medium text-white/70">Uma conta. Vários parceiros. Sem fidelização.</p>
+            </div>
+
+            {/* Right: runner + login card */}
+            <div className="flex w-full min-w-0 flex-col items-center justify-center gap-8">
+              <div className="hero-runner flex items-center justify-center w-full">
+                <Image src="/images/runner-hero.png" alt="Runner" width={1500} height={2000} className="h-auto w-auto object-contain block" priority unoptimized />
+              </div>
+              <div className="login-card desktop-hero-auth-card-ref w-full">
+                <Suspense fallback={null}><PremiumAuthCard /></Suspense>
+              </div>
             </div>
           </div>
         </div>
