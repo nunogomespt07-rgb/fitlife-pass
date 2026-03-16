@@ -223,6 +223,16 @@
       object-fit: contain;
       display: block;
     }
+    /* Desktop hero – container and login card absolute positioning */
+    .hero-container {
+      position: relative;
+    }
+    .login-card {
+      position: absolute;
+      right: 140px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
     /* Desktop hero – login card (reference): lighter, fitted */
     .desktop-hero-auth-card-ref {
       width: 344px;

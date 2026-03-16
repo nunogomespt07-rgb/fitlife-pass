@@ -143,7 +143,7 @@ export default function LandingPage() {
         </div>
 
         {/* DESKTOP HERO — reference layout: 420 320 360, gap 56px. */}
-        <div className="hidden lg:block landing-desktop-hero-container">
+        <div className="hidden lg:block landing-desktop-hero-container hero-container">
           <div className="landing-desktop-hero-grid grid relative z-10 box-border w-full items-center">
             {/* Column 1 — Text. 420px, brand + headline + subtitle + supporting. */}
             <div className="landing-desktop-text-col flex w-full max-w-[420px] flex-col min-w-0">
@@ -165,7 +165,7 @@ export default function LandingPage() {
 
             {/* Column 3 — Login card. 360px column, card 380px. */}
             <div className="landing-desktop-card-col flex w-full max-w-[360px] min-w-0 items-center justify-end">
-              <div className="desktop-hero-auth-card-ref w-full max-w-[344px]">
+              <div className="desktop-hero-auth-card-ref login-card w-full max-w-[344px]">
                 <Suspense fallback={null}><PremiumAuthCard desktopWider /></Suspense>
               </div>
             </div>
