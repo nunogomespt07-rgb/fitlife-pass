@@ -376,7 +376,7 @@ export default function PremiumAuthCard({ desktopWider }: PremiumAuthCardProps) 
   }
 
   return (
-    <div className={`glass-dark w-full max-w-sm rounded-[var(--radius-card)] p-6 shadow-[var(--shadow-glass)] sm:max-w-[400px] sm:p-8 ${desktopWider ? "lg:max-w-none lg:px-12 lg:py-10" : ""}`}>
+    <div className={`glass-dark w-full max-w-sm rounded-[var(--radius-card)] p-6 shadow-[var(--shadow-glass)] sm:max-w-[400px] sm:p-8 ${desktopWider ? "lg:max-w-none lg:px-6 lg:py-8" : ""}`}>
       <div className="mt-0.5">
         <div className="flex items-center justify-between">
           {screen === "email" ? (

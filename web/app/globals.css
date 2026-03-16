@@ -361,10 +361,10 @@
     right: auto !important;
     left: auto !important;
     bottom: auto !important;
-    transform: translateY(56px) !important;
+    transform: translateY(32px) !important;
     margin: 0 !important;
-    width: 340px;
-    max-width: 340px;
+    width: 380px;
+    max-width: 380px;
     justify-self: end;
     align-self: center;
     border-radius: 28px;
@@ -380,10 +380,10 @@
     right: auto !important;
     left: auto !important;
     bottom: auto !important;
-    transform: translateY(56px) !important;
+    transform: translateY(32px) !important;
     margin: 0 !important;
-    width: 340px;
-    max-width: 340px;
+    width: 380px;
+    max-width: 380px;
     justify-self: end;
     align-self: center;
   }
@@ -399,66 +399,31 @@
     line-height: 1.2;
   }
 
-  .login-card .primary-auth-button,
-  .login-card .social-button,
-  .login-card .auth-provider-button,
-  .login-card button {
+  .login-card button,
+  .login-card .auth-provider-button {
     min-height: 52px;
-    border-radius: 999px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     width: 100%;
+    padding-left: 18px;
+    padding-right: 18px;
     box-sizing: border-box;
   }
 
-  .login-card .social-button + .social-button,
-  .login-card .auth-provider-button + .auth-provider-button,
-  .login-card button + button {
-    margin-top: 12px;
-  }
-
-  .login-card .social-button-content,
   .login-card .auth-provider-button-content {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 10px;
+    justify-content: flex-start;
+    gap: 12px;
     width: 100%;
   }
 
-  .login-card .social-button svg,
   .login-card .auth-provider-button svg,
-  .login-card .social-button img,
   .login-card .auth-provider-button img {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     flex-shrink: 0;
-  }
-
-  .login-card .divider,
-  .login-card .auth-divider {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 14px 0;
-  }
-
-  .login-card .divider::before,
-  .login-card .divider::after,
-  .login-card .auth-divider::before,
-  .login-card .auth-divider::after {
-    content: "";
-    flex: 1;
-    height: 1px;
-    opacity: 0.25;
-  }
-
-  .login-card .legal-copy,
-  .login-card .auth-legal {
-    margin-top: 16px;
-    text-align: center;
-    line-height: 1.45;
   }
 }
   }
