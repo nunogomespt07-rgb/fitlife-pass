@@ -281,20 +281,38 @@
 }
 
 .hero-runner {
-  /* desktop layout handled by grid; keep class as hook only */
+  /* desktop: slight nudge to the right for breathing room */
+  transform: translateX(20px);
+}
+
+.hero-runner img {
+  max-height: 470px;
 }
 
 .login-card {
-  /* desktop layout handled by grid; keep class as hook only */
+  /* desktop: slightly lower for balance */
+  transform: translateY(10px);
 }
 
 .hero-text {
-  /* desktop layout handled by grid; keep class as hook only */
+  /* layout handled by grid; hook preserved */
 }
 
 @media (max-width: 768px) {
   .hero-container {
     position: static;
+  }
+
+  .hero-runner {
+    transform: none;
+  }
+
+  .hero-runner img {
+    max-height: 320px;
+  }
+
+  .login-card {
+    transform: none;
   }
 }
   }
