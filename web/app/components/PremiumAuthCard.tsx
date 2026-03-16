@@ -186,13 +186,7 @@ export default function PremiumAuthCard({ desktopWider, mode = "landing" }: Prem
     const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
     setLoading(true);
     try {
-      const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
-      if (!base || /localhost|127\.0\.0\.1/i.test(base)) {
-        setError("Não foi possível criar a conta. NEXT_PUBLIC_API_URL em falta ou inválida.");
-        setLoading(false);
-        return;
-      }
-      const res = await fetch(`${base}/auth/register`, {
+      const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -207,6 +201,7 @@ export default function PremiumAuthCard({ desktopWider, mode = "landing" }: Prem
         | null;
       if (!res.ok) {
         const msg = (data as { message?: string }).message ?? "";
+        console.error("[signup] Erro no registo:", res.status, msg || data);
         const safeMsg =
           /failed to fetch|load failed|fetch failed|network error|connection refused/i.test(msg)
             ? "Não foi possível criar a conta. Tenta novamente."
