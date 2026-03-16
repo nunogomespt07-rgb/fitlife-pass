@@ -186,7 +186,7 @@ export default function LandingPage() {
             </div>
 
             {/* Column 2 — Runner. Center column, runner centered, with subtle glow. */}
-            <div className="landing-desktop-runner-col hero-runner flex w-full min-w-0 items-center justify-center lg:-translate-x-3 lg:translate-y-2">
+            <div className="landing-desktop-runner-col hero-runner flex w-full min-w-0 items-center justify-center lg:-translate-x-3 lg:translate-y-3">
               <div className="desktop-hero-athlete relative flex items-center justify-center">
                 <div className="pointer-events-none absolute inset-[-80px] hidden rounded-full bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.32),transparent_60%)] blur-3xl lg:block" />
                 <Image

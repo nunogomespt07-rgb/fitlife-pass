@@ -329,7 +329,7 @@ export default function PremiumAuthCard({ desktopWider }: PremiumAuthCardProps) 
         type="button"
         onClick={disabled ? undefined : onClick}
         disabled={disabled}
-        className={`auth-provider-button relative flex w-full items-center justify-center rounded-2xl border px-4 py-3.5 text-sm font-semibold transition-all duration-200 ${
+        className={`auth-provider-button relative flex w-full items-center justify-center rounded-2xl border px-4 py-3.5 text-sm font-semibold transition-all duration-200 lg:py-3 lg:text-[13px] ${
           disabled
             ? "border-white/[0.08] bg-white/[0.02] text-white/30"
             : "border-[var(--ref-glass-border-strong)] bg-white/[0.06] text-white hover:bg-white/[0.10] hover:border-white/25 focus:outline-none focus:ring-2 focus:ring-blue-400/40 focus:border-blue-400/50"
