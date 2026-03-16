@@ -142,12 +142,11 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* DESKTOP HERO — reference layout: 1.1 0.9 0.9 fr, gap 40px. */}
+        {/* DESKTOP HERO — grid layout: text / runner / login card */}
         <div className="hidden lg:block landing-desktop-hero-container hero-container">
-          <div className="landing-desktop-hero-grid relative z-10 box-border w-full">
-            {/* Column 1 — Text. 420px, brand + headline + subtitle + supporting. */}
+          <div className="hero-content relative z-10 box-border">
+            {/* Column 1 — Text. 420px max-width, headline + subtitle + supporting. */}
             <div className="landing-desktop-text-col hero-text flex w-full max-w-[420px] flex-col min-w-0">
-              <p className="landing-desktop-hero-brand">FitLife Pass</p>
               <h1 className="landing-desktop-hero-headline font-extrabold text-white">
                 <span className="block">Um só passe.</span>
                 <span className="block">Todos os teus treinos.</span>

@@ -178,17 +178,10 @@
     .landing-hero-secondary-desktop {
       font-size: 0.9375rem;
     }
-    /* Desktop hero reference – text column */
+    /* Desktop hero – text column (hero body only) */
     .landing-desktop-text-col {
-      align-self: start;
-      padding-top: 12px;
-    }
-    .landing-desktop-hero-brand {
-      font-size: 18px;
-      font-weight: 600;
-      opacity: 0.95;
-      margin-bottom: 36px;
-      color: #fff;
+      align-self: center;
+      padding-top: 0;
     }
     .landing-desktop-hero-headline {
       font-size: 64px;
@@ -275,43 +268,65 @@
       transform: none;
     }
 
-/* Desktop & mobile hero positioning – text, runner, login card */
+/* Desktop & mobile hero positioning – shared hooks */
 .hero-container {
   position: relative;
 }
 
-.hero-runner {
-  /* layout handled by grid; hook preserved */
-}
-
-.hero-runner img {
-  max-height: 470px;
-}
-
-.login-card {
-  /* layout handled by grid on desktop; hook preserved */
-}
-
-.hero-text {
-  /* layout handled by grid; small vertical offset for balance */
-  margin-top: 56px;
-}
-
 @media (min-width: 1024px) {
+  .hero-content {
+    display: grid;
+    grid-template-columns: minmax(380px, 1.1fr) minmax(260px, 0.9fr) minmax(340px, 0.95fr);
+    align-items: center;
+    gap: 40px;
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding-left: 48px;
+    padding-right: 48px;
+    min-height: 78vh;
+    box-sizing: border-box;
+    overflow: visible;
+  }
+
+  .hero-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-self: center;
+    max-width: 420px;
+    margin: 0;
+  }
+
+  .hero-runner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    min-height: 420px;
+    margin: 0;
+  }
+
+  .hero-runner img {
+    display: block;
+    max-height: 460px;
+    width: auto;
+    object-fit: contain;
+  }
+
   .login-card {
     position: static !important;
     top: auto !important;
-    bottom: auto !important;
     right: auto !important;
     left: auto !important;
+    bottom: auto !important;
     transform: none !important;
     margin: 0 !important;
-    margin-top: 0 !important;
     width: 356px;
     max-width: 356px;
-    margin-right: 56px;
     justify-self: end;
     align-self: center;
+    overflow: visible;
   }
 
   .hero-login,
@@ -319,20 +334,13 @@
   .auth-card-wrapper {
     position: static !important;
     top: auto !important;
-    bottom: auto !important;
     right: auto !important;
     left: auto !important;
+    bottom: auto !important;
     transform: none !important;
     margin: 0 !important;
-    margin-top: 0 !important;
     justify-self: end;
     align-self: center;
-  }
-}
-
-@media (max-width: 768px) {
-  .hero-container {
-    position: static;
   }
 }
   }
@@ -364,16 +372,8 @@
       max-width: 1280px;
       margin-left: auto;
       margin-right: auto;
-      padding-left: 32px;
-      padding-right: 32px;
       box-sizing: border-box;
       overflow: visible;
-    }
-    .landing-desktop-hero-grid {
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr 0.9fr;
-      column-gap: 40px;
-      align-items: center;
     }
     .landing-desktop-content {
       width: 100%;
