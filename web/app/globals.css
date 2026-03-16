@@ -361,10 +361,10 @@
     right: auto !important;
     left: auto !important;
     bottom: auto !important;
-    transform: translateY(40px) !important;
+    transform: translateY(56px) !important;
     margin: 0 !important;
-    width: 360px;
-    max-width: 360px;
+    width: 340px;
+    max-width: 340px;
     justify-self: end;
     align-self: center;
     border-radius: 28px;
@@ -380,10 +380,10 @@
     right: auto !important;
     left: auto !important;
     bottom: auto !important;
-    transform: translateY(40px) !important;
+    transform: translateY(56px) !important;
     margin: 0 !important;
-    width: 360px;
-    max-width: 360px;
+    width: 340px;
+    max-width: 340px;
     justify-self: end;
     align-self: center;
   }
@@ -422,8 +422,8 @@
   .login-card .auth-provider-button-content {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    gap: 12px;
+    justify-content: center;
+    gap: 10px;
     width: 100%;
   }
 
@@ -441,7 +441,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    margin: 16px 0;
+    margin: 14px 0;
   }
 
   .login-card .divider::before,
@@ -456,7 +456,7 @@
 
   .login-card .legal-copy,
   .login-card .auth-legal {
-    margin-top: 18px;
+    margin-top: 16px;
     text-align: center;
     line-height: 1.45;
   }

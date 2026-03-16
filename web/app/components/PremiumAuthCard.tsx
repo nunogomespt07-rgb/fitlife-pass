@@ -750,7 +750,7 @@ export default function PremiumAuthCard({ desktopWider }: PremiumAuthCardProps) 
             </div>
           )}
 
-          <p className="mt-5 text-center text-xs text-white/45">
+          <p className="auth-legal mt-5 text-center text-xs text-white/45">
             Os teus dados estão protegidos. Nunca partilhamos o teu email.
           </p>
         </div>
