@@ -146,7 +146,7 @@ export default function LandingPage() {
         <div className="hidden lg:block landing-desktop-hero-container hero-container">
           <div className="landing-desktop-hero-grid grid relative z-10 box-border w-full items-center">
             {/* Column 1 — Text. 420px, brand + headline + subtitle + supporting. */}
-            <div className="landing-desktop-text-col flex w-full max-w-[420px] flex-col min-w-0">
+            <div className="landing-desktop-text-col hero-text flex w-full max-w-[420px] flex-col min-w-0">
               <p className="landing-desktop-hero-brand">FitLife Pass</p>
               <h1 className="landing-desktop-hero-headline font-extrabold text-white">
                 <span className="block">Um só passe.</span>
@@ -157,7 +157,7 @@ export default function LandingPage() {
             </div>
 
             {/* Column 2 — Runner. 320px column, runner centered, no glow. */}
-            <div className="landing-desktop-runner-col flex w-full min-w-0 items-center justify-center">
+            <div className="landing-desktop-runner-col hero-runner flex w-full min-w-0 items-center justify-center">
               <div className="desktop-hero-athlete flex items-center justify-center">
                 <Image src="/images/runner-hero.png" alt="Runner" width={1500} height={2000} className="landing-desktop-runner-img h-auto w-[420px] max-w-full object-contain object-center block" priority unoptimized />
               </div>
