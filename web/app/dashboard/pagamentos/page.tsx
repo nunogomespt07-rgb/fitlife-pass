@@ -163,13 +163,13 @@ export default function DashboardPagamentosPage() {
         body: JSON.stringify({ token }),
       });
 
-      const data = (await res.json().catch(() => null)) as { id?: string; url?: string } | null;
+      const data = (await res.json().catch(() => null)) as { id?: string } | null;
       if (!res.ok || !data?.id) {
         console.error("Erro ao criar sessão Stripe", data);
         return;
       }
 
-      await stripe.redirectToCheckout({ sessionId: data.id });
+      await (stripe as any)?.redirectToCheckout({ sessionId: data.id });
     } catch (err) {
       console.error("Erro no fluxo Stripe:", err);
     } finally {

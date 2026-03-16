@@ -57,7 +57,7 @@ router.post("/create-checkout-session", authMiddleware, async (req, res) => {
       },
     });
 
-    return res.json({ id: session.id, url: session.url });
+    return res.json({ id: session.id });
   } catch (err) {
     console.error("Stripe checkout error:", err);
     return res.status(500).json({ message: "Erro ao criar sessão de pagamento" });
