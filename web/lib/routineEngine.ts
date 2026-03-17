@@ -211,15 +211,15 @@ export function buildRoutineCandidates(prefs: RoutinePreferences): RoutineSessio
   const candidates: RoutineSessionCandidate[] = [];
 
   for (const p of partnerPool) {
-    if (p.partner.partnerType === "gym_access") {
-      candidates.push(gymCandidateForPartner(p.categorySlug, p.partner));
+    if (p.partnerType === "gym_access") {
+      candidates.push(gymCandidateForPartner(p.categorySlug, p));
       continue;
     }
     const acts = getMockActivitiesForPartner(p.id);
     for (const act of acts) {
       const dateISO = activityDateToISO(act.date);
       if (dateISO < minDate || dateISO > maxDate) continue;
-      candidates.push(candidateFromMockActivity(p.categorySlug, p.partner, act));
+      candidates.push(candidateFromMockActivity(p.categorySlug, p, act));
     }
   }
 
