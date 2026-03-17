@@ -69,6 +69,9 @@ export default function DashboardRotinaPage() {
     if (!prefs) return;
     setLoading(true);
     setError(null);
+    setEditingSessionId(null);
+    setAlternatives([]);
+    setBookingResult(null);
     try {
       const w = generateRoutineWeek({ prefs, availableCredits: credits, userCoords });
       setWeek(w);
@@ -86,6 +89,8 @@ export default function DashboardRotinaPage() {
     if (!prefs) return;
     setLoading(true);
     setError(null);
+    setEditingSessionId(null);
+    setAlternatives([]);
     setBookingResult(null);
     try {
       const w = generateRoutineWeek({ prefs, availableCredits: credits, userCoords });
@@ -101,6 +106,10 @@ export default function DashboardRotinaPage() {
   }
 
   function handleRemove(sessionId: string) {
+    if (editingSessionId === sessionId) {
+      setEditingSessionId(null);
+      setAlternatives([]);
+    }
     setWeek((prev) => {
       if (!prev) return prev;
       const nextSessions = prev.sessions.filter((s) => getSessionId(s) !== sessionId);
@@ -115,7 +124,8 @@ export default function DashboardRotinaPage() {
 
   function handleShowAlternatives(s: RoutineSessionCandidate) {
     if (!prefs || !week) return;
-    setEditingSessionId(getSessionId(s));
+    const targetId = getSessionId(s);
+    setEditingSessionId(targetId);
     const excludePartnerIds = week.sessions.map((x) => x.partnerId);
     const excludeActivityIds = week.sessions.map((x) => x.activityId ?? "").filter(Boolean);
     const alts = getAlternativesForSession({
@@ -389,38 +399,44 @@ export default function DashboardRotinaPage() {
                         </div>
                       </div>
 
-                      {editingSessionId === sid && alternatives.length > 0 && (
+                      {editingSessionId === sid && (
                         <div className="mt-4 border-t border-white/10 pt-4">
                           <p className="text-xs font-semibold uppercase tracking-wider text-white/60">
                             Alternativas (mesmo dia)
                           </p>
-                          <div className="mt-3 grid gap-2">
-                            {alternatives.map((a) => {
-                              const aid = getSessionId(a);
-                              return (
-                                <button
-                                  key={aid}
-                                  type="button"
-                                  onClick={() => handlePickAlternative(sid, a)}
-                                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left hover:bg-white/10"
-                                >
-                                  <div className="flex items-start justify-between gap-3">
-                                    <div className="min-w-0">
-                                      <p className="text-sm font-medium text-white">
-                                        {getSessionDisplayTitle(a)}
-                                      </p>
-                                      <p className="mt-0.5 text-xs text-white/65">
-                                        {a.partnerName} · {a.time}
-                                      </p>
+                          {alternatives.length === 0 ? (
+                            <p className="mt-3 text-sm text-white/60">
+                              Sem alternativas disponíveis para este dia.
+                            </p>
+                          ) : (
+                            <div className="mt-3 grid gap-2">
+                              {alternatives.map((a) => {
+                                const aid = getSessionId(a);
+                                return (
+                                  <button
+                                    key={aid}
+                                    type="button"
+                                    onClick={() => handlePickAlternative(sid, a)}
+                                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left hover:bg-white/10"
+                                  >
+                                    <div className="flex items-start justify-between gap-3">
+                                      <div className="min-w-0">
+                                        <p className="text-sm font-medium text-white">
+                                          {getSessionDisplayTitle(a)}
+                                        </p>
+                                        <p className="mt-0.5 text-xs text-white/65">
+                                          {a.partnerName} · {a.time}
+                                        </p>
+                                      </div>
+                                      <span className="shrink-0 text-xs text-white/70">
+                                        {a.credits} cr
+                                      </span>
                                     </div>
-                                    <span className="shrink-0 text-xs text-white/70">
-                                      {a.credits} cr
-                                    </span>
-                                  </div>
-                                </button>
-                              );
-                            })}
-                          </div>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
                           <button
                             type="button"
                             onClick={() => {
