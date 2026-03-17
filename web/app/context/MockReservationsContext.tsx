@@ -128,6 +128,22 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
     };
   }, [session, effectiveUserId]);
 
+  // Ensure credits written while userId was not yet available get persisted once it becomes available.
+  useEffect(() => {
+    if (!effectiveUserId) return;
+    const currentStored = getStoredPurchasedCredits(effectiveUserId);
+    if (typeof purchasedCredits === "number" && purchasedCredits >= 0 && currentStored !== purchasedCredits) {
+      setStoredPurchasedCredits(effectiveUserId, purchasedCredits);
+      if (session?.user) {
+        fetch("/api/customer/state", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ purchasedCredits }),
+        }).catch(() => {});
+      }
+    }
+  }, [effectiveUserId, purchasedCredits, session]);
+
   const activeReservationCount = useMemo(
     () => getActiveReservationCount(reservations),
     [reservations]
@@ -365,7 +381,10 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
   }, [effectiveUserId]);
 
   const addPurchasedCredits = useCallback((amount: number, reason?: string) => {
-    const userId = effectiveUserId;
+    const userId =
+      effectiveUserId ??
+      getStoredUser()?.id ??
+      (session?.user?.email ? String(session.user.email).trim().toLowerCase() : null);
     const n = Math.max(0, Math.floor(amount));
     setPurchasedCredits((prev) => {
       const next = prev + n;

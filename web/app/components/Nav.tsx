@@ -88,8 +88,6 @@ export default function Nav() {
           id: newUser.id,
           name: newUser.name,
           email: newUser.email,
-          subscriptionPlanId: newUser.subscriptionPlanId,
-          subscriptionPlanName: newUser.subscriptionPlanName,
         });
       } catch {}
     } else if (stored) {
