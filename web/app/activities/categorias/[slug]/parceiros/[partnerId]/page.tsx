@@ -121,6 +121,7 @@ export default function PartnerActivitiesPage() {
 
   const { categoryLabel, partner } = resolved;
   const isGymAccess = partner.partnerType === "gym_access";
+  const isTrainerProfile = slug === "personal-training" && partner.provider?.type === "trainer";
 
   return (
     <div className="page-bg min-h-screen font-sans text-white">
@@ -148,8 +149,37 @@ export default function PartnerActivitiesPage() {
             <h1 className="text-2xl font-bold tracking-tight text-white">
               {partner.name}
             </h1>
+            {isTrainerProfile && (
+              <p className="mt-1 text-xs font-semibold uppercase tracking-[0.22em] text-white/55">
+                Personal Trainer
+              </p>
+            )}
             <p className="mt-1 text-sm text-white/75">{partner.location}</p>
-            <p className="mt-2 text-sm text-white/65">{partner.description}</p>
+            <p className="mt-2 text-sm text-white/65">
+              {isTrainerProfile ? (partner.provider?.bio ?? partner.description) : partner.description}
+            </p>
+            {isTrainerProfile && partner.provider?.specialties && partner.provider.specialties.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {partner.provider.specialties.slice(0, 5).map((s) => (
+                  <span
+                    key={s}
+                    className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-medium text-white/80"
+                  >
+                    {s}
+                  </span>
+                ))}
+              </div>
+            )}
+            {isTrainerProfile && partner.provider?.certifications && partner.provider.certifications.length > 0 && (
+              <p className="mt-3 text-xs text-white/55">
+                Certificações: {partner.provider.certifications.join(", ")}
+              </p>
+            )}
+            {isTrainerProfile && partner.provider?.experienceYears != null && (
+              <p className="mt-1 text-xs text-white/55">
+                Experiência: {partner.provider.experienceYears} ano{partner.provider.experienceYears !== 1 ? "s" : ""}
+              </p>
+            )}
             {partner.address && partner.city && (
               <p className="mt-3 text-sm text-white/70">
                 {partner.address} · {partner.city}

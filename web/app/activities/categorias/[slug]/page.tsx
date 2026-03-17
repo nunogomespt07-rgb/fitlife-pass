@@ -51,7 +51,9 @@ export default function ActivityCategoryPage() {
           <SectionHeader
             variant="app"
             title={category.label}
-            subtitle="Escolhe um parceiro para ver as atividades disponíveis."
+            subtitle={slug === "personal-training"
+              ? "Escolhe um personal trainer para ver sessões e disponibilidade."
+              : "Escolhe um parceiro para ver as atividades disponíveis."}
           />
         </div>
 
@@ -85,12 +87,29 @@ export default function ActivityCategoryPage() {
                 <h3 className="app-card-title text-white">
                   {partner.name}
                 </h3>
+                {slug === "personal-training" && partner.provider?.type === "trainer" && (
+                  <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/55">
+                    Personal Trainer
+                  </p>
+                )}
                 <p className="mt-1 text-[15px] font-medium text-white/70">
                   {partner.location}
                 </p>
                 <p className="mt-3 flex-1 text-[13px] text-white/75">
                   {partner.description}
                 </p>
+                {slug === "personal-training" && partner.provider?.type === "trainer" && partner.provider.specialties.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {partner.provider.specialties.slice(0, 3).map((s) => (
+                      <span
+                        key={s}
+                        className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-medium text-white/80"
+                      >
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                )}
                 <div className="mt-4 flex flex-wrap items-center gap-3 text-[13px] text-white/80">
                   <span>{partner.activitiesCount} atividades</span>
                   <span className="text-white/50">·</span>
