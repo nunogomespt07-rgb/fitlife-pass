@@ -41,7 +41,7 @@ export default function Nav() {
   const router = useRouter();
   const { data: session } = useSession();
   const { unreadCount } = useNotifications();
-  const { credits } = useMockReservations();
+  const { credits, creditsReady } = useMockReservations();
   const [hasToken, setHasToken] = useState(false);
   const [user, setUser] = useState<StoredUser>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -190,7 +190,7 @@ export default function Nav() {
   const planLabel = planName ? `Plano ${planName.replace(/^FitLife\s+/i, "")}` : null;
   const mobilePlanLabel = planName ? planName.replace(/^FitLife\s+/i, "").trim() : "Sem plano";
   const mobileCreditsLabel =
-    typeof credits === "number" ? `${credits} crédito${credits === 1 ? "" : "s"}` : "";
+    creditsReady && typeof credits === "number" ? `${credits} crédito${credits === 1 ? "" : "s"}` : "";
   const mobilePlanCreditsText =
     mobileCreditsLabel ? `${mobilePlanLabel} · ${mobileCreditsLabel}` : mobilePlanLabel;
 
@@ -577,7 +577,7 @@ export default function Nav() {
                     </svg>
                     {unreadCount > 0 && <span className="notificationBadge" />}
                   </button>
-                  {(planLabel !== null || credits !== undefined) && (
+                  {(planLabel !== null || (creditsReady && credits !== undefined)) && (
                     <span
                       className="hidden sm:inline-flex items-center gap-2.5 rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-[11px] font-medium tracking-tight text-white/90"
                     >
@@ -586,7 +586,7 @@ export default function Nav() {
                       </span>
                       <span className="h-3 w-px bg-white/20" aria-hidden />
                       <span className="text-white/70 tabular-nums">
-                        {credits} crédito{credits === 1 ? "" : "s"}
+                        {creditsReady ? credits : ""} crédito{credits === 1 ? "" : "s"}
                       </span>
                     </span>
                   )}

@@ -43,7 +43,7 @@ function groupByDate(txs: CreditTransaction[]): { label: string; items: CreditTr
 }
 
 export default function DashboardCreditosPage() {
-  const { credits } = useMockReservations();
+  const { credits, creditsReady } = useMockReservations();
   const creditActivity = useCreditActivity();
   const stored = getStoredUser();
   const hasPlan = Boolean(stored?.subscriptionPlanId);
@@ -78,7 +78,7 @@ export default function DashboardCreditosPage() {
             Saldo disponível
           </p>
           <p className="mt-3 text-4xl font-semibold text-white">
-            {credits}
+            {creditsReady ? credits : "—"}
           </p>
           <p className="mt-1 text-sm text-white/60">
             créditos restantes

@@ -28,7 +28,8 @@ function clampCredits(n: unknown): number | undefined {
 function storeFilePath(): string {
   // DEMO ONLY: file-based store to keep account state consistent across devices hitting the same app instance.
   // In production this must live in a real database keyed by a stable user id.
-  return path.join(process.cwd(), "web", ".data", "demo-customer-state.json");
+  // process.cwd() in this app already points at the Next.js app root ("web"), so do not prepend "web" again.
+  return path.join(process.cwd(), ".data", "demo-customer-state.json");
 }
 
 async function readStore(): Promise<StoreShape> {

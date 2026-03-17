@@ -42,6 +42,8 @@ type MockReservationsContextValue = {
   /** Number of active (confirmed, non-expired) reservations. */
   activeReservationCount: number;
   credits: number;
+  /** True when credits have been hydrated from the correct source of truth. */
+  creditsReady: boolean;
   /** Cancellations this calendar month (for display). */
   monthlyCancellationCount: number;
   /** Max cancellations per month. */
@@ -69,6 +71,7 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
   const creditActivity = useCreditActivity();
   const [reservations, setReservations] = useState<UnifiedReservation[]>([]);
   const [purchasedCredits, setPurchasedCredits] = useState(0);
+  const [creditsReady, setCreditsReady] = useState(false);
 
   const effectiveUserId = useMemo(() => {
     const sessionUser = session?.user;
@@ -90,7 +93,12 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
       list = withNoShow;
     }
     setReservations(list);
-    setPurchasedCredits(getStoredPurchasedCredits(effectiveUserId));
+    // For session users, credits are hydrated from server store to ensure cross-device consistency.
+    // Avoid bootstrapping from localStorage (often 0) which can momentarily overwrite valid state.
+    if (!session?.user) {
+      setPurchasedCredits(getStoredPurchasedCredits(effectiveUserId));
+      setCreditsReady(true);
+    }
   }, [pathname, effectiveUserId]);
 
   // Cross-device demo persistence: when user has a NextAuth session, hydrate credits/plan from server store.
@@ -100,7 +108,12 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
     (async () => {
       try {
         const res = await fetch("/api/customer/state", { cache: "no-store" });
-        if (!res.ok) return;
+        if (!res.ok) {
+          // Fallback to local cache (still never authoritative across devices).
+          setPurchasedCredits(getStoredPurchasedCredits(effectiveUserId));
+          setCreditsReady(true);
+          return;
+        }
         const data = (await res.json().catch(() => null)) as
           | { purchasedCredits?: number; subscriptionPlanId?: string | null; subscriptionPlanName?: string | null }
           | null;
@@ -110,6 +123,7 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
           // Keep local compatibility in sync for pages reading local storage.
           setStoredPurchasedCredits(effectiveUserId, Math.max(0, Math.floor(data.purchasedCredits)));
         }
+        setCreditsReady(true);
         if (data.subscriptionPlanId || data.subscriptionPlanName) {
           try {
             setStoredUser({
@@ -119,7 +133,8 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
           } catch {}
         }
       } catch {
-        // ignore
+        setPurchasedCredits(getStoredPurchasedCredits(effectiveUserId));
+        setCreditsReady(true);
       }
     })();
     return () => {
@@ -388,6 +403,7 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
     setPurchasedCredits((prev) => {
       const next = prev + n;
       setStoredPurchasedCredits(userId, next);
+      setCreditsReady(true);
       // Best-effort: persist to server store for session users (cross-device).
       if (session?.user) {
         fetch("/api/customer/state", {
@@ -417,6 +433,7 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
       reservations,
       activeReservationCount,
       credits,
+      creditsReady,
       monthlyCancellationCount,
       monthlyCancellationLimit: MONTHLY_CANCELLATION_LIMIT,
       addReservation,
@@ -433,6 +450,7 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
       reservations,
       activeReservationCount,
       credits,
+      creditsReady,
       monthlyCancellationCount,
       addReservation,
       addGymReservation,

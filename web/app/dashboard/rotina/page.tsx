@@ -38,7 +38,7 @@ export default function DashboardRotinaPage() {
   const router = useRouter();
   const effectiveUserId = useEffectiveUserId();
   const userId = effectiveUserId ?? getStoredUser()?.id ?? null;
-  const { credits, reservations, addReservation, addGymReservation } = useMockReservations();
+  const { credits, creditsReady, reservations, addReservation, addGymReservation } = useMockReservations();
   const { position } = useGeolocation();
   const profileCoords = useProfileCoords();
 
@@ -297,7 +297,11 @@ export default function DashboardRotinaPage() {
                     Esta semana
                   </p>
                   <p className="mt-2 text-sm text-white/80">
-                    Saldo: <span className="text-white">{formatCredits(credits)}</span> ·{" "}
+                    Saldo:{" "}
+                    <span className="text-white">
+                      {creditsReady ? formatCredits(credits) : "—"}
+                    </span>{" "}
+                    ·{" "}
                     Planeado: <span className="text-white">{formatCredits(week?.totalCredits ?? 0)}</span> ·{" "}
                     Restante: <span className="text-white">{formatCredits(remainingAfterPlan)}</span>
                   </p>
