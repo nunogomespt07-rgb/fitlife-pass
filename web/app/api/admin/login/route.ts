@@ -4,6 +4,13 @@ import crypto from "crypto";
 const COOKIE_NAME = "fitlife_admin";
 const TTL_MS = 12 * 60 * 60 * 1000;
 
+/**
+ * DEMO ONLY:
+ * Default admin PIN for local/dev/demo so the admin backoffice is accessible
+ * without requiring environment variables. Set ADMIN_PIN in production.
+ */
+const DEFAULT_ADMIN_PIN = "1234";
+
 function getSecret() {
   return (
     process.env.ADMIN_COOKIE_SECRET ||
@@ -22,10 +29,7 @@ function base64UrlEncodeJson(obj: unknown): string {
 }
 
 export async function POST(req: Request) {
-  const pinExpected = String(process.env.ADMIN_PIN || "").trim();
-  if (!pinExpected) {
-    return NextResponse.json({ ok: false, error: "ADMIN_PIN não configurado." }, { status: 503 });
-  }
+  const pinExpected = String(process.env.ADMIN_PIN || DEFAULT_ADMIN_PIN).trim();
 
   try {
     const body = (await req.json().catch(() => null)) as { pin?: string } | null;
