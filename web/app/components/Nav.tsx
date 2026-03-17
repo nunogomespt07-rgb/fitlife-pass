@@ -58,9 +58,20 @@ export default function Nav() {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     setHasToken(!!token || !!session?.user);
     const stored = readStoredUser();
-    if (stored) {
-      setUser(stored);
-    } else if (session?.user) {
+    const sessionEmail = session?.user?.email?.trim().toLowerCase() ?? "";
+    const storedEmail = stored?.email?.trim().toLowerCase() ?? "";
+
+    // If we have an active NextAuth session, it is the source of truth.
+    // Never allow a stale stored user to override a different Google account.
+    if (session?.user) {
+      if (stored && storedEmail && sessionEmail && storedEmail !== sessionEmail) {
+        try {
+          localStorage.removeItem("fitlife-user");
+          localStorage.removeItem("token");
+        } catch {
+          // ignore
+        }
+      }
       const nameFromSession = session.user.name?.trim();
       const newUser = {
         id: (session.user as { id?: string }).id ?? (session.user.email ?? ""),
@@ -80,6 +91,8 @@ export default function Nav() {
       } catch {
         // ignore
       }
+    } else if (stored) {
+      setUser(stored);
     } else {
       setUser(null);
     }
@@ -166,7 +179,11 @@ export default function Nav() {
     "rounded-full px-4 py-2.5 text-sm font-medium tracking-tight text-white/80 transition-all duration-200 hover:text-white hover:bg-white/[0.05] focus:outline-none focus:ring-2 focus:ring-white/15 focus:ring-offset-2 focus:ring-offset-transparent";
   const navLinkActive = "bg-white/[0.08] text-white";
 
-  const displayName = getStoredUserDisplayName() || user?.name?.trim().split(/\s+/)[0] || "";
+  const displayName =
+    (session?.user?.name?.trim().split(/\s+/)[0] || "") ||
+    getStoredUserDisplayName() ||
+    user?.name?.trim().split(/\s+/)[0] ||
+    "";
   const firstName = displayName || "Utilizador";
   const avatarLetter = (firstName.charAt(0) || "U").toUpperCase();
   const planName = user?.subscriptionPlanName ?? null;

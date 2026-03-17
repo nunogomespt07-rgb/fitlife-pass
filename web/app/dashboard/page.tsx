@@ -150,7 +150,11 @@ export default function DashboardPage() {
     );
   }
 
-  const displayName = getStoredUserDisplayName() || user?.name?.trim().split(/\s+/)[0] || "";
+  const displayName =
+    (session?.user?.name?.trim().split(/\s+/)[0] || "") ||
+    getStoredUserDisplayName() ||
+    user?.name?.trim().split(/\s+/)[0] ||
+    "";
   const firstName = displayName || "tu";
   const hasPlan = Boolean(getStoredUser()?.subscriptionPlanId);
 
@@ -183,11 +187,7 @@ export default function DashboardPage() {
             </Link>
           </div>
           <p className="mt-2 text-sm text-white/75">ou <Link href="/dashboard/reservas" className="font-medium text-white/90 underline-offset-2 hover:underline">ver as minhas reservas</Link></p>
-          <p className="mt-2 text-sm text-white/75">
-            <Link href="/backoffice" className="font-medium text-white/90 underline-offset-2 hover:underline">
-              Backoffice
-            </Link>
-          </p>
+          {/* Backoffice links must not appear in customer dashboard */}
         </div>
 
         {/* Resumo principal */}

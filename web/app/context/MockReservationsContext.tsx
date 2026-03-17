@@ -70,13 +70,14 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
   const [purchasedCredits, setPurchasedCredits] = useState(0);
 
   const effectiveUserId = useMemo(() => {
-    const stored = getStoredUser();
     const sessionUser = session?.user;
     const sessionUserId =
       sessionUser != null
         ? (sessionUser as { id?: string }).id ?? (sessionUser.email ?? null)
         : null;
-    return stored?.id ?? sessionUserId ?? null;
+    if (sessionUserId) return sessionUserId;
+    const stored = getStoredUser();
+    return stored?.id ?? null;
   }, [session]);
 
   useEffect(() => {
