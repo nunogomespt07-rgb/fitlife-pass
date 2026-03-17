@@ -83,6 +83,8 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
     return stored?.id ?? null;
   }, [session]);
 
+  const isAuthenticated = !!session?.user;
+
   useEffect(() => {
     let list = getStoredUnifiedReservations(effectiveUserId);
     const now = new Date();
@@ -94,48 +96,48 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
     }
     setReservations(list);
     // STRICT: authenticated users — credits ONLY from API. Never read from localStorage when session exists or is loading.
-    if (!session?.user) {
+    if (!isAuthenticated) {
       // Only read from localStorage when we know user is unauthenticated (avoid overwriting before session loads).
       if (sessionStatus === "unauthenticated") {
         const next = getStoredPurchasedCredits(effectiveUserId);
         setPurchasedCredits((prev) => {
-          console.log("[credits write]", { source: "bootstrap(pathname/effectiveUserId)", session: !!session?.user, prev, next });
+          console.log("[credits write]", { source: "bootstrap(pathname/effectiveUserId)", session: isAuthenticated, prev, next });
           return next;
         });
       }
       if (sessionStatus === "unauthenticated") setCreditsReady(true);
     }
-  }, [pathname, effectiveUserId, session?.user, sessionStatus]);
+  }, [pathname, effectiveUserId, isAuthenticated, sessionStatus]);
 
   // Cross-device demo persistence: when user has a NextAuth session, hydrate credits/plan from server store.
   // SINGLE WRITER for authenticated users: only the success path below may set purchasedCredits.
   useEffect(() => {
-    if (!session?.user) return;
+    if (!isAuthenticated) return;
     let cancelled = false;
-    console.log("[credits write] /api/customer/state request start", { session: !!session?.user });
+    console.log("[credits write] /api/customer/state request start", { session: isAuthenticated });
     (async () => {
       try {
         const res = await fetch("/api/customer/state", { cache: "no-store" });
         if (!res.ok) {
           // Do NOT write credits for authenticated users on API failure; preserve previous state.
-          console.warn("[credits write] /api/customer/state !res.ok", { status: res.status, session: !!session?.user });
+          console.warn("[credits write] /api/customer/state !res.ok", { status: res.status, session: isAuthenticated });
           setCreditsReady(true);
           return;
         }
         const data = (await res.json().catch(() => null)) as
           | { purchasedCredits?: number; subscriptionPlanId?: string | null; subscriptionPlanName?: string | null }
           | null;
-        console.log("[credits write] /api/customer/state response payload", { data, cancelled, session: !!session?.user });
+        console.log("[credits write] /api/customer/state response payload", { data, cancelled, session: isAuthenticated });
         if (!data || cancelled) return;
         if (typeof data.purchasedCredits === "number" && Number.isFinite(data.purchasedCredits)) {
           const next = Math.max(0, Math.floor(data.purchasedCredits));
           setPurchasedCredits((prev) => {
-            console.log("[credits write]", { source: "api/customer/state success", session: !!session?.user, prev, next });
+            console.log("[credits write]", { source: "api/customer/state success", session: isAuthenticated, prev, next });
             return next;
           });
           // Keep local compatibility in sync for pages reading local storage.
           setStoredPurchasedCredits(effectiveUserId, next);
-          console.log("[credits write] final credits after hydration", { next, session: !!session?.user });
+          console.log("[credits write] final credits after hydration", { next, session: isAuthenticated });
         }
         setCreditsReady(true);
         if (data.subscriptionPlanId || data.subscriptionPlanName) {
@@ -155,17 +157,17 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
     return () => {
       cancelled = true;
     };
-  }, [session, effectiveUserId]);
+  }, [isAuthenticated, effectiveUserId]);
 
-  // Persist credits to storage only when NOT authenticated. STRICT: never call getStoredPurchasedCredits when session?.user exists.
+  // Persist credits to storage only when NOT authenticated. STRICT: never call getStoredPurchasedCredits when authenticated.
   useEffect(() => {
-    if (session?.user) return;
+    if (isAuthenticated) return;
     if (!effectiveUserId) return;
     const currentStored = getStoredPurchasedCredits(effectiveUserId);
     if (typeof purchasedCredits === "number" && purchasedCredits >= 0 && currentStored !== purchasedCredits) {
       setStoredPurchasedCredits(effectiveUserId, purchasedCredits);
     }
-  }, [effectiveUserId, purchasedCredits, session?.user]);
+  }, [effectiveUserId, purchasedCredits, isAuthenticated]);
 
   const activeReservationCount = useMemo(
     () => getActiveReservationCount(reservations),
@@ -404,18 +406,15 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
   }, [effectiveUserId]);
 
   const addPurchasedCredits = useCallback((amount: number, reason?: string) => {
-    const userId =
-      effectiveUserId ??
-      getStoredUser()?.id ??
-      (session?.user?.email ? String(session.user.email).trim().toLowerCase() : null);
+    const userId = effectiveUserId ?? getStoredUser()?.id ?? null;
     const n = Math.max(0, Math.floor(amount));
     setPurchasedCredits((prev) => {
       const next = prev + n;
-      console.log("[credits write]", { source: "addPurchasedCredits", session: !!session?.user, prev, next });
+      console.log("[credits write]", { source: "addPurchasedCredits", session: isAuthenticated, prev, next });
       setStoredPurchasedCredits(userId, next);
       setCreditsReady(true);
       // Best-effort: persist to server store for session users (cross-device).
-      if (session?.user) {
+      if (isAuthenticated) {
         fetch("/api/customer/state", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -434,7 +433,7 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
         creditActivity.showToast("Créditos adicionados", `+${n} créditos`);
       }
     }
-  }, [effectiveUserId, creditActivity, session]);
+  }, [effectiveUserId, creditActivity, isAuthenticated]);
 
   const monthlyCancellationCount = getMonthlyCancellationCount(effectiveUserId);
 
