@@ -183,6 +183,11 @@ export default function DashboardPage() {
             </Link>
           </div>
           <p className="mt-2 text-sm text-white/75">ou <Link href="/dashboard/reservas" className="font-medium text-white/90 underline-offset-2 hover:underline">ver as minhas reservas</Link></p>
+          <p className="mt-2 text-sm text-white/75">
+            <Link href="/backoffice" className="font-medium text-white/90 underline-offset-2 hover:underline">
+              Backoffice
+            </Link>
+          </p>
         </div>
 
         {/* Resumo principal */}

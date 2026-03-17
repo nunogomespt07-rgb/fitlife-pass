@@ -1007,6 +1007,26 @@ const ACTIVITY_SLOTS_BY_PARTNER: Record<string, ActivitySlot[]> = {
 
 /** Generate activities for today and the next 7 days. */
 export function getMockActivitiesForPartner(partnerId: string): MockActivity[] {
+  // Public source of truth (configured in Partner Backoffice). Falls back to legacy mock slots if absent.
+  try {
+    // Lazy import to avoid circular deps in module load.
+    const { getPublicSessionsForPartnerRange, publicSessionsToMockActivities } =
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      require("@/lib/publicAvailability") as typeof import("@/lib/publicAvailability");
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const minISO = today.toISOString().slice(0, 10);
+    const max = new Date(today);
+    max.setDate(max.getDate() + 7);
+    const maxISO = max.toISOString().slice(0, 10);
+    const sessions = getPublicSessionsForPartnerRange({ partnerId, minISO, maxISO });
+    if (Array.isArray(sessions) && sessions.length > 0) {
+      return publicSessionsToMockActivities(sessions);
+    }
+  } catch {
+    // ignore; use legacy mocks
+  }
+
   const slots = ACTIVITY_SLOTS_BY_PARTNER[partnerId];
   if (!slots || slots.length === 0) return [];
   const activities: MockActivity[] = [];

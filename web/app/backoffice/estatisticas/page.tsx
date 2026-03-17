@@ -1,0 +1,115 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import GlassCard from "@/app/components/ui/GlassCard";
+import { getAllPartnersWithCategory } from "@/lib/activitiesData";
+import {
+  getPartnerReservationsForCurrentUser,
+} from "@/lib/backoffice";
+import { getCurrentBackofficePartnerId, migrateLegacySelectedPartner } from "@/lib/backofficePartner";
+
+function currentMonthKey(now: Date = new Date()): string {
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  return `${y}-${m}`;
+}
+
+function isInMonth(dateISO: string, monthKey: string): boolean {
+  return dateISO.slice(0, 7) === monthKey;
+}
+
+export default function BackofficeEstatisticasPage() {
+  const partners = useMemo(() => getAllPartnersWithCategory(), []);
+  const [partnerId, setPartnerId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const pid = getCurrentBackofficePartnerId() ?? migrateLegacySelectedPartner();
+    setPartnerId(pid);
+  }, [partners]);
+
+  const monthKey = currentMonthKey();
+  const monthReservations = useMemo(() => {
+    if (!partnerId) return [];
+    return getPartnerReservationsForCurrentUser(partnerId).filter((r) => isInMonth(r.date, monthKey));
+  }, [partnerId, monthKey]);
+
+  const confirmed = monthReservations.filter((r) => r.status === "confirmed" || r.status === "completed");
+  const totalReservations = confirmed.length;
+  const totalCredits = confirmed.reduce((sum, r) => sum + (r.creditsUsed > 0 ? r.creditsUsed : 0), 0);
+
+  const byActivity = useMemo(() => {
+    const map = new Map<string, { label: string; count: number; credits: number }>();
+    for (const r of confirmed) {
+      const label = r.type === "gym" ? "Acesso" : (r.activityTitle ?? r.partnerName);
+      const existing = map.get(label) ?? { label, count: 0, credits: 0 };
+      existing.count += 1;
+      existing.credits += r.creditsUsed > 0 ? r.creditsUsed : 0;
+      map.set(label, existing);
+    }
+    return [...map.values()].sort((a, b) => b.count - a.count);
+  }, [confirmed]);
+
+  const top = byActivity[0]?.label ?? "—";
+
+  return (
+    <div>
+      <GlassCard variant="app" padding="lg" className="border-white/10">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-white/60">
+              Estatísticas
+            </p>
+            <p className="mt-2 text-sm text-white/70">
+              Performance do mês (demo) com base nas reservas do utilizador atual.
+            </p>
+          </div>
+        </div>
+      </GlassCard>
+
+      <div className="mt-6 grid gap-4 sm:grid-cols-4">
+        <GlassCard variant="app" padding="md" className="border-white/10">
+          <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Reservas</p>
+          <p className="mt-2 text-2xl font-semibold text-white">{totalReservations}</p>
+        </GlassCard>
+        <GlassCard variant="app" padding="md" className="border-white/10">
+          <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Créditos consumidos</p>
+          <p className="mt-2 text-2xl font-semibold text-white">{totalCredits}</p>
+        </GlassCard>
+        <GlassCard variant="app" padding="md" className="border-white/10">
+          <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Sessão mais popular</p>
+          <p className="mt-2 text-sm font-semibold text-white truncate">{top}</p>
+        </GlassCard>
+        <GlassCard variant="app" padding="md" className="border-white/10">
+          <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Ocupação</p>
+          <p className="mt-2 text-2xl font-semibold text-white">—</p>
+          <p className="mt-1 text-xs text-white/60">MVP: capacity/slots vem da Agenda</p>
+        </GlassCard>
+      </div>
+
+      <GlassCard variant="app" padding="lg" className="mt-6 border-white/10">
+        <p className="text-xs font-semibold uppercase tracking-wider text-white/60">
+          Breakdown por sessão
+        </p>
+        <div className="mt-4 space-y-2">
+          {byActivity.length === 0 ? (
+            <p className="text-sm text-white/70">Sem dados ainda.</p>
+          ) : (
+            byActivity.slice(0, 12).map((b) => (
+              <div
+                key={b.label}
+                className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-white">{b.label}</p>
+                  <p className="mt-0.5 text-xs text-white/60">{b.count} reserva(s)</p>
+                </div>
+                <p className="text-sm font-semibold text-white">{b.credits} créditos</p>
+              </div>
+            ))
+          )}
+        </div>
+      </GlassCard>
+    </div>
+  );
+}
+
