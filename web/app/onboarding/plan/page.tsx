@@ -9,6 +9,7 @@ import {
   type SubscriptionPlan,
 } from "@/lib/mockPayments";
 import { useHasCustomerAuth } from "@/app/hooks/useEffectiveUserId";
+import { setStoredUser } from "@/lib/storedUser";
 
 type StoredUser = {
   id: string;
@@ -57,34 +58,11 @@ export default function OnboardingPlanPage() {
     if (!plan) return;
     setSaving(true);
     try {
-      if (typeof window !== "undefined") {
-        const raw = localStorage.getItem("fitlife-user");
-        let base: StoredUser = {
-          id: "",
-          name: "",
-          email: "",
-          pendingPlanId: plan.id,
-          pendingPlanName: plan.planName,
-        };
-        if (raw) {
-          try {
-            const parsed = JSON.parse(raw) as Partial<StoredUser>;
-            base = {
-              id: typeof parsed.id === "string" ? parsed.id : "",
-              name: typeof parsed.name === "string" ? parsed.name : "",
-              email: typeof parsed.email === "string" ? parsed.email : "",
-              city: parsed.city ?? null,
-              subscriptionPlanId: parsed.subscriptionPlanId ?? null,
-              subscriptionPlanName: parsed.subscriptionPlanName ?? null,
-              pendingPlanId: plan.id,
-              pendingPlanName: plan.planName,
-            };
-          } catch {
-            // ignore, keep base
-          }
-        }
-        localStorage.setItem("fitlife-user", JSON.stringify(base));
-      }
+      // Merge plan selection into stored user (do not overwrite profile fields).
+      setStoredUser({
+        pendingPlanId: plan.id,
+        pendingPlanName: plan.planName,
+      });
       router.push("/dashboard");
     } finally {
       setSaving(false);

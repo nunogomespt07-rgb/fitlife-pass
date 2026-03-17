@@ -16,6 +16,10 @@ export type StoredUser = {
   address?: string | null;
   postalCode?: string | null;
   country?: string | null;
+  /** Onboarding preferences (demo/local) */
+  preferredActivities?: string[];
+  trainingFrequency?: string | null;
+  objective?: string | null;
   /** Objetivo fitness */
   fitnessGoal?: string | null;
   /** Active only after payment success. */
@@ -78,6 +82,11 @@ export function getStoredUser(): StoredUser | null {
       address: parsed.address == null ? null : String(parsed.address),
       postalCode: parsed.postalCode == null ? null : String(parsed.postalCode),
       country: parsed.country == null ? null : String(parsed.country),
+      preferredActivities: Array.isArray(parsed.preferredActivities)
+        ? (parsed.preferredActivities.map(String) as string[])
+        : undefined,
+      trainingFrequency: parsed.trainingFrequency == null ? null : String(parsed.trainingFrequency),
+      objective: parsed.objective == null ? null : String(parsed.objective),
       fitnessGoal: parsed.fitnessGoal == null ? null : String(parsed.fitnessGoal),
       subscriptionPlanId: parsed.subscriptionPlanId == null ? null : String(parsed.subscriptionPlanId),
       subscriptionPlanName: parsed.subscriptionPlanName == null ? null : String(parsed.subscriptionPlanName),
@@ -118,6 +127,11 @@ export function setStoredUser(user: Partial<StoredUser>): void {
       address: user.address !== undefined ? user.address : current?.address ?? null,
       postalCode: user.postalCode !== undefined ? user.postalCode : current?.postalCode ?? null,
       country: user.country !== undefined ? user.country : current?.country ?? null,
+      preferredActivities:
+        user.preferredActivities !== undefined ? user.preferredActivities : current?.preferredActivities,
+      trainingFrequency:
+        user.trainingFrequency !== undefined ? user.trainingFrequency : current?.trainingFrequency ?? null,
+      objective: user.objective !== undefined ? user.objective : current?.objective ?? null,
       fitnessGoal: user.fitnessGoal !== undefined ? user.fitnessGoal : current?.fitnessGoal ?? null,
       subscriptionPlanId: user.subscriptionPlanId !== undefined ? user.subscriptionPlanId : current?.subscriptionPlanId ?? null,
       subscriptionPlanName: user.subscriptionPlanName !== undefined ? user.subscriptionPlanName : current?.subscriptionPlanName ?? null,

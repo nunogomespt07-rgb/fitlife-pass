@@ -7,6 +7,7 @@ import PrimaryButton from "../../components/ui/PrimaryButton";
 import { useMockReservations } from "@/app/context/MockReservationsContext";
 import { getStoredUser, setStoredUser, StoredUser } from "@/lib/storedUser";
 import { changePassword } from "@/lib/api";
+import { COUNTRIES } from "@/lib/countries";
 
 function renderValue(value: string | null | undefined): ReactNode {
   const t = value?.trim();
@@ -16,6 +17,13 @@ function renderValue(value: string | null | undefined): ReactNode {
       {isEmpty ? "—" : t}
     </span>
   );
+}
+
+function getCountryLabel(value: string | null | undefined): string {
+  const v = value?.trim();
+  if (!v) return "";
+  const found = COUNTRIES.find((c) => c.code.toLowerCase() === v.toLowerCase());
+  return found ? found.name : v;
 }
 
 /** Build profile display from stored user only — no fake or extra keys. */
@@ -55,7 +63,7 @@ function profileFromStoredUser(user: StoredUser | null): {
     address: user.address ?? "",
     city: user.city ?? "",
     postalCode: user.postalCode ?? "",
-    country: user.country ?? "",
+    country: getCountryLabel(user.country ?? ""),
     dateOfBirth: user.dateOfBirth ?? "",
     nif: user.nif ?? "",
     fitnessGoal: user.fitnessGoal ?? "",

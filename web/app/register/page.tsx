@@ -7,16 +7,7 @@ import { signIn } from "next-auth/react";
 import GlassCard from "../components/ui/GlassCard";
 import PrimaryButton from "../components/ui/PrimaryButton";
 import { setStoredUser } from "@/lib/storedUser";
-
-const COUNTRIES: Array<{ value: string; label: string; dial: string }> = [
-  { value: "PT", label: "Portugal", dial: "+351" },
-  { value: "ES", label: "Espanha", dial: "+34" },
-  { value: "FR", label: "França", dial: "+33" },
-  { value: "GB", label: "Reino Unido", dial: "+44" },
-  { value: "DE", label: "Alemanha", dial: "+49" },
-  { value: "BR", label: "Brasil", dial: "+55" },
-  { value: "US", label: "Estados Unidos", dial: "+1" },
-];
+import { COUNTRIES } from "@/lib/countries";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -204,7 +195,7 @@ export default function RegisterPage() {
                   onChange={(e) => {
                     const next = e.target.value;
                     setCountry(next);
-                    const dial = COUNTRIES.find((c) => c.value === next)?.dial ?? "";
+                    const dial = COUNTRIES.find((c) => c.code === next)?.dial ?? "";
                     setPhone((prev) => {
                       const trimmed = prev.trim();
                       if (!trimmed) return dial ? `${dial} ` : "";
@@ -222,8 +213,8 @@ export default function RegisterPage() {
                     Selecionar país
                   </option>
                   {COUNTRIES.map((c) => (
-                    <option key={c.value} value={c.value} className="bg-slate-950">
-                      {c.label}
+                    <option key={c.code} value={c.code} className="bg-slate-950">
+                      {c.name}
                     </option>
                   ))}
                 </select>
@@ -243,7 +234,7 @@ export default function RegisterPage() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 className="w-full rounded-[20px] border border-white/10 bg-white/5 px-4 py-3 text-[16px] sm:text-sm text-white placeholder:text-white/40 outline-none transition focus:ring-2 focus:ring-white/20"
-                placeholder={country ? `${COUNTRIES.find((c) => c.value === country)?.dial ?? ""} 912 345 678` : "+351 912 345 678"}
+                placeholder={country ? `${COUNTRIES.find((c) => c.code === country)?.dial ?? ""} 912 345 678` : "+351 912 345 678"}
                 inputMode="tel"
                 autoComplete="tel"
               />

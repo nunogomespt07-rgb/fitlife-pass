@@ -6,7 +6,7 @@ import { createContext, useContext, useState, useEffect, useRef, useMemo } from 
 import { useSession, signOut } from "next-auth/react";
 import { useNotifications } from "@/app/context/NotificationsContext";
 import { useMockReservations } from "@/app/context/MockReservationsContext";
-import { getStoredUser, getStoredUserDisplayName } from "@/lib/storedUser";
+import { getStoredUser, getStoredUserDisplayName, setStoredUser } from "@/lib/storedUser";
 import { getAllPartnersWithCategory } from "@/lib/activitiesData";
 import { RESTAURANTS } from "@/lib/restaurantsData";
 
@@ -81,16 +81,17 @@ export default function Nav() {
         subscriptionPlanName: null as string | null,
       };
       setUser(newUser);
+      // IMPORTANT: never overwrite profile fields (DOB/country/phone, etc.) from a partial session.
+      // Merge identity into stored user instead of replacing the full object.
       try {
-        const payload = {
-          ...newUser,
-          image: (session.user as { image?: string }).image ?? null,
-          createdAt: new Date().toISOString(),
-        };
-        localStorage.setItem("fitlife-user", JSON.stringify(payload));
-      } catch {
-        // ignore
-      }
+        setStoredUser({
+          id: newUser.id,
+          name: newUser.name,
+          email: newUser.email,
+          subscriptionPlanId: newUser.subscriptionPlanId,
+          subscriptionPlanName: newUser.subscriptionPlanName,
+        });
+      } catch {}
     } else if (stored) {
       setUser(stored);
     } else {

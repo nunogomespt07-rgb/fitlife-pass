@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import GlassCard from "@/app/components/ui/GlassCard";
 import PrimaryButton from "@/app/components/ui/PrimaryButton";
 import { useHasCustomerAuth } from "@/app/hooks/useEffectiveUserId";
+import { setStoredUser } from "@/lib/storedUser";
 
 const ACTIVITY_OPTIONS = [
   { id: "gym", label: "Ginásio" },
@@ -78,17 +79,12 @@ export default function OnboardingPreferencesPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      if (typeof window !== "undefined") {
-        const raw = localStorage.getItem("fitlife-user");
-        const base: Partial<StoredUser> = raw ? (JSON.parse(raw) as Partial<StoredUser>) : {};
-        const updated = {
-          ...base,
-          preferredActivities: selectedActivities.length > 0 ? selectedActivities : undefined,
-          trainingFrequency: frequency || null,
-          objective: objective || null,
-        };
-        localStorage.setItem("fitlife-user", JSON.stringify(updated));
-      }
+      // Merge onboarding preferences into stored user (do not overwrite profile fields).
+      setStoredUser({
+        preferredActivities: selectedActivities.length > 0 ? selectedActivities : undefined,
+        trainingFrequency: frequency || null,
+        objective: objective || null,
+      });
       router.push("/onboarding/plan");
     } finally {
       setLoading(false);
