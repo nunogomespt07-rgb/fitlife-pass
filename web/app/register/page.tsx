@@ -74,6 +74,10 @@ export default function RegisterPage() {
         redirect: false,
       });
       if (loginResult?.ok) {
+        // iOS Safari: avoid "stuck zoom" by blurring focused inputs before navigation.
+        try {
+          (document.activeElement as HTMLElement | null)?.blur?.();
+        } catch {}
         router.push("/dashboard");
         return;
       }
@@ -113,7 +117,7 @@ export default function RegisterPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="w-full rounded-[20px] border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/40 outline-none transition focus:ring-2 focus:ring-white/20"
+                className="w-full rounded-[20px] border border-white/10 bg-white/5 px-4 py-3 text-[16px] sm:text-sm text-white placeholder:text-white/40 outline-none transition focus:ring-2 focus:ring-white/20"
                 placeholder="O teu nome"
               />
             </div>
@@ -127,7 +131,7 @@ export default function RegisterPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full rounded-[20px] border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/40 outline-none transition focus:ring-2 focus:ring-white/20"
+                className="w-full rounded-[20px] border border-white/10 bg-white/5 px-4 py-3 text-[16px] sm:text-sm text-white placeholder:text-white/40 outline-none transition focus:ring-2 focus:ring-white/20"
                 placeholder="o-teu@email.com"
               />
             </div>
@@ -141,7 +145,7 @@ export default function RegisterPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full rounded-[20px] border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/40 outline-none transition focus:ring-2 focus:ring-white/20"
+                className="w-full rounded-[20px] border border-white/10 bg-white/5 px-4 py-3 text-[16px] sm:text-sm text-white placeholder:text-white/40 outline-none transition focus:ring-2 focus:ring-white/20"
                 placeholder="••••••••"
               />
             </div>
@@ -158,7 +162,7 @@ export default function RegisterPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                className="w-full rounded-[20px] border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/40 outline-none transition focus:ring-2 focus:ring-white/20"
+                className="w-full rounded-[20px] border border-white/10 bg-white/5 px-4 py-3 text-[16px] sm:text-sm text-white placeholder:text-white/40 outline-none transition focus:ring-2 focus:ring-white/20"
                 placeholder="••••••••"
               />
             </div>

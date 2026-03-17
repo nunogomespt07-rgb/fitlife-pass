@@ -219,6 +219,10 @@ export default function PremiumAuthCard({ desktopWider, mode = "landing" }: Prem
         redirect: false,
       });
       if (loginResult?.ok) {
+        // iOS Safari: avoid "stuck zoom" by blurring focused inputs before navigation.
+        try {
+          (document.activeElement as HTMLElement | null)?.blur?.();
+        } catch {}
         // keep demo stored user for non-NextAuth parts
         try {
           setStoredUser({
@@ -250,10 +254,10 @@ export default function PremiumAuthCard({ desktopWider, mode = "landing" }: Prem
   }
 
   const inputBase =
-    "w-full h-12 rounded-xl border border-[var(--ref-glass-border)] bg-white/[0.06] px-4 text-[15px] text-white placeholder:text-white/35 outline-none transition-all duration-200 focus:ring-2 focus:ring-blue-400/50 focus:ring-offset-0 focus:border-blue-400/60";
+    "w-full h-12 rounded-xl border border-[var(--ref-glass-border)] bg-white/[0.06] px-4 text-[16px] sm:text-[15px] text-white placeholder:text-white/35 outline-none transition-all duration-200 focus:ring-2 focus:ring-blue-400/50 focus:ring-offset-0 focus:border-blue-400/60";
   const inputError = "border-amber-400/50 focus:ring-amber-400/40 focus:border-amber-400/60";
   const selectBase =
-    "w-full h-12 rounded-xl border border-[var(--ref-glass-border)] bg-white/[0.06] px-4 pr-10 text-[15px] text-white outline-none transition-all duration-200 focus:ring-2 focus:ring-blue-400/50 focus:border-blue-400/60 appearance-none";
+    "w-full h-12 rounded-xl border border-[var(--ref-glass-border)] bg-white/[0.06] px-4 pr-10 text-[16px] sm:text-[15px] text-white outline-none transition-all duration-200 focus:ring-2 focus:ring-blue-400/50 focus:border-blue-400/60 appearance-none";
 
   const EyeIcon = ({ show }: { show: boolean }) =>
     show ? (
@@ -373,7 +377,11 @@ export default function PremiumAuthCard({ desktopWider, mode = "landing" }: Prem
   }
 
   return (
-    <div className={`glass-dark w-full max-w-[340px] rounded-[var(--radius-card)] p-5 shadow-[var(--shadow-glass)] sm:max-w-[360px] sm:p-6 ${desktopWider ? "lg:max-w-none lg:px-6 lg:py-6" : ""}`}>
+    <div
+      className={`glass-dark w-full min-w-0 overflow-hidden rounded-[var(--radius-card)] p-5 shadow-[var(--shadow-glass)] sm:p-6 ${
+        desktopWider ? "lg:max-w-none lg:px-6 lg:py-6" : ""
+      }`}
+    >
       <div className="mt-0.5">
         <div className="flex items-center justify-between">
           {mode === "landing" && screen === "email" ? (
@@ -405,7 +413,7 @@ export default function PremiumAuthCard({ desktopWider, mode = "landing" }: Prem
                 onClick={() => {
                   router.push("/auth");
                 }}
-                className="primary-auth-button w-full h-12 rounded-xl text-[15px] py-4 lg:landing-primary-cta"
+                className="primary-auth-button w-full h-12 rounded-xl text-[16px] sm:text-[15px] py-4 lg:landing-primary-cta"
               >
                 Continuar com e-mail
               </PrimaryButton>
