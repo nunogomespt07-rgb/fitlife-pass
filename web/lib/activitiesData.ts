@@ -32,6 +32,8 @@ export type Partner = {
   fitlifePassHours?: string;
   /** For gym_access: credits per entry (default 1) */
   creditsPerEntry?: number;
+  /** Demo-only: admin-controlled visibility/active state */
+  isActive?: boolean;
 };
 
 export const CATEGORY_PARTNERS: Record<
@@ -1058,11 +1060,13 @@ export function getPartnerBySlugAndId(
   slug: string,
   partnerId: string
 ): { categoryLabel: string; partner: Partner } | null {
-  const category = CATEGORY_PARTNERS[slug];
-  if (!category) return null;
-  const partner = category.partners.find((p) => p.id === partnerId);
-  if (!partner) return null;
-  return { categoryLabel: category.label, partner };
+  // Use unified partner list (includes admin overrides/additions, respects isActive)
+  const all = getAllPartnersWithCategory();
+  const p = all.find((x) => x.id === partnerId && x.categorySlug === slug) ?? null;
+  if (!p) return null;
+  // Return shape compatible with existing callers
+  const { categoryLabel, ...partner } = p;
+  return { categoryLabel, partner };
 }
 
 /** Demo: simulated user location (Lisbon). */
@@ -1099,17 +1103,39 @@ export type PartnerWithCategory = Partner & { categorySlug: string; categoryLabe
 
 /** All partners with their category slug and label (for nearby discovery). */
 export function getAllPartnersWithCategory(): PartnerWithCategory[] {
-  const result: PartnerWithCategory[] = [];
+  const base: PartnerWithCategory[] = [];
   for (const [slug, data] of Object.entries(CATEGORY_PARTNERS)) {
     for (const partner of data.partners) {
-      result.push({
+      base.push({
         ...partner,
         categorySlug: slug,
         categoryLabel: data.label,
       });
     }
   }
-  return result;
+
+  // Admin demo overrides/additions (client-side only)
+  let admin: PartnerWithCategory[] = [];
+  if (typeof window !== "undefined") {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const mod = require("@/lib/adminPartners") as typeof import("@/lib/adminPartners");
+      const records = mod.listAdminPartners();
+      admin = records.map((r) => ({
+        ...r,
+        categorySlug: r.categorySlug,
+        categoryLabel: r.categoryLabel,
+      }));
+    } catch {
+      // ignore
+    }
+  }
+
+  const byId = new Map<string, PartnerWithCategory>();
+  for (const p of base) byId.set(p.id, p);
+  for (const p of admin) byId.set(p.id, p);
+
+  return [...byId.values()].filter((p) => p.isActive !== false);
 }
 
 export type GetPartnersNearbyOptions = {

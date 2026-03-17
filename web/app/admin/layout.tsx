@@ -2,7 +2,8 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const navItems: { href: string; label: string }[] = [
   { href: "/admin", label: "Visão geral" },
@@ -11,7 +12,36 @@ const navItems: { href: string; label: string }[] = [
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const isActive = (href: string) => (href === "/admin" ? pathname === href : pathname.startsWith(href));
+
+  // Login route must not show authenticated admin chrome.
+  if (pathname.startsWith("/admin/login")) {
+    return <>{children}</>;
+  }
+
+  const [authed, setAuthed] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/admin/session", { method: "GET" });
+        setAuthed(res.ok);
+        if (!res.ok) {
+          const next = pathname;
+          router.replace(`/admin/login?next=${encodeURIComponent(next)}`);
+        }
+      } catch {
+        setAuthed(false);
+        const next = pathname;
+        router.replace(`/admin/login?next=${encodeURIComponent(next)}`);
+      }
+    })();
+  }, [pathname, router]);
+
+  if (authed === false) {
+    return <>{children}</>;
+  }
 
   return (
     <div className="page-bg page-bg-dashboard text-white font-sans min-h-screen">
@@ -46,7 +76,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               type="button"
               onClick={() => {
                 fetch("/api/admin/logout", { method: "POST" }).catch(() => {});
-                window.location.assign("/admin/login");
+                router.replace("/admin/login");
               }}
               className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/8 hover:border-white/20"
             >
