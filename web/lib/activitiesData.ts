@@ -508,6 +508,51 @@ export const CATEGORY_PARTNERS: Record<
         longitude: -8.6748,
         googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=41.1518,-8.6748",
       },
+      {
+        id: "pt-lisboa-strength",
+        name: "PT Lisboa Strength",
+        imageSrc: "/images/fitness-hero.jpg",
+        location: "Lisboa · Saldanha",
+        description: "Sessões premium com foco em força e hipertrofia.",
+        activitiesCount: 6,
+        minCredits: 12,
+        partnerType: "class_booking",
+        address: "Av. da República 38",
+        city: "Lisboa",
+        latitude: 38.7349,
+        longitude: -9.1456,
+        googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=38.7349,-9.1456",
+      },
+      {
+        id: "pt-porto-mobility",
+        name: "PT Porto Mobility",
+        imageSrc: "/images/fitness-hero.jpg",
+        location: "Porto · Boavista",
+        description: "Treino personalizado para mobilidade, core e postura.",
+        activitiesCount: 6,
+        minCredits: 12,
+        partnerType: "class_booking",
+        address: "Rua da Boavista 700",
+        city: "Porto",
+        latitude: 41.1592,
+        longitude: -8.6469,
+        googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=41.1592,-8.6469",
+      },
+      {
+        id: "pt-lisboa-performance",
+        name: "PT Lisboa Performance",
+        imageSrc: "/images/fitness-hero.jpg",
+        location: "Lisboa · Alcântara",
+        description: "Performance e preparação física com treinador dedicado.",
+        activitiesCount: 6,
+        minCredits: 12,
+        partnerType: "class_booking",
+        address: "Rua da Cozinha Económica 20",
+        city: "Lisboa",
+        latitude: 38.7021,
+        longitude: -9.1778,
+        googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=38.7021,-9.1778",
+      },
     ],
   },
   crossfit: {
@@ -659,9 +704,12 @@ export type MockActivity = {
   trainer?: {
     name: string;
     avatarSrc?: string;
+    specialties: string[];
     certifications?: string[];
-    specialty?: string;
-    zone?: string;
+    experienceYears?: number;
+    /** Display location for the trainer/session. */
+    location: string;
+    bio?: string;
   };
 };
 
@@ -787,9 +835,11 @@ const ACTIVITY_SLOTS_BY_PARTNER: Record<string, ActivitySlot[]> = {
       trainer: {
         name: "Miguel Santos",
         avatarSrc: "/images/trainer-miguel.jpg",
+        specialties: ["Força", "Recomposição corporal", "Treino funcional"],
         certifications: ["NSCA-CPT", "Treino funcional"],
-        specialty: "Força e recomposição corporal",
-        zone: "Lisboa",
+        experienceYears: 8,
+        location: "Lisboa · Parque das Nações",
+        bio: "Foco em força, técnica e consistência. Sessões personalizadas ao teu nível.",
       },
     },
     {
@@ -803,9 +853,11 @@ const ACTIVITY_SLOTS_BY_PARTNER: Record<string, ActivitySlot[]> = {
       trainer: {
         name: "Miguel Santos",
         avatarSrc: "/images/trainer-miguel.jpg",
+        specialties: ["Força", "Recomposição corporal", "Treino funcional"],
         certifications: ["NSCA-CPT", "Treino funcional"],
-        specialty: "Força e recomposição corporal",
-        zone: "Lisboa",
+        experienceYears: 8,
+        location: "Lisboa · Parque das Nações",
+        bio: "Foco em força, técnica e consistência. Sessões personalizadas ao teu nível.",
       },
     },
   ],
@@ -821,9 +873,71 @@ const ACTIVITY_SLOTS_BY_PARTNER: Record<string, ActivitySlot[]> = {
       trainer: {
         name: "Inês Ribeiro",
         avatarSrc: "/images/trainer-ines.jpg",
+        specialties: ["Performance", "Mobilidade", "Preparação física"],
         certifications: ["CrossFit L1", "Mobilidade"],
-        specialty: "Performance e mobilidade",
-        zone: "Porto",
+        experienceYears: 6,
+        location: "Porto · Foz",
+        bio: "Sessões orientadas para performance com atenção à mobilidade e prevenção de lesões.",
+      },
+    },
+  ],
+  "pt-lisboa-strength": [
+    {
+      title: "Personal training 60'",
+      time: "08:00",
+      durationMinutes: 60,
+      credits: 15,
+      spots: 4,
+      location: "Lisboa · Saldanha",
+      peakLabel: "Premium",
+      trainer: {
+        name: "Carolina Matos",
+        avatarSrc: "/images/trainer-carolina.jpg",
+        specialties: ["Força", "Hipertrofia", "Técnica de levantamento"],
+        certifications: ["NASM-CPT"],
+        experienceYears: 7,
+        location: "Lisboa · Saldanha",
+        bio: "Treino de força com progressão inteligente. Ideal para ganhar massa e melhorar técnica.",
+      },
+    },
+  ],
+  "pt-porto-mobility": [
+    {
+      title: "Personal training 45'",
+      time: "18:00",
+      durationMinutes: 45,
+      credits: 12,
+      spots: 4,
+      location: "Porto · Boavista",
+      peakLabel: "Premium",
+      trainer: {
+        name: "João Ferreira",
+        avatarSrc: "/images/trainer-joao.jpg",
+        specialties: ["Mobilidade", "Core", "Postura"],
+        certifications: ["FMS", "Mobilidade"],
+        experienceYears: 5,
+        location: "Porto · Boavista",
+        bio: "Sessões para melhorar mobilidade, postura e estabilidade. Excelente complemento ao treino.",
+      },
+    },
+  ],
+  "pt-lisboa-performance": [
+    {
+      title: "Personal training 60'",
+      time: "19:30",
+      durationMinutes: 60,
+      credits: 15,
+      spots: 4,
+      location: "Lisboa · Alcântara",
+      peakLabel: "Premium",
+      trainer: {
+        name: "Rui Almeida",
+        avatarSrc: "/images/trainer-rui.jpg",
+        specialties: ["Performance", "Resistência", "Treino funcional"],
+        certifications: ["Strength & Conditioning"],
+        experienceYears: 9,
+        location: "Lisboa · Alcântara",
+        bio: "Planeamento de treino e performance para quem quer evoluir rápido com consistência.",
       },
     },
   ],

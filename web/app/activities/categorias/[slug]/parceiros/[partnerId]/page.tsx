@@ -269,6 +269,7 @@ export default function PartnerActivitiesPage() {
               initialActivities.map((act) => {
                 const reservedCount = countReservationsForActivity(partnerId, act.id);
                 const availableSpots = Math.max(0, act.spots - reservedCount);
+                const isPersonalTraining = slug === "personal-training" && !!act.trainer?.name;
                 return (
                 <GlassCard
                   key={act.id}
@@ -278,7 +279,14 @@ export default function PartnerActivitiesPage() {
                 >
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <h3 className="font-semibold text-white">{act.title}</h3>
+                      <h3 className="font-semibold text-white">
+                        {isPersonalTraining ? act.trainer!.name : act.title}
+                      </h3>
+                      {isPersonalTraining && (
+                        <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-white/60">
+                          Personal Trainer
+                        </p>
+                      )}
                       <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/75">
                         <li>{act.date}</li>
                         <li>{act.time}</li>
@@ -295,6 +303,18 @@ export default function PartnerActivitiesPage() {
                           <li className="text-white/65">{act.location}</li>
                         )}
                       </ul>
+                      {isPersonalTraining && act.trainer!.specialties.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {act.trainer!.specialties.slice(0, 3).map((s) => (
+                            <span
+                              key={s}
+                              className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-medium text-white/80"
+                            >
+                              {s}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     <div className="flex shrink-0 flex-wrap items-center gap-3">
                       <PrimaryButton

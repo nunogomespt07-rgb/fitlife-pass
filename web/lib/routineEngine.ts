@@ -30,7 +30,7 @@ export type RoutineSessionCandidate = {
   time: string; // HH:MM
   credits: number;
   score: number;
-  meta?: { peakLabel?: string };
+  meta?: { peakLabel?: string; trainerName?: string; trainerSpecialties?: string[] };
 };
 
 export type RoutineWeek = {
@@ -220,7 +220,14 @@ function candidateFromMockActivity(
     time: act.time,
     credits: act.credits,
     score: 0,
-    meta: peakLabel ? { peakLabel } : undefined,
+    meta:
+      peakLabel || act.trainer?.name
+        ? {
+            ...(peakLabel ? { peakLabel } : {}),
+            ...(act.trainer?.name ? { trainerName: act.trainer.name } : {}),
+            ...(act.trainer?.specialties ? { trainerSpecialties: act.trainer.specialties } : {}),
+          }
+        : undefined,
   };
 }
 
@@ -298,6 +305,8 @@ function scoreCandidate(
             ? "crossfit"
             : c.categorySlug === "padel"
               ? "padel"
+              : c.categorySlug === "personal-training"
+                ? "personal_training"
               : "pilates";
   score += (weights[guessedType] ?? 1) * 10;
 
@@ -342,6 +351,8 @@ export function generateRoutineWeek(params: {
   const weekStartISO = isoYMD(weekStart);
 
   const candidates = buildRoutineCandidates(prefs);
+  const ptCap = prefs.weeklyFrequency >= 4 ? 2 : 1;
+  let ptSelected = 0;
 
   const desiredWeekdays = targetWeekdays(prefs.weeklyFrequency);
   const usedPartnerIds = new Set<string>();
@@ -363,7 +374,10 @@ export function generateRoutineWeek(params: {
           ? true
           : prefs.preferredTimeSlots.some((s) => slotMatches(s, c.time));
         let score = 0;
-        if (inTargetWeek && matchesDay && creditOk) {
+        const isPT = c.categorySlug === "personal-training";
+        if (isPT && ptSelected >= ptCap) {
+          score = -9999;
+        } else if (inTargetWeek && matchesDay && creditOk) {
           score = scoreCandidate(c, prefs, prefs.preferredTimeSlots, usedPartnerIds, usedTitles, userCoords);
           if (!slotOk) score -= 12;
         } else {
@@ -382,6 +396,7 @@ export function generateRoutineWeek(params: {
     remaining -= chosen.credits;
     usedPartnerIds.add(chosen.partnerId);
     usedTitles.add(chosen.activityTitle);
+    if (chosen.categorySlug === "personal-training") ptSelected += 1;
   }
 
   // If we couldn't fill, relax: pick best alternatives in the week ignoring weekday match.
@@ -394,6 +409,7 @@ export function generateRoutineWeek(params: {
           c.dateISO >= weekStartISO &&
           c.dateISO < isoYMD(new Date(weekStart.getTime() + 7 * 86400000))
       )
+      .filter((c) => !(c.categorySlug === "personal-training" && ptSelected >= ptCap))
       .filter((c) => !selected.some((s) => s.dateISO === c.dateISO && s.time === c.time))
       .map((c) => ({
         c,
@@ -410,6 +426,7 @@ export function generateRoutineWeek(params: {
       remaining -= chosen.credits;
       usedPartnerIds.add(chosen.partnerId);
       usedTitles.add(chosen.activityTitle);
+      if (chosen.categorySlug === "personal-training") ptSelected += 1;
       if (selected.length >= prefs.weeklyFrequency) break;
     }
   }
@@ -423,7 +440,11 @@ export function generateRoutineWeek(params: {
 }
 
 export function getSessionDisplayTitle(s: RoutineSessionCandidate): string {
-  return s.kind === "gym" ? "Ginásio" : s.activityTitle;
+  if (s.kind === "gym") return "Ginásio";
+  if (s.categorySlug === "personal-training" && s.meta?.trainerName) {
+    return s.meta.trainerName;
+  }
+  return s.activityTitle;
 }
 
 export function getSessionDisplaySubtitle(s: RoutineSessionCandidate): string {

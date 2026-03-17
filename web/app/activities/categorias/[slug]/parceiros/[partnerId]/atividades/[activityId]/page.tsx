@@ -173,10 +173,26 @@ export default function ActivityDetailPage() {
                   <dd className="font-medium text-white">{activity.trainer.name}</dd>
                 </div>
               )}
-              {activity.trainer?.specialty && (
+              {activity.trainer?.specialties && activity.trainer.specialties.length > 0 && (
                 <div className="flex justify-between gap-4">
-                  <dt className="text-white/60">Especialidade</dt>
-                  <dd className="font-medium text-white">{activity.trainer.specialty}</dd>
+                  <dt className="text-white/60">Especialidades</dt>
+                  <dd className="font-medium text-white">
+                    {activity.trainer.specialties.join(", ")}
+                  </dd>
+                </div>
+              )}
+              {activity.trainer?.experienceYears != null && (
+                <div className="flex justify-between gap-4">
+                  <dt className="text-white/60">Experiência</dt>
+                  <dd className="font-medium text-white">
+                    {activity.trainer.experienceYears} ano{activity.trainer.experienceYears !== 1 ? "s" : ""}
+                  </dd>
+                </div>
+              )}
+              {activity.trainer?.location && (
+                <div className="flex justify-between gap-4">
+                  <dt className="text-white/60">Zona</dt>
+                  <dd className="font-medium text-white">{activity.trainer.location}</dd>
                 </div>
               )}
               {activity.trainer?.certifications && activity.trainer.certifications.length > 0 && (
@@ -185,6 +201,12 @@ export default function ActivityDetailPage() {
                   <dd className="font-medium text-white">
                     {activity.trainer.certifications.join(", ")}
                   </dd>
+                </div>
+              )}
+              {activity.trainer?.bio && (
+                <div className="flex justify-between gap-4">
+                  <dt className="text-white/60">Sobre</dt>
+                  <dd className="font-medium text-white">{activity.trainer.bio}</dd>
                 </div>
               )}
             </dl>
