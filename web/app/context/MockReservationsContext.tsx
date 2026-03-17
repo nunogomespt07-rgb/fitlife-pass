@@ -67,7 +67,7 @@ function todayYMD(): string {
 
 export function MockReservationsProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const { data: session, status: sessionStatus } = useSession();
   const creditActivity = useCreditActivity();
   const [reservations, setReservations] = useState<UnifiedReservation[]>([]);
   const [purchasedCredits, setPurchasedCredits] = useState(0);
@@ -93,35 +93,49 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
       list = withNoShow;
     }
     setReservations(list);
-    // For session users, credits are hydrated from server store to ensure cross-device consistency.
-    // Avoid bootstrapping from localStorage (often 0) which can momentarily overwrite valid state.
+    // STRICT: authenticated users — credits ONLY from API. Never read from localStorage when session exists or is loading.
     if (!session?.user) {
-      setPurchasedCredits(getStoredPurchasedCredits(effectiveUserId));
-      setCreditsReady(true);
+      // Only read from localStorage when we know user is unauthenticated (avoid overwriting before session loads).
+      if (sessionStatus === "unauthenticated") {
+        const next = getStoredPurchasedCredits(effectiveUserId);
+        setPurchasedCredits((prev) => {
+          console.log("[credits write]", { source: "bootstrap(pathname/effectiveUserId)", session: !!session?.user, prev, next });
+          return next;
+        });
+      }
+      if (sessionStatus === "unauthenticated") setCreditsReady(true);
     }
-  }, [pathname, effectiveUserId]);
+  }, [pathname, effectiveUserId, session?.user, sessionStatus]);
 
   // Cross-device demo persistence: when user has a NextAuth session, hydrate credits/plan from server store.
+  // SINGLE WRITER for authenticated users: only the success path below may set purchasedCredits.
   useEffect(() => {
     if (!session?.user) return;
     let cancelled = false;
+    console.log("[credits write] /api/customer/state request start", { session: !!session?.user });
     (async () => {
       try {
         const res = await fetch("/api/customer/state", { cache: "no-store" });
         if (!res.ok) {
-          // Fallback to local cache (still never authoritative across devices).
-          setPurchasedCredits(getStoredPurchasedCredits(effectiveUserId));
+          // Do NOT write credits for authenticated users on API failure; preserve previous state.
+          console.warn("[credits write] /api/customer/state !res.ok", { status: res.status, session: !!session?.user });
           setCreditsReady(true);
           return;
         }
         const data = (await res.json().catch(() => null)) as
           | { purchasedCredits?: number; subscriptionPlanId?: string | null; subscriptionPlanName?: string | null }
           | null;
+        console.log("[credits write] /api/customer/state response payload", { data, cancelled, session: !!session?.user });
         if (!data || cancelled) return;
         if (typeof data.purchasedCredits === "number" && Number.isFinite(data.purchasedCredits)) {
-          setPurchasedCredits(Math.max(0, Math.floor(data.purchasedCredits)));
+          const next = Math.max(0, Math.floor(data.purchasedCredits));
+          setPurchasedCredits((prev) => {
+            console.log("[credits write]", { source: "api/customer/state success", session: !!session?.user, prev, next });
+            return next;
+          });
           // Keep local compatibility in sync for pages reading local storage.
-          setStoredPurchasedCredits(effectiveUserId, Math.max(0, Math.floor(data.purchasedCredits)));
+          setStoredPurchasedCredits(effectiveUserId, next);
+          console.log("[credits write] final credits after hydration", { next, session: !!session?.user });
         }
         setCreditsReady(true);
         if (data.subscriptionPlanId || data.subscriptionPlanName) {
@@ -132,8 +146,9 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
             });
           } catch {}
         }
-      } catch {
-        setPurchasedCredits(getStoredPurchasedCredits(effectiveUserId));
+      } catch (err) {
+        // Do NOT write credits for authenticated users on network error; preserve previous state.
+        console.error("[credits write] /api/customer/state failed", err);
         setCreditsReady(true);
       }
     })();
@@ -142,21 +157,15 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
     };
   }, [session, effectiveUserId]);
 
-  // Ensure credits written while userId was not yet available get persisted once it becomes available.
+  // Persist credits to storage only when NOT authenticated. STRICT: never call getStoredPurchasedCredits when session?.user exists.
   useEffect(() => {
+    if (session?.user) return;
     if (!effectiveUserId) return;
     const currentStored = getStoredPurchasedCredits(effectiveUserId);
     if (typeof purchasedCredits === "number" && purchasedCredits >= 0 && currentStored !== purchasedCredits) {
       setStoredPurchasedCredits(effectiveUserId, purchasedCredits);
-      if (session?.user) {
-        fetch("/api/customer/state", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ purchasedCredits }),
-        }).catch(() => {});
-      }
     }
-  }, [effectiveUserId, purchasedCredits, session]);
+  }, [effectiveUserId, purchasedCredits, session?.user]);
 
   const activeReservationCount = useMemo(
     () => getActiveReservationCount(reservations),
@@ -402,6 +411,7 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
     const n = Math.max(0, Math.floor(amount));
     setPurchasedCredits((prev) => {
       const next = prev + n;
+      console.log("[credits write]", { source: "addPurchasedCredits", session: !!session?.user, prev, next });
       setStoredPurchasedCredits(userId, next);
       setCreditsReady(true);
       // Best-effort: persist to server store for session users (cross-device).

@@ -49,13 +49,14 @@ async function writeStore(store: StoreShape): Promise<void> {
   await fs.writeFile(file, JSON.stringify(store, null, 2), "utf8");
 }
 
+/** Canonical key for authenticated users: normalized session email (lowercase). Never use body.userId when session exists. */
 async function getUserKey(req: NextRequest): Promise<string | null> {
   const token = await getToken({ req, secret: AUTH_SECRET });
   const email = typeof token?.email === "string" ? token.email.trim().toLowerCase() : "";
   const sub = typeof token?.sub === "string" ? token.sub.trim() : "";
   const userId = typeof (token as { userId?: unknown })?.userId === "string" ? String((token as { userId?: unknown }).userId).trim() : "";
-  const key = email || userId || sub;
-  return key ? `u:${key}` : null;
+  const key = email ? `u:${email}` : userId ? `u:${userId}` : sub ? `u:${sub}` : null;
+  return key;
 }
 
 export async function GET(req: NextRequest) {
@@ -64,9 +65,11 @@ export async function GET(req: NextRequest) {
 
   const store = await readStore();
   const state = store[key] ?? {};
+  const purchasedCredits = clampCredits(state.purchasedCredits) ?? 0;
+  console.log("[customer/state GET]", { key, purchasedCredits });
   return Response.json(
     {
-      purchasedCredits: clampCredits(state.purchasedCredits) ?? 0,
+      purchasedCredits,
       subscriptionPlanId: state.subscriptionPlanId ?? null,
       subscriptionPlanName: state.subscriptionPlanName ?? null,
     },
@@ -95,10 +98,12 @@ export async function POST(req: NextRequest) {
   store[key] = merged;
   await writeStore(store);
 
+  const purchasedCredits = clampCredits(merged.purchasedCredits) ?? 0;
+  console.log("[customer/state POST]", { key, purchasedCredits });
   return Response.json(
     {
       success: true,
-      purchasedCredits: clampCredits(merged.purchasedCredits) ?? 0,
+      purchasedCredits,
       subscriptionPlanId: merged.subscriptionPlanId ?? null,
       subscriptionPlanName: merged.subscriptionPlanName ?? null,
     },
