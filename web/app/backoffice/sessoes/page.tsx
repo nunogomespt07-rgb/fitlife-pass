@@ -3,14 +3,17 @@
 import { useEffect, useMemo, useState } from "react";
 import GlassCard from "@/app/components/ui/GlassCard";
 import PrimaryButton from "@/app/components/ui/PrimaryButton";
+import Calendar from "@/app/components/ui/Calendar";
 import { getAllPartnersWithCategory, getMockActivitiesForPartner } from "@/lib/activitiesData";
 import {
+  getWeekdayForDateISO,
+  startOfWeekMonday,
   getStoredWeekSchedule,
   setStoredWeekSchedule,
-  startOfWeekMonday,
   type BackofficeSession,
   type BackofficeWeekSchedule,
 } from "@/lib/backoffice";
+import { computeCreditsForSlot } from "@/lib/creditConfig";
 
 function isoYMD(d: Date): string {
   return d.toISOString().slice(0, 10);
@@ -23,18 +26,17 @@ function emptySchedule(partnerId: string, weekStartISO: string): BackofficeWeekS
 export default function BackofficeSessoesPage() {
   const partners = useMemo(() => getAllPartnersWithCategory(), []);
   const [partnerId, setPartnerId] = useState<string | null>(null);
-  const [weekStartISO] = useState(() => isoYMD(startOfWeekMonday(new Date())));
+  const [draftDateISO, setDraftDateISO] = useState(() => isoYMD(new Date()));
+  const weekStartISO = useMemo(() => isoYMD(startOfWeekMonday(new Date(draftDateISO + "T12:00:00"))), [draftDateISO]);
   const [schedule, setSchedule] = useState<BackofficeWeekSchedule | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const [draftType, setDraftType] = useState<BackofficeSession["type"]>("group_class");
   const [draftName, setDraftName] = useState<string>("");
-  const [draftWeekday, setDraftWeekday] = useState<BackofficeSession["weekday"]>("segunda");
   const [draftTime, setDraftTime] = useState("18:00");
   const [draftDuration, setDraftDuration] = useState(60);
   const [draftCapacity, setDraftCapacity] = useState(12);
   const [draftFitlifeSlots, setDraftFitlifeSlots] = useState(8);
-  const [draftCredits, setDraftCredits] = useState(8);
 
   useEffect(() => {
     (async () => {
@@ -111,7 +113,6 @@ export default function BackofficeSessoesPage() {
       setDraftDuration(60);
       setDraftCapacity(1);
       setDraftFitlifeSlots(1);
-      setDraftCredits(partner.minCredits ?? 8);
       return;
     }
 
@@ -121,7 +122,6 @@ export default function BackofficeSessoesPage() {
       setDraftDuration(60);
       setDraftCapacity(12);
       setDraftFitlifeSlots(8);
-      setDraftCredits(partner.minCredits ?? 8);
       return;
     }
 
@@ -130,7 +130,6 @@ export default function BackofficeSessoesPage() {
       setDraftDuration(60);
       setDraftCapacity(4);
       setDraftFitlifeSlots(4);
-      setDraftCredits(partner.minCredits ?? 10);
       return;
     }
 
@@ -139,7 +138,6 @@ export default function BackofficeSessoesPage() {
     setDraftDuration(180);
     setDraftCapacity(40);
     setDraftFitlifeSlots(20);
-    setDraftCredits(partner.creditsPerEntry ?? partner.minCredits ?? 6);
   }
 
   function confirmAdd() {
@@ -149,19 +147,30 @@ export default function BackofficeSessoesPage() {
     const cap = isProfessional ? 1 : Math.max(1, Math.floor(draftCapacity));
     const slots = isProfessional ? 1 : Math.max(0, Math.min(cap, Math.floor(draftFitlifeSlots)));
     const durationMinutes = Math.max(15, Math.floor(draftDuration));
-    const credits = Math.max(0, Math.floor(draftCredits));
+    const weekday = getWeekdayForDateISO(draftDateISO);
+    const serviceKey = draftName || (draftType === "professional" ? "Sessão" : "Sessão");
+    const fallbackOffPeak = partner.minCredits ?? 8;
+    const fallbackPeak = Math.max(fallbackOffPeak, fallbackOffPeak + 2);
+    const computed = computeCreditsForSlot({
+      partnerId: schedule.partnerId,
+      serviceKey,
+      dateISO: draftDateISO,
+      timeHHMM: draftTime,
+      fallbackOffPeakCredits: fallbackOffPeak,
+      fallbackPeakCredits: fallbackPeak,
+    });
 
     const base: BackofficeSession = {
       id,
       partnerId: schedule.partnerId,
       type: draftType,
       name: draftName,
-      weekday: draftWeekday,
+      weekday,
       time: draftTime,
       durationMinutes,
       capacity: cap,
       fitlifeSlots: slots,
-      credits,
+      credits: computed.credits,
       sessionLocation: partner.location,
     };
 
@@ -222,6 +231,17 @@ export default function BackofficeSessoesPage() {
                 : "Nova sessão"}
           </p>
 
+          <div className="mt-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-white/60">
+              Data
+            </p>
+            <Calendar
+              value={draftDateISO}
+              onChange={(ymd) => setDraftDateISO(ymd)}
+              className="mt-3 w-full sm:w-[360px]"
+            />
+          </div>
+
           {draftType === "group_class" ? (
             <div className="mt-4">
               <p className="text-xs font-semibold uppercase tracking-wider text-white/60">
@@ -258,22 +278,6 @@ export default function BackofficeSessoesPage() {
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Dia</p>
-              <select
-                value={draftWeekday}
-                onChange={(e) => setDraftWeekday(e.target.value as BackofficeSession["weekday"])}
-                className="mt-3 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white/90 outline-none"
-              >
-                <option value="segunda" className="bg-[#020617]">Segunda</option>
-                <option value="terca" className="bg-[#020617]">Terça</option>
-                <option value="quarta" className="bg-[#020617]">Quarta</option>
-                <option value="quinta" className="bg-[#020617]">Quinta</option>
-                <option value="sexta" className="bg-[#020617]">Sexta</option>
-                <option value="sabado" className="bg-[#020617]">Sábado</option>
-                <option value="domingo" className="bg-[#020617]">Domingo</option>
-              </select>
-            </div>
-            <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Hora</p>
               <input
                 type="time"
@@ -288,15 +292,6 @@ export default function BackofficeSessoesPage() {
                 inputMode="numeric"
                 value={draftDuration}
                 onChange={(e) => setDraftDuration(Number(e.target.value))}
-                className="mt-3 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white/90 outline-none"
-              />
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Créditos</p>
-              <input
-                inputMode="numeric"
-                value={draftCredits}
-                onChange={(e) => setDraftCredits(Number(e.target.value))}
                 className="mt-3 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white/90 outline-none"
               />
             </div>

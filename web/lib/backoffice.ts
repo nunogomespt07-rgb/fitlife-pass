@@ -1,6 +1,7 @@
 import { getStoredUnifiedReservations, type UnifiedReservation } from "@/lib/unifiedReservations";
 import { getStoredUser } from "@/lib/storedUser";
 import { setStoredPublicWeekAvailability, type PublicWeekAvailability, type PublicSession } from "@/lib/publicAvailability";
+import { computeCreditsForSlot } from "@/lib/creditConfig";
 
 export type Weekday =
   | "segunda"
@@ -225,6 +226,30 @@ export function publishWeekAvailability(schedule: BackofficeWeekSchedule): void 
         ? Math.min(1, Math.max(0, Math.floor(Number(s.fitlifeSlots ?? 1))))
         : Math.max(0, Math.floor(Number(s.fitlifeSlots ?? 0)));
 
+    const dateISO = addDays(schedule.weekStartISO, weekdayToOffset(s.weekday));
+    const serviceKey =
+      s.type === "group_class"
+        ? (s.className ?? s.name)
+        : s.type === "professional"
+          ? (s.serviceName ?? s.name)
+          : s.type === "access_window"
+            ? (s.windowName ?? s.name)
+            : (s.courtName ?? s.name);
+
+    // Credits are platform-controlled (admin). Partners do not edit arbitrary values.
+    // We compute peak/off-peak based on admin config + peak windows.
+    const fallback = Math.max(0, Math.floor(Number(s.credits ?? 0)));
+    const fallbackOffPeak = fallback > 0 ? fallback : 8;
+    const fallbackPeak = fallback > 0 ? fallback : 10;
+    const computed = computeCreditsForSlot({
+      partnerId: schedule.partnerId,
+      serviceKey,
+      dateISO,
+      timeHHMM: s.time,
+      fallbackOffPeakCredits: fallbackOffPeak,
+      fallbackPeakCredits: fallbackPeak,
+    });
+
     return {
       id: s.id,
       partnerId: schedule.partnerId,
@@ -236,18 +261,19 @@ export function publishWeekAvailability(schedule: BackofficeWeekSchedule): void 
             : s.type === "access_window"
               ? (s.windowName ?? s.name)
               : (s.serviceName ?? s.name),
-      dateISO: addDays(schedule.weekStartISO, weekdayToOffset(s.weekday)),
+      dateISO,
       time: s.time,
       durationMinutes:
         s.type === "access_window" && s.endTime
           ? (minutesBetween(s.time, s.endTime) ?? s.durationMinutes)
           : s.durationMinutes,
-      credits: s.credits,
+      credits: computed.credits,
       fitlifeSlots: safeFitlifeSlots,
       location: s.sessionLocation,
       professionalName: s.type === "professional" ? s.professionalName : undefined,
       specialties: s.type === "professional" ? s.specialties : undefined,
       publicDescription: undefined,
+      peakLabel: computed.peak ? "Peak" : "Off-peak",
     };
   });
 

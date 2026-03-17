@@ -3,14 +3,22 @@
 import { useEffect, useMemo, useState } from "react";
 import GlassCard from "@/app/components/ui/GlassCard";
 import { getAllPartnersWithCategory } from "@/lib/activitiesData";
-import { getAuthedBackofficePartnerId } from "@/lib/backofficeAuth";
 
 export default function BackofficePerfilPage() {
   const partners = useMemo(() => getAllPartnersWithCategory(), []);
   const [partnerId, setPartnerId] = useState<string | null>(null);
 
   useEffect(() => {
-    setPartnerId(getAuthedBackofficePartnerId());
+    (async () => {
+      try {
+        const res = await fetch("/api/backoffice/session", { method: "GET" });
+        if (!res.ok) return;
+        const data = (await res.json().catch(() => ({}))) as { partnerId?: string };
+        if (data.partnerId) setPartnerId(data.partnerId);
+      } catch {
+        // ignore (layout/middleware redirects)
+      }
+    })();
   }, [partners]);
 
   const partner = useMemo(

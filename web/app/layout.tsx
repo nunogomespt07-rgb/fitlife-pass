@@ -1,9 +1,6 @@
 import "./globals.css"
 import Providers from "./providers"
-import Nav from "./components/Nav"
-import MobileDashboardNav from "./components/MobileDashboardNav"
-import Footer from "./components/Footer"
-import { MobileSearchProvider } from "./components/Nav"
+import AppChrome from "./components/AppChrome"
 
 export const metadata = {
   title: "FitLife Pass",
@@ -19,14 +16,7 @@ export default function RootLayout({
     <html lang="pt">
       <body>
         <Providers>
-          <MobileSearchProvider>
-            <Nav />
-            <div className="pb-[calc(140px+env(safe-area-inset-bottom,0px))] md:pb-0">
-              {children}
-              <Footer />
-            </div>
-            <MobileDashboardNav />
-          </MobileSearchProvider>
+          <AppChrome>{children}</AppChrome>
         </Providers>
       </body>
     </html>

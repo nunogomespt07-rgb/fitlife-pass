@@ -6,7 +6,6 @@ import { getAllPartnersWithCategory } from "@/lib/activitiesData";
 import {
   getPartnerReservationsForCurrentUser,
 } from "@/lib/backoffice";
-import { getAuthedBackofficePartnerId } from "@/lib/backofficeAuth";
 
 function currentMonthKey(now: Date = new Date()): string {
   const y = now.getFullYear();
@@ -23,7 +22,16 @@ export default function BackofficeEstatisticasPage() {
   const [partnerId, setPartnerId] = useState<string | null>(null);
 
   useEffect(() => {
-    setPartnerId(getAuthedBackofficePartnerId());
+    (async () => {
+      try {
+        const res = await fetch("/api/backoffice/session", { method: "GET" });
+        if (!res.ok) return;
+        const data = (await res.json().catch(() => ({}))) as { partnerId?: string };
+        if (data.partnerId) setPartnerId(data.partnerId);
+      } catch {
+        // ignore (layout/middleware redirects)
+      }
+    })();
   }, [partners]);
 
   const monthKey = currentMonthKey();

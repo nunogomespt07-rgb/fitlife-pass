@@ -9,7 +9,6 @@ import {
 import {
   getPartnerReservationsForCurrentUser,
 } from "@/lib/backoffice";
-import { getAuthedBackofficePartnerId } from "@/lib/backofficeAuth";
 
 function formatDate(dateISO: string): string {
   const d = new Date(dateISO + "T12:00:00");
@@ -21,7 +20,16 @@ export default function BackofficeReservasPage() {
   const [partnerId, setPartnerId] = useState<string | null>(null);
 
   useEffect(() => {
-    setPartnerId(getAuthedBackofficePartnerId());
+    (async () => {
+      try {
+        const res = await fetch("/api/backoffice/session", { method: "GET" });
+        if (!res.ok) return;
+        const data = (await res.json().catch(() => ({}))) as { partnerId?: string };
+        if (data.partnerId) setPartnerId(data.partnerId);
+      } catch {
+        // ignore (layout/middleware redirects)
+      }
+    })();
   }, [partners]);
 
   const partner = useMemo<PartnerWithCategory | null>(

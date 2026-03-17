@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 const BACKOFFICE_COOKIE = "fitlife_backoffice";
+const ADMIN_COOKIE = "fitlife_admin";
 
 function getCookieSecret(): string {
   return (
@@ -68,6 +69,26 @@ async function verifyBackofficeCookie(raw: string | undefined): Promise<{ partne
   }
 }
 
+async function verifyAdminCookie(raw: string | undefined): Promise<boolean> {
+  if (!raw) return false;
+  const [payloadB64, sig] = raw.split(".");
+  if (!payloadB64 || !sig) return false;
+
+  const secret = getCookieSecret();
+  const expected = await hmacSha256Base64Url(secret, payloadB64);
+  if (sig !== expected) return false;
+
+  const json = safeBase64UrlDecode(payloadB64);
+  if (!json) return false;
+  try {
+    const parsed = JSON.parse(json) as { exp?: number };
+    if (!parsed?.exp || typeof parsed.exp !== "number") return false;
+    return Date.now() <= parsed.exp;
+  } catch {
+    return false;
+  }
+}
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
@@ -78,6 +99,19 @@ export async function middleware(req: NextRequest) {
     if (!session) {
       const url = req.nextUrl.clone();
       url.pathname = "/backoffice/login";
+      url.searchParams.set("next", pathname);
+      return NextResponse.redirect(url);
+    }
+    return NextResponse.next();
+  }
+
+  // Admin backoffice protection (demo PIN cookie)
+  if (pathname.startsWith("/admin")) {
+    if (pathname.startsWith("/admin/login")) return NextResponse.next();
+    const ok = await verifyAdminCookie(req.cookies.get(ADMIN_COOKIE)?.value);
+    if (!ok) {
+      const url = req.nextUrl.clone();
+      url.pathname = "/admin/login";
       url.searchParams.set("next", pathname);
       return NextResponse.redirect(url);
     }
@@ -100,6 +134,6 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/backoffice/:path*"],
+  matcher: ["/dashboard/:path*", "/backoffice/:path*", "/admin/:path*"],
 };
 
