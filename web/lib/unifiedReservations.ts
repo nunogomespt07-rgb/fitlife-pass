@@ -327,7 +327,11 @@ export function getStoredUnifiedReservations(userId: string | null): UnifiedRese
   if (raw != null && Array.isArray(raw)) {
     return raw;
   }
-  // One-time migration: if this user has no data but global key has data, migrate to user key (first user on device)
+  // One-time migration (legacy): if this user has no data but global key has data, migrate to user key (first user on device).
+  // IMPORTANT: do NOT auto-migrate into authenticated (email-based) users — it can contaminate accounts across logins/devices.
+  if (typeof userId === "string" && userId.includes("@")) {
+    return [];
+  }
   const globalRaw = safeParse<UnifiedReservation[] | null>(STORAGE_KEY, null);
   if (globalRaw != null && Array.isArray(globalRaw) && globalRaw.length > 0) {
     safeSet(key, globalRaw);
