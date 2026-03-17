@@ -1,5 +1,9 @@
 const User = require("../models/User");
 
+function isProd() {
+  return String(process.env.NODE_ENV || "").toLowerCase() === "production";
+}
+
 exports.createUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -26,6 +30,12 @@ exports.createUser = async (req, res) => {
 
     return res.status(201).json(userSafe);
   } catch (err) {
-    return res.status(500).json({ message: "Erro a criar utilizador.", error: err.message });
+    return res
+      .status(500)
+      .json(
+        isProd()
+          ? { message: "Erro a criar utilizador." }
+          : { message: "Erro a criar utilizador.", error: err?.message ?? String(err) }
+      );
   }
 }

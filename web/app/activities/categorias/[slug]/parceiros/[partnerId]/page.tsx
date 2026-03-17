@@ -122,6 +122,8 @@ export default function PartnerActivitiesPage() {
   const { categoryLabel, partner } = resolved;
   const isGymAccess = partner.partnerType === "gym_access";
   const isTrainerProfile = slug === "personal-training" && partner.provider?.type === "trainer";
+  const isIndividualServiceCategory =
+    slug === "personal-training" || slug === "nutricao" || slug === "massagem-desportiva";
 
   return (
     <div className="page-bg min-h-screen font-sans text-white">
@@ -298,7 +300,9 @@ export default function PartnerActivitiesPage() {
             ) : (
               initialActivities.map((act) => {
                 const reservedCount = countReservationsForActivity(partnerId, act.id);
-                const availableSpots = Math.max(0, act.spots - reservedCount);
+                const availableSpots = isIndividualServiceCategory
+                  ? Math.min(1, Math.max(0, act.spots - reservedCount))
+                  : Math.max(0, act.spots - reservedCount);
                 const isPersonalTraining = slug === "personal-training" && !!act.trainer?.name;
                 return (
                 <GlassCard
@@ -327,7 +331,8 @@ export default function PartnerActivitiesPage() {
                             : `${act.credits} crédito${act.credits !== 1 ? "s" : ""}`}
                         </li>
                         <li>
-                          {availableSpots} vagas disponíveis
+                          {availableSpots} vaga{availableSpots !== 1 ? "s" : ""} disponível
+                          {availableSpots !== 1 ? "is" : ""}
                         </li>
                         {act.location && (
                           <li className="text-white/65">{act.location}</li>

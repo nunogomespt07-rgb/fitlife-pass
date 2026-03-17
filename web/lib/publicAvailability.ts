@@ -136,7 +136,9 @@ export function publicSessionsToMockActivities(sessions: PublicSession[]): MockA
       durationMinutes: s.durationMinutes,
       credits: s.credits,
       // IMPORTANT: spots is used as public availability in customer app.
-      spots: Math.max(0, Math.floor(s.fitlifeSlots)),
+      spots: s.professionalName
+        ? Math.min(1, Math.max(0, Math.floor(s.fitlifeSlots)))
+        : Math.max(0, Math.floor(s.fitlifeSlots)),
       location: s.location,
       peakLabel: s.peakLabel,
       trainer:

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { getAllPartnersWithCategory, type PartnerWithCategory } from "@/lib/activitiesData";
-import { getAuthedBackofficePartnerId, clearBackofficeSession } from "@/lib/backofficeAuth";
+import { clearBackofficeSession } from "@/lib/backofficeAuth";
 import { clearCurrentBackofficePartner } from "@/lib/backofficePartner";
 
 const navItems: { href: string; label: string }[] = [
@@ -26,14 +26,27 @@ export default function BackofficeLayout({ children }: { children: ReactNode }) 
   const [partner, setPartner] = useState<PartnerWithCategory | null>(null);
 
   useEffect(() => {
-    const pid = getAuthedBackofficePartnerId();
-    if (!pid) {
-      // Allow login route without redirect loop
-      if (pathname.startsWith("/backoffice/login")) return;
-      window.location.assign("/backoffice/login");
-      return;
-    }
-    setPartner(partners.find((p) => p.id === pid) ?? null);
+    // Allow login route without redirect loop
+    if (pathname.startsWith("/backoffice/login")) return;
+
+    (async () => {
+      try {
+        const res = await fetch("/api/backoffice/session", { method: "GET" });
+        if (!res.ok) {
+          window.location.assign("/backoffice/login");
+          return;
+        }
+        const data = (await res.json().catch(() => ({}))) as { ok?: boolean; partnerId?: string };
+        const pid = data?.partnerId;
+        if (!pid) {
+          window.location.assign("/backoffice/login");
+          return;
+        }
+        setPartner(partners.find((p) => p.id === pid) ?? null);
+      } catch {
+        window.location.assign("/backoffice/login");
+      }
+    })();
   }, [pathname, partners]);
 
   return (
@@ -68,6 +81,7 @@ export default function BackofficeLayout({ children }: { children: ReactNode }) 
             <button
               type="button"
               onClick={() => {
+                fetch("/api/backoffice/logout", { method: "POST" }).catch(() => {});
                 clearBackofficeSession();
                 clearCurrentBackofficePartner();
                 window.location.assign("/backoffice/login");

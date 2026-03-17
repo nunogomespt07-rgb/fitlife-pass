@@ -23,7 +23,6 @@ import {
   type Weekday,
   weekdayLabel,
 } from "@/lib/backoffice";
-import { getAuthedBackofficePartnerId } from "@/lib/backofficeAuth";
 
 const weekdays: Weekday[] = [
   "segunda",
@@ -101,6 +100,13 @@ function buildDefaultSchedule(partner: PartnerWithCategory, weekStartISO: string
             ? "Sessão de Massagem"
             : undefined;
 
+    const capacity =
+      type === "professional" ? 1 : Math.max(1, Math.floor(Number(act.spots ?? 1)));
+    const fitlifeSlots =
+      type === "professional"
+        ? 1
+        : Math.min(capacity, Math.max(1, Math.floor(capacity * 0.6)));
+
     sessions.push({
       id: sessionId(partner.id, key),
       partnerId: partner.id,
@@ -109,8 +115,8 @@ function buildDefaultSchedule(partner: PartnerWithCategory, weekStartISO: string
       weekday: wd,
       time: act.time,
       durationMinutes: act.durationMinutes,
-      capacity: act.spots,
-      fitlifeSlots: Math.min(act.spots, Math.max(1, Math.floor(act.spots * 0.6))),
+      capacity,
+      fitlifeSlots,
       credits: act.credits,
       sessionLocation: act.location ?? partner.location,
       ...(type === "professional"
@@ -153,7 +159,16 @@ export default function BackofficeAgendaPage() {
   );
 
   useEffect(() => {
-    setPartnerId(getAuthedBackofficePartnerId());
+    (async () => {
+      try {
+        const res = await fetch("/api/backoffice/session", { method: "GET" });
+        if (!res.ok) return;
+        const data = (await res.json().catch(() => ({}))) as { partnerId?: string };
+        if (data.partnerId) setPartnerId(data.partnerId);
+      } catch {
+        // ignore (layout middleware will redirect if not authed)
+      }
+    })();
   }, [allPartners]);
 
   useEffect(() => {
@@ -182,9 +197,18 @@ export default function BackofficeAgendaPage() {
   function updateSession(id: string, patch: Partial<BackofficeSession>) {
     setSchedule((prev) => {
       if (!prev) return prev;
-      const nextSessions = prev.sessions.map((s) =>
-        s.id === id ? { ...s, ...patch } : s
-      );
+      const nextSessions = prev.sessions.map((s) => {
+        if (s.id !== id) return s;
+        // Enforce 1:1 appointment slots for individual professional services
+        if (s.type === "professional") {
+          const next = { ...s, ...patch };
+          return { ...next, capacity: 1, fitlifeSlots: 1 };
+        }
+        const next = { ...s, ...patch };
+        const cap = Math.max(1, Math.floor(Number(next.capacity ?? 1)));
+        const slots = Math.max(0, Math.min(cap, Math.floor(Number(next.fitlifeSlots ?? 0))));
+        return { ...next, capacity: cap, fitlifeSlots: slots };
+      });
       const next = { ...prev, sessions: nextSessions, updatedAt: new Date().toISOString() };
       return next;
     });
@@ -284,7 +308,10 @@ export default function BackofficeAgendaPage() {
                     <span className="text-xs font-semibold text-white/70">Slots FitLife</span>
                     <button
                       type="button"
-                      onClick={() => updateSession(s.id, { fitlifeSlots: clampInt(s.fitlifeSlots - 1, 0, s.capacity) })}
+                      onClick={() =>
+                        updateSession(s.id, { fitlifeSlots: clampInt(s.fitlifeSlots - 1, 0, s.capacity) })
+                      }
+                      disabled={s.type === "professional"}
                       className="h-8 w-8 rounded-lg border border-white/10 bg-white/5 text-sm font-semibold text-white/90 hover:bg-white/10"
                       aria-label="Diminuir slots FitLife"
                     >
@@ -295,7 +322,10 @@ export default function BackofficeAgendaPage() {
                     </span>
                     <button
                       type="button"
-                      onClick={() => updateSession(s.id, { fitlifeSlots: clampInt(s.fitlifeSlots + 1, 0, s.capacity) })}
+                      onClick={() =>
+                        updateSession(s.id, { fitlifeSlots: clampInt(s.fitlifeSlots + 1, 0, s.capacity) })
+                      }
+                      disabled={s.type === "professional"}
                       className="h-8 w-8 rounded-lg border border-white/10 bg-white/5 text-sm font-semibold text-white/90 hover:bg-white/10"
                       aria-label="Aumentar slots FitLife"
                     >
@@ -311,6 +341,7 @@ export default function BackofficeAgendaPage() {
                         const nextCap = clampInt(s.capacity - 1, 1, 999);
                         updateSession(s.id, { capacity: nextCap, fitlifeSlots: Math.min(s.fitlifeSlots, nextCap) });
                       }}
+                      disabled={s.type === "professional"}
                       className="h-8 w-8 rounded-lg border border-white/10 bg-white/5 text-sm font-semibold text-white/90 hover:bg-white/10"
                       aria-label="Diminuir capacidade"
                     >
@@ -322,6 +353,7 @@ export default function BackofficeAgendaPage() {
                     <button
                       type="button"
                       onClick={() => updateSession(s.id, { capacity: clampInt(s.capacity + 1, 1, 999) })}
+                      disabled={s.type === "professional"}
                       className="h-8 w-8 rounded-lg border border-white/10 bg-white/5 text-sm font-semibold text-white/90 hover:bg-white/10"
                       aria-label="Aumentar capacidade"
                     >

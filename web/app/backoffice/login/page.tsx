@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 import GlassCard from "@/app/components/ui/GlassCard";
 import PrimaryButton from "@/app/components/ui/PrimaryButton";
 import { getAllPartnersWithCategory } from "@/lib/activitiesData";
-import { loginBackofficeDemo } from "@/lib/backofficeAuth";
-import { setCurrentBackofficePartnerId } from "@/lib/backofficePartner";
 
 export default function BackofficeLoginPage() {
   const router = useRouter();
@@ -80,14 +78,25 @@ export default function BackofficeLoginPage() {
             onClick={() => {
               if (!partnerId) return;
               setError(null);
-              const result = loginBackofficeDemo({ partnerId, pin });
-              if (!result.ok) {
-                setError(result.error);
-                return;
-              }
-              // keep partner id also stored for existing schedule storage keys
-              setCurrentBackofficePartnerId(partnerId);
-              router.push("/backoffice");
+              (async () => {
+                try {
+                  const res = await fetch("/api/backoffice/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ partnerId, pin }),
+                  });
+                  const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+                  if (!res.ok || !data.ok) {
+                    setError(data.error || "PIN incorreto.");
+                    return;
+                  }
+                  const params = new URLSearchParams(window.location.search);
+                  const next = params.get("next");
+                  router.push(next && next.startsWith("/backoffice") ? next : "/backoffice");
+                } catch {
+                  setError("Não foi possível entrar. Tenta novamente.");
+                }
+              })();
             }}
           >
             Entrar no backoffice

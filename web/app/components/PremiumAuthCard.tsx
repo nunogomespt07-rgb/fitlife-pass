@@ -201,7 +201,9 @@ export default function PremiumAuthCard({ desktopWider, mode = "landing" }: Prem
         | null;
       if (!res.ok) {
         const msg = (data as { message?: string }).message ?? "";
-        console.error("[signup] Erro no registo:", res.status, msg || data);
+        if (process.env.NODE_ENV !== "production") {
+          console.error("[signup] Erro no registo:", res.status, msg || data);
+        }
         const safeMsg =
           /failed to fetch|load failed|fetch failed|network error|connection refused/i.test(msg)
             ? "Não foi possível criar a conta. Tenta novamente."

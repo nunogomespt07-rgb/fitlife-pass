@@ -1,5 +1,9 @@
 const User = require("../models/User");
 
+function isProd() {
+  return String(process.env.NODE_ENV || "").toLowerCase() === "production";
+}
+
 // GET /credits/balance
 exports.getBalance = async (req, res) => {
   try {
@@ -8,7 +12,13 @@ exports.getBalance = async (req, res) => {
 
     return res.json({ credits: user.credits });
   } catch (err) {
-    return res.status(500).json({ message: "Erro ao obter créditos", error: err.message });
+    return res
+      .status(500)
+      .json(
+        isProd()
+          ? { message: "Erro ao obter créditos" }
+          : { message: "Erro ao obter créditos", error: err?.message ?? String(err) }
+      );
   }
 };
 
@@ -29,7 +39,13 @@ exports.addCredits = async (req, res) => {
 
     return res.json({ message: "Créditos adicionados", credits: user.credits });
   } catch (err) {
-    return res.status(500).json({ message: "Erro ao adicionar créditos", error: err.message });
+    return res
+      .status(500)
+      .json(
+        isProd()
+          ? { message: "Erro ao adicionar créditos" }
+          : { message: "Erro ao adicionar créditos", error: err?.message ?? String(err) }
+      );
   }
 };
 
@@ -54,6 +70,12 @@ exports.spendCredits = async (req, res) => {
 
     return res.json({ message: "Créditos gastos", credits: user.credits });
   } catch (err) {
-    return res.status(500).json({ message: "Erro ao gastar créditos", error: err.message });
+    return res
+      .status(500)
+      .json(
+        isProd()
+          ? { message: "Erro ao gastar créditos" }
+          : { message: "Erro ao gastar créditos", error: err?.message ?? String(err) }
+      );
   }
 };

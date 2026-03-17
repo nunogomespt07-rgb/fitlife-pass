@@ -846,19 +846,19 @@ const ACTIVITY_SLOTS_BY_PARTNER: Record<string, ActivitySlot[]> = {
   ],
   // Massagem desportiva
   "recovery-lab-lisboa": [
-    { title: "Massagem desportiva 45'", time: "12:30", durationMinutes: 45, credits: 12, spots: 3, location: "Saldanha", peakLabel: "Recuperação" },
-    { title: "Massagem de recuperação 60'", time: "18:30", durationMinutes: 60, credits: 14, spots: 3, location: "Saldanha", peakLabel: "Recuperação" },
+    { title: "Massagem desportiva 45'", time: "12:30", durationMinutes: 45, credits: 12, spots: 1, location: "Saldanha", peakLabel: "Recuperação" },
+    { title: "Massagem de recuperação 60'", time: "18:30", durationMinutes: 60, credits: 14, spots: 1, location: "Saldanha", peakLabel: "Recuperação" },
   ],
   "recovery-porto-center": [
-    { title: "Massagem desportiva 45'", time: "17:30", durationMinutes: 45, credits: 12, spots: 3, location: "Aliados", peakLabel: "Recuperação" },
+    { title: "Massagem desportiva 45'", time: "17:30", durationMinutes: 45, credits: 12, spots: 1, location: "Aliados", peakLabel: "Recuperação" },
   ],
   // Nutrição
   "nutri-care-lisboa": [
-    { title: "Consulta de nutrição (45')", time: "11:00", durationMinutes: 45, credits: 10, spots: 6, location: "Campo Pequeno", peakLabel: "Suporte" },
-    { title: "Plano alimentar (follow-up)", time: "18:00", durationMinutes: 30, credits: 8, spots: 8, location: "Campo Pequeno", peakLabel: "Suporte" },
+    { title: "Consulta de nutrição (45')", time: "11:00", durationMinutes: 45, credits: 10, spots: 1, location: "Campo Pequeno", peakLabel: "Suporte" },
+    { title: "Plano alimentar (follow-up)", time: "18:00", durationMinutes: 30, credits: 8, spots: 1, location: "Campo Pequeno", peakLabel: "Suporte" },
   ],
   "nutri-porto-studio": [
-    { title: "Consulta de nutrição (45')", time: "19:00", durationMinutes: 45, credits: 10, spots: 6, location: "Boavista", peakLabel: "Suporte" },
+    { title: "Consulta de nutrição (45')", time: "19:00", durationMinutes: 45, credits: 10, spots: 1, location: "Boavista", peakLabel: "Suporte" },
   ],
   // Personal training (freelancer trainers)
   "trainer-miguel-santos": [
@@ -867,7 +867,7 @@ const ACTIVITY_SLOTS_BY_PARTNER: Record<string, ActivitySlot[]> = {
       time: "07:30",
       durationMinutes: 60,
       credits: 15,
-      spots: 4,
+      spots: 1,
       location: "Parque das Nações (outdoor)",
       peakLabel: "Premium",
       trainer: {
@@ -885,7 +885,7 @@ const ACTIVITY_SLOTS_BY_PARTNER: Record<string, ActivitySlot[]> = {
       time: "18:30",
       durationMinutes: 45,
       credits: 12,
-      spots: 4,
+      spots: 1,
       location: "FitClub Lisboa (Saldanha)",
       peakLabel: "Premium",
       trainer: {
@@ -905,7 +905,7 @@ const ACTIVITY_SLOTS_BY_PARTNER: Record<string, ActivitySlot[]> = {
       time: "19:00",
       durationMinutes: 60,
       credits: 15,
-      spots: 4,
+      spots: 1,
       location: "Porto · Foz (outdoor)",
       peakLabel: "Premium",
       trainer: {
@@ -925,7 +925,7 @@ const ACTIVITY_SLOTS_BY_PARTNER: Record<string, ActivitySlot[]> = {
       time: "08:00",
       durationMinutes: 60,
       credits: 15,
-      spots: 4,
+      spots: 1,
       location: "Lisboa · Saldanha",
       peakLabel: "Premium",
       trainer: {
@@ -945,7 +945,7 @@ const ACTIVITY_SLOTS_BY_PARTNER: Record<string, ActivitySlot[]> = {
       time: "18:00",
       durationMinutes: 45,
       credits: 12,
-      spots: 4,
+      spots: 1,
       location: "Porto · Boavista",
       peakLabel: "Premium",
       trainer: {
@@ -965,7 +965,7 @@ const ACTIVITY_SLOTS_BY_PARTNER: Record<string, ActivitySlot[]> = {
       time: "19:30",
       durationMinutes: 60,
       credits: 15,
-      spots: 4,
+      spots: 1,
       location: "Lisboa · Alcântara",
       peakLabel: "Premium",
       trainer: {

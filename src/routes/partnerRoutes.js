@@ -3,6 +3,10 @@ const router = express.Router();
 
 const Booking = require("../models/Booking");
 
+function isProd() {
+  return String(process.env.NODE_ENV || "").toLowerCase() === "production";
+}
+
 // POST /partner/checkin
 // Body: { token: "..." }
 router.post("/checkin", async (req, res) => {
@@ -42,12 +46,16 @@ router.post("/checkin", async (req, res) => {
     return res.status(200).json({
       message: "Check-in efetuado com sucesso ✅",
       bookingId: booking._id,
-      activityId: booking.activity,
-      userId: booking.user,
       status: booking.status,
     });
   } catch (err) {
-    return res.status(500).json({ message: "Erro interno", error: err.message });
+    return res
+      .status(500)
+      .json(
+        isProd()
+          ? { message: "Erro interno" }
+          : { message: "Erro interno", error: err?.message ?? String(err) }
+      );
   }
 });
 

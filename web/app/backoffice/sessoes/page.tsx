@@ -11,7 +11,6 @@ import {
   type BackofficeSession,
   type BackofficeWeekSchedule,
 } from "@/lib/backoffice";
-import { getAuthedBackofficePartnerId } from "@/lib/backofficeAuth";
 
 function isoYMD(d: Date): string {
   return d.toISOString().slice(0, 10);
@@ -38,7 +37,16 @@ export default function BackofficeSessoesPage() {
   const [draftCredits, setDraftCredits] = useState(8);
 
   useEffect(() => {
-    setPartnerId(getAuthedBackofficePartnerId());
+    (async () => {
+      try {
+        const res = await fetch("/api/backoffice/session", { method: "GET" });
+        if (!res.ok) return;
+        const data = (await res.json().catch(() => ({}))) as { partnerId?: string };
+        if (data.partnerId) setPartnerId(data.partnerId);
+      } catch {
+        // ignore (layout middleware will redirect if not authed)
+      }
+    })();
   }, [partners]);
 
   useEffect(() => {
@@ -137,8 +145,9 @@ export default function BackofficeSessoesPage() {
   function confirmAdd() {
     if (!schedule || !partner) return;
     const id = `sess-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-    const cap = Math.max(1, Math.floor(draftCapacity));
-    const slots = Math.max(0, Math.min(cap, Math.floor(draftFitlifeSlots)));
+    const isProfessional = draftType === "professional";
+    const cap = isProfessional ? 1 : Math.max(1, Math.floor(draftCapacity));
+    const slots = isProfessional ? 1 : Math.max(0, Math.min(cap, Math.floor(draftFitlifeSlots)));
     const durationMinutes = Math.max(15, Math.floor(draftDuration));
     const credits = Math.max(0, Math.floor(draftCredits));
 
@@ -299,11 +308,12 @@ export default function BackofficeSessoesPage() {
                 inputMode="numeric"
                 value={draftCapacity}
                 onChange={(e) => setDraftCapacity(Number(e.target.value))}
+                disabled={draftType === "professional"}
                 className="mt-3 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white/90 outline-none"
               />
               {partnerMode.isProfessional && (
                 <p className="mt-2 text-xs text-white/55">
-                  Recomendado: 1 (sessão individual).
+                  Sessão individual: capacidade fixa a 1.
                 </p>
               )}
             </div>
@@ -315,6 +325,7 @@ export default function BackofficeSessoesPage() {
                 inputMode="numeric"
                 value={draftFitlifeSlots}
                 onChange={(e) => setDraftFitlifeSlots(Number(e.target.value))}
+                disabled={draftType === "professional"}
                 className="mt-3 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white/90 outline-none"
               />
             </div>

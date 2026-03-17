@@ -185,7 +185,22 @@ export function getStoredWeekSchedule(partnerId: string, weekStartISO: string): 
   if (raw.partnerId !== partnerId) return null;
   if (raw.weekStartISO !== weekStartISO) return null;
   if (!Array.isArray(raw.sessions)) return null;
-  return raw;
+  // Normalize demo data for correctness (especially professional 1:1 slots)
+  const normalizedSessions = raw.sessions.map((s) => {
+    if (!s || typeof s !== "object") return s;
+    const sess = s as BackofficeSession;
+    if (sess.type !== "professional") {
+      const cap = Math.max(1, Math.floor(Number(sess.capacity ?? 1)));
+      const slots = Math.max(0, Math.min(cap, Math.floor(Number(sess.fitlifeSlots ?? 0))));
+      return { ...sess, capacity: cap, fitlifeSlots: slots };
+    }
+    return {
+      ...sess,
+      capacity: 1,
+      fitlifeSlots: Math.min(1, Math.max(0, Math.floor(Number(sess.fitlifeSlots ?? 1)))),
+    };
+  });
+  return { ...raw, sessions: normalizedSessions };
 }
 
 export function setStoredWeekSchedule(schedule: BackofficeWeekSchedule): void {
@@ -204,30 +219,37 @@ export function publishWeekAvailability(schedule: BackofficeWeekSchedule): void 
     return end - start;
   }
 
-  const sessions: PublicSession[] = schedule.sessions.map((s) => ({
-    id: s.id,
-    partnerId: schedule.partnerId,
-    name:
-      s.type === "group_class"
-        ? (s.className ?? s.name)
-        : s.type === "court"
-          ? (s.name || s.courtName || "Slot de campo")
-          : s.type === "access_window"
-            ? (s.windowName ?? s.name)
-            : (s.serviceName ?? s.name),
-    dateISO: addDays(schedule.weekStartISO, weekdayToOffset(s.weekday)),
-    time: s.time,
-    durationMinutes:
-      s.type === "access_window" && s.endTime
-        ? (minutesBetween(s.time, s.endTime) ?? s.durationMinutes)
-        : s.durationMinutes,
-    credits: s.credits,
-    fitlifeSlots: s.fitlifeSlots,
-    location: s.sessionLocation,
-    professionalName: s.type === "professional" ? s.professionalName : undefined,
-    specialties: s.type === "professional" ? s.specialties : undefined,
-    publicDescription: undefined,
-  }));
+  const sessions: PublicSession[] = schedule.sessions.map((s) => {
+    const safeFitlifeSlots =
+      s.type === "professional"
+        ? Math.min(1, Math.max(0, Math.floor(Number(s.fitlifeSlots ?? 1))))
+        : Math.max(0, Math.floor(Number(s.fitlifeSlots ?? 0)));
+
+    return {
+      id: s.id,
+      partnerId: schedule.partnerId,
+      name:
+        s.type === "group_class"
+          ? (s.className ?? s.name)
+          : s.type === "court"
+            ? (s.name || s.courtName || "Slot de campo")
+            : s.type === "access_window"
+              ? (s.windowName ?? s.name)
+              : (s.serviceName ?? s.name),
+      dateISO: addDays(schedule.weekStartISO, weekdayToOffset(s.weekday)),
+      time: s.time,
+      durationMinutes:
+        s.type === "access_window" && s.endTime
+          ? (minutesBetween(s.time, s.endTime) ?? s.durationMinutes)
+          : s.durationMinutes,
+      credits: s.credits,
+      fitlifeSlots: safeFitlifeSlots,
+      location: s.sessionLocation,
+      professionalName: s.type === "professional" ? s.professionalName : undefined,
+      specialties: s.type === "professional" ? s.specialties : undefined,
+      publicDescription: undefined,
+    };
+  });
 
   const pub: PublicWeekAvailability = {
     partnerId: schedule.partnerId,

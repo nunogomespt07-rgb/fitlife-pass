@@ -4,6 +4,15 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
+function isProd() {
+  return String(process.env.NODE_ENV || "").toLowerCase() === "production";
+}
+
+function internalErrorPayload(message, err) {
+  if (isProd()) return { message };
+  return { message, error: err?.message ?? String(err) };
+}
+
 // ✅ REGISTER — create user, then create session (JWT) and return success
 exports.register = async (req, res) => {
   try {
@@ -42,7 +51,7 @@ exports.register = async (req, res) => {
       user: { id: user._id, name: user.name, email: user.email },
     });
   } catch (err) {
-    return res.status(500).json({ message: "Erro no registo", err: String(err) });
+    return res.status(500).json(internalErrorPayload("Erro no registo", err));
   }
 };
 
@@ -80,7 +89,7 @@ exports.login = async (req, res) => {
       user: { id: user._id, name: user.name, email: user.email },
     });
   } catch (err) {
-    return res.status(500).json({ message: "Erro no login", err: String(err) });
+    return res.status(500).json(internalErrorPayload("Erro no login", err));
   }
 };
 
@@ -99,7 +108,7 @@ exports.forgotPassword = async (req, res) => {
       message: "Se esse email estiver associado a uma conta, receberás instruções para redefinir a password.",
     });
   } catch (err) {
-    return res.status(500).json({ message: "Erro ao processar pedido.", err: String(err) });
+    return res.status(500).json(internalErrorPayload("Erro ao processar pedido.", err));
   }
 };
 

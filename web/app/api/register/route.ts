@@ -50,7 +50,9 @@ export async function POST(req: Request) {
     }
     return Response.json({ success: true }, { status: upstreamRes.status });
   } catch (err) {
-    console.error("[api/register] upstream request failed:", err);
+    if (process.env.NODE_ENV !== "production") {
+      console.error("[api/register] upstream request failed:", err);
+    }
     return Response.json(
       { message: "Não foi possível criar a conta. Tenta novamente." },
       { status: 502 }

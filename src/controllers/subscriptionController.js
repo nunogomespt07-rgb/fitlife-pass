@@ -2,6 +2,10 @@ const User = require("../models/User");
 const Subscription = require("../models/Subscription");
 const CreditTransaction = require("../models/CreditTransaction");
 
+function isProd() {
+  return String(process.env.NODE_ENV || "").toLowerCase() === "production";
+}
+
 const PLAN_CONFIG = {
   basic: { creditsPerMonth: 20 },
   premium: { creditsPerMonth: 40 },
@@ -83,7 +87,11 @@ exports.activatePlan = async (req, res) => {
   } catch (err) {
     return res
       .status(500)
-      .json({ message: "Erro ao ativar plano", error: err.message });
+      .json(
+        isProd()
+          ? { message: "Erro ao ativar plano" }
+          : { message: "Erro ao ativar plano", error: err?.message ?? String(err) }
+      );
   }
 };
 
@@ -117,6 +125,10 @@ exports.cancelPlan = async (req, res) => {
   } catch (err) {
     return res
       .status(500)
-      .json({ message: "Erro ao cancelar plano", error: err.message });
+      .json(
+        isProd()
+          ? { message: "Erro ao cancelar plano" }
+          : { message: "Erro ao cancelar plano", error: err?.message ?? String(err) }
+      );
   }
 };
