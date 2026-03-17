@@ -7,6 +7,16 @@ import PrimaryButton from "./ui/PrimaryButton";
 import { login } from "@/lib/api";
 import { setStoredUser } from "@/lib/storedUser";
 
+const COUNTRIES: Array<{ value: string; label: string; dial: string }> = [
+  { value: "PT", label: "Portugal", dial: "+351" },
+  { value: "ES", label: "Espanha", dial: "+34" },
+  { value: "FR", label: "França", dial: "+33" },
+  { value: "GB", label: "Reino Unido", dial: "+44" },
+  { value: "DE", label: "Alemanha", dial: "+49" },
+  { value: "BR", label: "Brasil", dial: "+55" },
+  { value: "US", label: "Estados Unidos", dial: "+1" },
+];
+
 function splitFullName(fullName: string): { firstName: string; lastName: string } {
   const parts = fullName.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return { firstName: "", lastName: "" };
@@ -46,6 +56,8 @@ export default function PremiumAuthCard({ desktopWider, mode = "landing" }: Prem
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
+  const [country, setCountry] = useState("");
+  const [phone, setPhone] = useState("");
   const [dobDay, setDobDay] = useState("");
   const [dobMonth, setDobMonth] = useState("");
   const [dobYear, setDobYear] = useState("");
@@ -54,6 +66,7 @@ export default function PremiumAuthCard({ desktopWider, mode = "landing" }: Prem
   const [showPassword, setShowPassword] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
   const [emailError, setEmailError] = useState("");
+  const [lastDial, setLastDial] = useState<string>("");
 
   const pwChecks = passwordChecks(password);
 
@@ -108,25 +121,17 @@ export default function PremiumAuthCard({ desktopWider, mode = "landing" }: Prem
       const data = await login(emailVal, password);
       if (typeof window !== "undefined" && data.token) {
         localStorage.setItem("token", data.token);
+        const split = splitFullName(data.user.name ?? "");
+        // IMPORTANT: never overwrite profile fields (DOB/country/phone, etc.) when refreshing identity.
+        // Use the storedUser merge helper so registration/onboarding fields persist safely.
         try {
-          const existingRaw = localStorage.getItem("fitlife-user");
-          let existing: { subscriptionPlanId?: string | null; subscriptionPlanName?: string | null } = {};
-          if (existingRaw) {
-            try {
-              existing = JSON.parse(existingRaw) as typeof existing;
-            } catch {}
-          }
-          const split = splitFullName(data.user.name ?? "");
-          const payload = {
+          setStoredUser({
             id: data.user.id,
-            name: data.user.name,
-            email: data.user.email,
+            name: data.user.name ?? "",
+            email: data.user.email ?? emailVal,
             firstName: split.firstName || null,
             lastName: split.lastName || null,
-            subscriptionPlanId: existing.subscriptionPlanId ?? null,
-            subscriptionPlanName: existing.subscriptionPlanName ?? null,
-          };
-          localStorage.setItem("fitlife-user", JSON.stringify(payload));
+          });
         } catch {}
         router.push("/dashboard");
       }
@@ -193,6 +198,9 @@ export default function PremiumAuthCard({ desktopWider, mode = "landing" }: Prem
           name: fullName,
           email: emailVal,
           password,
+          dateOfBirth: dateOfBirth.trim() || null,
+          country: country.trim() || null,
+          phone: phone.trim() || null,
         }),
       });
       const data = (await res.json().catch(() => ({}))) as
@@ -232,6 +240,8 @@ export default function PremiumAuthCard({ desktopWider, mode = "landing" }: Prem
             lastName: lastName.trim(),
             email: emailVal,
             dateOfBirth: dateOfBirth.trim() || null,
+            country: country.trim() || null,
+            phone: phone.trim() || null,
             profileCompleted: true,
           });
         } catch {}
@@ -731,6 +741,62 @@ export default function PremiumAuthCard({ desktopWider, mode = "landing" }: Prem
                               ▾
                             </span>
                           </div>
+                        </div>
+                      </div>
+
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="relative">
+                          <label className="mb-1.5 block text-[11px] font-medium tracking-wide text-white/50">
+                            País <span className="text-white/35">(opcional)</span>
+                          </label>
+                          <select
+                            value={country}
+                            onChange={(e) => {
+                              const next = e.target.value;
+                              setCountry(next);
+                              const dial = COUNTRIES.find((c) => c.value === next)?.dial ?? "";
+                              // Best-effort prefix update: only when empty or previously auto-prefixed
+                              setPhone((prev) => {
+                                const trimmed = prev.trim();
+                                if (!trimmed) return dial ? `${dial} ` : "";
+                                if (lastDial && trimmed.startsWith(lastDial)) {
+                                  const rest = trimmed.slice(lastDial.length).trimStart();
+                                  return dial ? `${dial} ${rest}`.trimEnd() : rest;
+                                }
+                                return prev;
+                              });
+                              setLastDial(dial);
+                            }}
+                            className={selectBase}
+                            aria-label="País"
+                          >
+                            <option value="" className="bg-slate-950">
+                              Selecionar país
+                            </option>
+                            {COUNTRIES.map((c) => (
+                              <option key={c.value} value={c.value} className="bg-slate-950">
+                                {c.label}
+                              </option>
+                            ))}
+                          </select>
+                          <span className="pointer-events-none absolute right-3 top-[calc(50%+12px)] -translate-y-1/2 text-white/40">
+                            ▾
+                          </span>
+                        </div>
+
+                        <div>
+                          <label className="mb-1.5 block text-[11px] font-medium tracking-wide text-white/50">
+                            Telemóvel <span className="text-white/35">(opcional)</span>
+                          </label>
+                          <input
+                            type="tel"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            className={`${inputBase} border-white/[0.12]`}
+                            placeholder={country ? `${COUNTRIES.find((c) => c.value === country)?.dial ?? ""} 912 345 678` : "+351 912 345 678"}
+                            inputMode="tel"
+                            autoComplete="tel"
+                          />
                         </div>
                       </div>
 
