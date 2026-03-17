@@ -189,6 +189,11 @@ export default function Nav() {
   const avatarLetter = (firstName.charAt(0) || "U").toUpperCase();
   const planName = user?.subscriptionPlanName ?? null;
   const planLabel = planName ? `Plano ${planName.replace(/^FitLife\s+/i, "")}` : null;
+  const mobilePlanLabel = planName ? planName.replace(/^FitLife\s+/i, "").trim() : "Sem plano";
+  const mobileCreditsLabel =
+    typeof credits === "number" ? `${credits} crédito${credits === 1 ? "" : "s"}` : "";
+  const mobilePlanCreditsText =
+    mobileCreditsLabel ? `${mobilePlanLabel} · ${mobileCreditsLabel}` : mobilePlanLabel;
 
   function normalize(str: string | undefined | null): string {
     if (!str) return "";
@@ -519,6 +524,16 @@ export default function Nav() {
                   </svg>
                   {unreadCount > 0 && <span className="notificationBadge" />}
                 </button>
+
+                {(planLabel !== null || credits !== undefined) && (
+                  <span
+                    className="max-[360px]:hidden min-w-0 max-w-[150px] truncate whitespace-nowrap text-[12px] font-medium tracking-tight text-white/70 tabular-nums"
+                    title={mobilePlanCreditsText}
+                    aria-label={mobilePlanCreditsText}
+                  >
+                    {mobilePlanCreditsText}
+                  </span>
+                )}
 
                 <button
                   type="button"
