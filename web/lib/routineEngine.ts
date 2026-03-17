@@ -2,6 +2,7 @@ import {
   getAllPartnersWithCategory,
   getMockActivitiesForPartner,
   activityDateToISO,
+  distanceKm,
   type MockActivity,
   type PartnerWithCategory,
 } from "@/lib/activitiesData";
@@ -20,6 +21,8 @@ export type RoutineSessionCandidate = {
   partnerId: string;
   partnerName: string;
   partnerCity?: string | null;
+  partnerLat?: number;
+  partnerLon?: number;
   activityId?: string;
   activityTitle: string;
   location?: string;
@@ -166,6 +169,8 @@ function candidateFromMockActivity(
     partnerId: partner.id,
     partnerName: partner.name,
     partnerCity: partner.city ?? null,
+    partnerLat: partner.latitude,
+    partnerLon: partner.longitude,
     activityId: act.id,
     activityTitle: act.title,
     location: act.location,
@@ -188,7 +193,9 @@ function gymCandidateForPartner(categorySlug: string, partner: PartnerWithCatego
     partnerId: partner.id,
     partnerName: partner.name,
     partnerCity: partner.city ?? null,
-    activityTitle: "Acesso ginásio",
+    partnerLat: partner.latitude,
+    partnerLon: partner.longitude,
+    activityTitle: "Ginásio",
     location: partner.location,
     dateISO,
     time,
@@ -231,7 +238,8 @@ function scoreCandidate(
   prefs: RoutinePreferences,
   preferredSlots: TimeSlot[],
   usedPartnerIds: Set<string>,
-  usedTitles: Set<string>
+  usedTitles: Set<string>,
+  userCoords?: { lat: number; lon: number } | null
 ): number {
   let score = 0;
 
@@ -262,6 +270,21 @@ function scoreCandidate(
   // Slightly prefer lower credits to fit budget
   score += Math.max(0, 12 - c.credits);
 
+  // Location weighting: ranking factor only (never a strict filter).
+  if (
+    prefs.preferredLocation !== "indiferente" &&
+    userCoords &&
+    Number.isFinite(c.partnerLat) &&
+    Number.isFinite(c.partnerLon)
+  ) {
+    const km = distanceKm(userCoords.lat, userCoords.lon, c.partnerLat!, c.partnerLon!);
+    // Favor nearby partners: <2km strong, <5km medium, <10km light
+    if (km <= 2) score += 14;
+    else if (km <= 5) score += 9;
+    else if (km <= 10) score += 5;
+    else score += 0;
+  }
+
   return score;
 }
 
@@ -269,8 +292,9 @@ export function generateRoutineWeek(params: {
   prefs: RoutinePreferences;
   availableCredits: number;
   now?: Date;
+  userCoords?: { lat: number; lon: number } | null;
 }): RoutineWeek {
-  const { prefs, availableCredits } = params;
+  const { prefs, availableCredits, userCoords } = params;
   const now = params.now ?? new Date();
   const weekStart = startOfNextWeekMonday(now);
   const weekStartISO = isoYMD(weekStart);
@@ -298,7 +322,7 @@ export function generateRoutineWeek(params: {
           : prefs.preferredTimeSlots.some((s) => slotMatches(s, c.time));
         let score = 0;
         if (inTargetWeek && matchesDay && creditOk) {
-          score = scoreCandidate(c, prefs, prefs.preferredTimeSlots, usedPartnerIds, usedTitles);
+          score = scoreCandidate(c, prefs, prefs.preferredTimeSlots, usedPartnerIds, usedTitles, userCoords);
           if (!slotOk) score -= 12;
         } else {
           score = -9999;
@@ -331,7 +355,9 @@ export function generateRoutineWeek(params: {
       .filter((c) => !selected.some((s) => s.dateISO === c.dateISO && s.time === c.time))
       .map((c) => ({
         c,
-        score: scoreCandidate(c, prefs, prefs.preferredTimeSlots, usedPartnerIds, usedTitles) - (usedPartnerIds.has(c.partnerId) ? 6 : 0),
+        score:
+          scoreCandidate(c, prefs, prefs.preferredTimeSlots, usedPartnerIds, usedTitles, userCoords) -
+          (usedPartnerIds.has(c.partnerId) ? 6 : 0),
       }))
       .sort((a, b) => b.score - a.score)
       .slice(0, need);
@@ -355,7 +381,7 @@ export function generateRoutineWeek(params: {
 }
 
 export function getSessionDisplayTitle(s: RoutineSessionCandidate): string {
-  return s.kind === "gym" ? "Acesso ginásio" : s.activityTitle;
+  return s.kind === "gym" ? "Ginásio" : s.activityTitle;
 }
 
 export function getSessionDisplaySubtitle(s: RoutineSessionCandidate): string {
@@ -387,7 +413,10 @@ export function getAlternativesForSession(params: {
   const usedPartnerIds = new Set<string>(params.excludePartnerIds ?? []);
   const usedTitles = new Set<string>();
   return candidates
-    .map((c) => ({ ...c, score: scoreCandidate(c, prefs, prefs.preferredTimeSlots, usedPartnerIds, usedTitles) }))
+    .map((c) => ({
+      ...c,
+      score: scoreCandidate(c, prefs, prefs.preferredTimeSlots, usedPartnerIds, usedTitles, null),
+    }))
     .sort((a, b) => b.score - a.score)
     .slice(0, limit);
 }

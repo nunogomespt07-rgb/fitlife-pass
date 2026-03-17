@@ -161,7 +161,7 @@ export default function DashboardPage() {
           FitLife Pass · Área pessoal
         </p>
         <h1 className="app-hero-title mt-4 text-white sm:mt-5">
-          Olá, {firstName}
+          Olá, {firstName} 👋
         </h1>
         <p className="mt-3 text-base leading-relaxed text-white/65">
           Acede rapidamente às tuas reservas, créditos e histórico na tua conta FitLife Pass.
@@ -170,11 +170,18 @@ export default function DashboardPage() {
 
         {/* Primary CTA */}
         <div className="mt-8 sm:mt-10">
-          <Link href="/activities" className="block">
-            <PrimaryButton variant="appPrimary" className="w-full sm:w-auto min-w-[240px] py-4 text-base font-semibold">
-              Explorar atividades
-            </PrimaryButton>
-          </Link>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Link href="/activities" className="block">
+              <PrimaryButton variant="appPrimary" className="w-full sm:w-auto min-w-[240px] py-4 text-base font-semibold">
+                Explorar atividades
+              </PrimaryButton>
+            </Link>
+            <Link href="/dashboard/rotina" className="block">
+              <PrimaryButton variant="appSecondary" className="w-full sm:w-auto min-w-[240px] py-4 text-base font-semibold">
+                Gerar rotina semanal
+              </PrimaryButton>
+            </Link>
+          </div>
           <p className="mt-2 text-sm text-white/75">ou <Link href="/dashboard/reservas" className="font-medium text-white/90 underline-offset-2 hover:underline">ver as minhas reservas</Link></p>
         </div>
 
@@ -209,14 +216,6 @@ export default function DashboardPage() {
                 Ver atividade →
               </span>
             </Link>
-            <div className="mt-4 rounded-xl border border-white/15 bg-white/5 px-4 py-3">
-              <p className="text-sm font-semibold text-white">A tua rotina</p>
-              <Link href="/dashboard/rotina" className="mt-2 inline-flex">
-                <span className="inline-flex items-center justify-center rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition duration-[180ms] hover:bg-white/15 hover:border-white/30 active:scale-[0.98]">
-                  Gerar rotina semanal
-                </span>
-              </Link>
-            </div>
           </DashboardCard>
 
           <DashboardCard

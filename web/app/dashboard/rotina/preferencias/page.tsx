@@ -45,7 +45,7 @@ const LOCATIONS: { id: LocationPreference; label: string }[] = [
 ];
 
 const ACTIVITY_TYPES: { id: RoutineActivityType; label: string }[] = [
-  { id: "gym_access", label: "Gym access" },
+  { id: "gym_access", label: "Ginásio" },
   { id: "yoga", label: "Yoga" },
   { id: "pilates", label: "Pilates" },
   { id: "piscina", label: "Piscina" },
@@ -65,8 +65,8 @@ function toggleInList<T>(list: T[], item: T): T[] {
 
 function chipClass(active: boolean): string {
   return active
-    ? "rounded-full border border-white/20 bg-white/10 px-3 py-2 text-sm font-medium text-white"
-    : "rounded-full border border-white/10 bg-white/5 px-3 py-2 text-sm font-medium text-white/80 hover:bg-white/8";
+    ? "rounded-full border border-white/35 bg-white/18 px-3 py-2 text-sm font-semibold text-white shadow-[0_0_0_1px_rgba(255,255,255,0.06),0_12px_30px_rgba(0,0,0,0.18)] ring-1 ring-white/10"
+    : "rounded-full border border-white/10 bg-white/5 px-3 py-2 text-sm font-medium text-white/80 hover:bg-white/8 hover:border-white/20";
 }
 
 function deriveGoalFromProfile(raw: string | null | undefined): RoutineGoal {

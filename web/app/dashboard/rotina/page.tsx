@@ -7,6 +7,7 @@ import GlassCard from "@/app/components/ui/GlassCard";
 import PrimaryButton from "@/app/components/ui/PrimaryButton";
 import { useMockReservations } from "@/app/context/MockReservationsContext";
 import { getStoredUser } from "@/lib/storedUser";
+import { useGeolocation, useProfileCoords } from "@/app/hooks/useGeolocation";
 import {
   getStoredRoutinePreferences,
   type RoutinePreferences,
@@ -36,6 +37,15 @@ export default function DashboardRotinaPage() {
   const router = useRouter();
   const userId = getStoredUser()?.id ?? null;
   const { credits, reservations, addReservation, addGymReservation } = useMockReservations();
+  const { position } = useGeolocation();
+  const profileCoords = useProfileCoords();
+
+  const userCoords =
+    position?.lat != null && position?.lon != null
+      ? { lat: position.lat, lon: position.lon }
+      : profileCoords?.lat != null && profileCoords?.lon != null
+        ? { lat: profileCoords.lat, lon: profileCoords.lon }
+        : null;
 
   const prefs = useMemo<RoutinePreferences | null>(
     () => getStoredRoutinePreferences(userId),
@@ -60,7 +70,7 @@ export default function DashboardRotinaPage() {
     setLoading(true);
     setError(null);
     try {
-      const w = generateRoutineWeek({ prefs, availableCredits: credits });
+      const w = generateRoutineWeek({ prefs, availableCredits: credits, userCoords });
       setWeek(w);
       if (w.sessions.length === 0) {
         setError("Não foi possível gerar uma rotina possível com as tuas preferências e saldo atual.");
@@ -70,7 +80,7 @@ export default function DashboardRotinaPage() {
     } finally {
       setLoading(false);
     }
-  }, [prefs, credits]);
+  }, [prefs, credits, userCoords]);
 
   function handleRegenerate() {
     if (!prefs) return;
@@ -78,7 +88,7 @@ export default function DashboardRotinaPage() {
     setError(null);
     setBookingResult(null);
     try {
-      const w = generateRoutineWeek({ prefs, availableCredits: credits });
+      const w = generateRoutineWeek({ prefs, availableCredits: credits, userCoords });
       setWeek(w);
       if (w.sessions.length === 0) {
         setError("Não foi possível gerar uma rotina possível com as tuas preferências e saldo atual.");
