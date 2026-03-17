@@ -40,12 +40,11 @@ export default function DashboardRotinaPage() {
   const { position } = useGeolocation();
   const profileCoords = useProfileCoords();
 
-  const userCoords =
-    position?.lat != null && position?.lon != null
-      ? { lat: position.lat, lon: position.lon }
-      : profileCoords?.lat != null && profileCoords?.lon != null
-        ? { lat: profileCoords.lat, lon: profileCoords.lon }
-        : null;
+  const userCoords = useMemo(() => {
+    if (position?.lat != null && position?.lon != null) return { lat: position.lat, lon: position.lon };
+    if (profileCoords?.lat != null && profileCoords?.lon != null) return { lat: profileCoords.lat, lon: profileCoords.lon };
+    return null;
+  }, [position?.lat, position?.lon, profileCoords?.lat, profileCoords?.lon]);
 
   const prefs = useMemo<RoutinePreferences | null>(
     () => getStoredRoutinePreferences(userId),
