@@ -53,8 +53,8 @@ const ACTIVITY_TYPES: { id: RoutineActivityType; label: string }[] = [
   { id: "boxe", label: "Boxe" },
   { id: "danca", label: "Dança" },
   { id: "padel", label: "Padel" },
-  { id: "pilates_reformer", label: "Pilates reformer" },
-  { id: "personal_training", label: "Personal training" },
+  { id: "pilates_reformer", label: "Pilates Reformer" },
+  { id: "personal_training", label: "Treino pessoal" },
   { id: "nutricao", label: "Nutrição" },
   { id: "massagem_desportiva", label: "Massagem desportiva" },
 ];

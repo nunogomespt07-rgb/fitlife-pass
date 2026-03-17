@@ -161,6 +161,32 @@ export default function ActivityDetailPage() {
                 <dt className="text-white/60">Vagas disponíveis</dt>
                 <dd className="font-medium text-white">{availableSpots}</dd>
               </div>
+              {activity.peakLabel && (
+                <div className="flex justify-between gap-4">
+                  <dt className="text-white/60">Tipo</dt>
+                  <dd className="font-medium text-white">{activity.peakLabel}</dd>
+                </div>
+              )}
+              {activity.trainer?.name && (
+                <div className="flex justify-between gap-4">
+                  <dt className="text-white/60">Treinador</dt>
+                  <dd className="font-medium text-white">{activity.trainer.name}</dd>
+                </div>
+              )}
+              {activity.trainer?.specialty && (
+                <div className="flex justify-between gap-4">
+                  <dt className="text-white/60">Especialidade</dt>
+                  <dd className="font-medium text-white">{activity.trainer.specialty}</dd>
+                </div>
+              )}
+              {activity.trainer?.certifications && activity.trainer.certifications.length > 0 && (
+                <div className="flex justify-between gap-4">
+                  <dt className="text-white/60">Certificações</dt>
+                  <dd className="font-medium text-white">
+                    {activity.trainer.certifications.join(", ")}
+                  </dd>
+                </div>
+              )}
             </dl>
           </GlassCard>
 

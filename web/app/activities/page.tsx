@@ -38,6 +38,12 @@ const CATEGORY_ICONS: Record<string, LucideIcon> = {
   crossfit: Flame,
   piscinas: Waves,
   "healthy-food": UtensilsCrossed,
+  danca: Sparkles,
+  pilates: Sparkles,
+  "pilates-reformer": Sparkles,
+  "massagem-desportiva": Sparkles,
+  nutricao: Sparkles,
+  "personal-training": Sparkles,
 };
 
 const CATEGORY_ACCENT: Record<string, string> = {
@@ -48,6 +54,12 @@ const CATEGORY_ACCENT: Record<string, string> = {
   crossfit: "border-t-orange-400/30",
   piscinas: "border-t-cyan-400/30",
   "healthy-food": "border-t-rose-400/25",
+  danca: "border-t-violet-400/30",
+  pilates: "border-t-violet-400/30",
+  "pilates-reformer": "border-t-violet-400/30",
+  "massagem-desportiva": "border-t-cyan-400/25",
+  nutricao: "border-t-emerald-400/25",
+  "personal-training": "border-t-blue-400/25",
 };
 
 const CTA_LABEL: Record<string, string> = {
@@ -61,6 +73,12 @@ const ACTIVITY_CATEGORIES = [
   { slug: "padel", label: "Padel", description: "Campos de padel em clubes parceiros.", city: "Lisboa", creditsFrom: 8 },
   { slug: "yoga", label: "Yoga", description: "Yoga em estúdios calmos e modernos.", city: "Lisboa", creditsFrom: 4 },
   { slug: "estudios", label: "Estúdios", description: "Pilates, cycling, HIIT e mais.", city: "Lisboa", creditsFrom: 6 },
+  { slug: "pilates", label: "Pilates", description: "Pilates mat e postural com foco em postura e core.", city: "Lisboa", creditsFrom: 7 },
+  { slug: "pilates-reformer", label: "Pilates Reformer", description: "Reformer premium com vagas limitadas.", city: "Lisboa", creditsFrom: 10 },
+  { slug: "danca", label: "Dança", description: "Aulas de dança para energia, cardio e bem-estar.", city: "Lisboa", creditsFrom: 7 },
+  { slug: "massagem-desportiva", label: "Massagem desportiva", description: "Recuperação e terapia manual para performance.", city: "Lisboa", creditsFrom: 12 },
+  { slug: "nutricao", label: "Nutrição", description: "Consultas e acompanhamento nutricional.", city: "Lisboa", creditsFrom: 8 },
+  { slug: "personal-training", label: "Personal training", description: "Sessões premium com treinador dedicado.", city: "Lisboa", creditsFrom: 12 },
   { slug: "crossfit", label: "CrossFit", description: "Boxes para treinos intensos.", city: "Lisboa", creditsFrom: 8 },
   { slug: "piscinas", label: "Piscinas", description: "Natação e treinos aquáticos.", city: "Lisboa", creditsFrom: 5 },
   { slug: "healthy-food", label: "Healthy Food", description: "Restaurantes com desconto FitLife Pass.", city: "Lisboa", creditsFrom: 6 },

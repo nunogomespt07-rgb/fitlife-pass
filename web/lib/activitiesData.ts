@@ -300,6 +300,216 @@ export const CATEGORY_PARTNERS: Record<
       },
     ],
   },
+  danca: {
+    label: "Dança",
+    partners: [
+      {
+        id: "dance-lab-lisboa",
+        name: "Dance Lab Lisboa",
+        imageSrc: "/images/fitness-hero.jpg",
+        location: "Lisboa · Príncipe Real",
+        description: "Aulas de dança para todos os níveis: hip hop, contemporâneo e mais.",
+        activitiesCount: 8,
+        minCredits: 7,
+        partnerType: "class_booking",
+        address: "Rua da Escola Politécnica 12",
+        city: "Lisboa",
+        latitude: 38.7139,
+        longitude: -9.1492,
+        googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=38.7139,-9.1492",
+      },
+      {
+        id: "rhythm-studio-porto",
+        name: "Rhythm Studio",
+        imageSrc: "/images/fitness-hero.jpg",
+        location: "Porto · Cedofeita",
+        description: "Salsa, ritmos latinos e aulas energéticas em ambiente premium.",
+        activitiesCount: 6,
+        minCredits: 7,
+        partnerType: "class_booking",
+        address: "Rua de Cedofeita 210",
+        city: "Porto",
+        latitude: 41.1559,
+        longitude: -8.6221,
+        googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=41.1559,-8.6221",
+      },
+    ],
+  },
+  pilates: {
+    label: "Pilates",
+    partners: [
+      {
+        id: "pilates-house-lisboa",
+        name: "Pilates House",
+        imageSrc: "/images/fitness-hero.jpg",
+        location: "Lisboa · Avenidas Novas",
+        description: "Pilates mat e postural com foco em core, postura e mobilidade.",
+        activitiesCount: 10,
+        minCredits: 7,
+        partnerType: "class_booking",
+        address: "Av. 5 de Outubro 88",
+        city: "Lisboa",
+        latitude: 38.7337,
+        longitude: -9.1462,
+        googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=38.7337,-9.1462",
+      },
+      {
+        id: "pilates-porto-core",
+        name: "Porto Core Pilates",
+        imageSrc: "/images/fitness-hero.jpg",
+        location: "Porto · Boavista",
+        description: "Sessões de pilates para força, estabilidade e recuperação.",
+        activitiesCount: 8,
+        minCredits: 7,
+        partnerType: "class_booking",
+        address: "Rua da Boavista 980",
+        city: "Porto",
+        latitude: 41.1595,
+        longitude: -8.6475,
+        googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=41.1595,-8.6475",
+      },
+    ],
+  },
+  "pilates-reformer": {
+    label: "Pilates Reformer",
+    partners: [
+      {
+        id: "reformer-lab-lisboa",
+        name: "Reformer Lab",
+        imageSrc: "/images/fitness-hero.jpg",
+        location: "Lisboa · Chiado",
+        description: "Pilates reformer em estúdio premium com vagas limitadas.",
+        activitiesCount: 6,
+        minCredits: 10,
+        partnerType: "class_booking",
+        address: "Rua do Carmo 22",
+        city: "Lisboa",
+        latitude: 38.7107,
+        longitude: -9.1418,
+        googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=38.7107,-9.1418",
+      },
+      {
+        id: "reformer-porto-studio",
+        name: "Reformer Porto Studio",
+        imageSrc: "/images/fitness-hero.jpg",
+        location: "Porto · Foz",
+        description: "Reformer e treino de core com foco em técnica e postura.",
+        activitiesCount: 6,
+        minCredits: 10,
+        partnerType: "class_booking",
+        address: "Av. Brasil 410",
+        city: "Porto",
+        latitude: 41.1533,
+        longitude: -8.6735,
+        googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=41.1533,-8.6735",
+      },
+    ],
+  },
+  "massagem-desportiva": {
+    label: "Massagem desportiva",
+    partners: [
+      {
+        id: "recovery-lab-lisboa",
+        name: "Recovery Lab",
+        imageSrc: "/images/fitness-hero.jpg",
+        location: "Lisboa · Saldanha",
+        description: "Recuperação e massagem desportiva para performance e bem-estar.",
+        activitiesCount: 6,
+        minCredits: 12,
+        partnerType: "class_booking",
+        address: "Av. da República 12",
+        city: "Lisboa",
+        latitude: 38.7351,
+        longitude: -9.1451,
+        googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=38.7351,-9.1451",
+      },
+      {
+        id: "recovery-porto-center",
+        name: "Recovery Porto Center",
+        imageSrc: "/images/fitness-hero.jpg",
+        location: "Porto · Aliados",
+        description: "Massagem e terapia manual com foco em recuperação desportiva.",
+        activitiesCount: 6,
+        minCredits: 12,
+        partnerType: "class_booking",
+        address: "Praça da Liberdade 18",
+        city: "Porto",
+        latitude: 41.1481,
+        longitude: -8.6107,
+        googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=41.1481,-8.6107",
+      },
+    ],
+  },
+  nutricao: {
+    label: "Nutrição",
+    partners: [
+      {
+        id: "nutri-care-lisboa",
+        name: "NutriCare Lisboa",
+        imageSrc: "/images/fitness-hero.jpg",
+        location: "Lisboa · Campo Pequeno",
+        description: "Consultas de nutrição e planos alimentares personalizados.",
+        activitiesCount: 6,
+        minCredits: 8,
+        partnerType: "class_booking",
+        address: "Av. João XXI 16",
+        city: "Lisboa",
+        latitude: 38.7422,
+        longitude: -9.1459,
+        googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=38.7422,-9.1459",
+      },
+      {
+        id: "nutri-porto-studio",
+        name: "Nutri Porto Studio",
+        imageSrc: "/images/fitness-hero.jpg",
+        location: "Porto · Boavista",
+        description: "Acompanhamento nutricional para performance, saúde e recomposição corporal.",
+        activitiesCount: 6,
+        minCredits: 8,
+        partnerType: "class_booking",
+        address: "Rua de Júlio Dinis 780",
+        city: "Porto",
+        latitude: 41.1582,
+        longitude: -8.6408,
+        googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=41.1582,-8.6408",
+      },
+    ],
+  },
+  "personal-training": {
+    label: "Personal training",
+    partners: [
+      {
+        id: "pt-lisboa-coach",
+        name: "PT Lisboa Coach",
+        imageSrc: "/images/fitness-hero.jpg",
+        location: "Lisboa · Parque das Nações",
+        description: "Treino individual premium com foco em objetivos e técnica.",
+        activitiesCount: 6,
+        minCredits: 12,
+        partnerType: "class_booking",
+        address: "Av. Dom João II 32",
+        city: "Lisboa",
+        latitude: 38.7676,
+        longitude: -9.0954,
+        googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=38.7676,-9.0954",
+      },
+      {
+        id: "pt-porto-performance",
+        name: "PT Porto Performance",
+        imageSrc: "/images/fitness-hero.jpg",
+        location: "Porto · Foz",
+        description: "Sessões premium de treino e mobilidade com vagas limitadas.",
+        activitiesCount: 6,
+        minCredits: 12,
+        partnerType: "class_booking",
+        address: "Rua do Passeio Alegre 180",
+        city: "Porto",
+        latitude: 41.1518,
+        longitude: -8.6748,
+        googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=41.1518,-8.6748",
+      },
+    ],
+  },
   crossfit: {
     label: "CrossFit",
     partners: [
@@ -443,6 +653,16 @@ export type MockActivity = {
   credits: number;
   spots: number;
   location?: string;
+  /** Optional peak/off-peak label for pricing context. */
+  peakLabel?: string;
+  /** Optional trainer/provider details (e.g., personal training). */
+  trainer?: {
+    name: string;
+    avatarSrc?: string;
+    certifications?: string[];
+    specialty?: string;
+    zone?: string;
+  };
 };
 
 /** Format date as DD/MM/YYYY for display. */
@@ -469,6 +689,8 @@ type ActivitySlot = {
   credits: number;
   spots: number;
   location?: string;
+  peakLabel?: string;
+  trainer?: MockActivity["trainer"];
 };
 
 /** Weekly slot templates per partner (class_booking, court_booking, pool_access). */
@@ -511,6 +733,99 @@ const ACTIVITY_SLOTS_BY_PARTNER: Record<string, ActivitySlot[]> = {
   ],
   "urban-flow-studio": [
     { title: "Barre & Flow", time: "09:30", durationMinutes: 60, credits: 8, spots: 12, location: "Arroios" },
+  ],
+  // Dança
+  "dance-lab-lisboa": [
+    { title: "Dança Contemporânea", time: "19:30", durationMinutes: 60, credits: 7, spots: 18, location: "Príncipe Real" },
+    { title: "Hip Hop Basics", time: "18:00", durationMinutes: 55, credits: 7, spots: 20, location: "Príncipe Real" },
+  ],
+  "rhythm-studio-porto": [
+    { title: "Salsa Social", time: "20:00", durationMinutes: 60, credits: 7, spots: 22, location: "Cedofeita" },
+  ],
+  // Pilates
+  "pilates-house-lisboa": [
+    { title: "Pilates Mat", time: "08:30", durationMinutes: 55, credits: 7, spots: 14, location: "Avenidas Novas" },
+    { title: "Pilates Postural", time: "18:30", durationMinutes: 55, credits: 7, spots: 12, location: "Avenidas Novas" },
+  ],
+  "pilates-porto-core": [
+    { title: "Pilates Core", time: "19:00", durationMinutes: 55, credits: 7, spots: 14, location: "Boavista" },
+  ],
+  // Pilates Reformer (mais premium)
+  "reformer-lab-lisboa": [
+    { title: "Pilates Reformer", time: "10:00", durationMinutes: 55, credits: 10, spots: 8, location: "Chiado", peakLabel: "Premium" },
+    { title: "Reformer Strong", time: "18:00", durationMinutes: 55, credits: 10, spots: 8, location: "Chiado", peakLabel: "Premium" },
+  ],
+  "reformer-porto-studio": [
+    { title: "Pilates Reformer", time: "09:00", durationMinutes: 55, credits: 10, spots: 8, location: "Foz", peakLabel: "Premium" },
+  ],
+  // Massagem desportiva
+  "recovery-lab-lisboa": [
+    { title: "Massagem desportiva 45'", time: "12:30", durationMinutes: 45, credits: 12, spots: 3, location: "Saldanha", peakLabel: "Recuperação" },
+    { title: "Massagem de recuperação 60'", time: "18:30", durationMinutes: 60, credits: 14, spots: 3, location: "Saldanha", peakLabel: "Recuperação" },
+  ],
+  "recovery-porto-center": [
+    { title: "Massagem desportiva 45'", time: "17:30", durationMinutes: 45, credits: 12, spots: 3, location: "Aliados", peakLabel: "Recuperação" },
+  ],
+  // Nutrição
+  "nutri-care-lisboa": [
+    { title: "Consulta de nutrição (45')", time: "11:00", durationMinutes: 45, credits: 10, spots: 6, location: "Campo Pequeno", peakLabel: "Suporte" },
+    { title: "Plano alimentar (follow-up)", time: "18:00", durationMinutes: 30, credits: 8, spots: 8, location: "Campo Pequeno", peakLabel: "Suporte" },
+  ],
+  "nutri-porto-studio": [
+    { title: "Consulta de nutrição (45')", time: "19:00", durationMinutes: 45, credits: 10, spots: 6, location: "Boavista", peakLabel: "Suporte" },
+  ],
+  // Personal training (com detalhes do treinador)
+  "pt-lisboa-coach": [
+    {
+      title: "Personal training 60'",
+      time: "07:30",
+      durationMinutes: 60,
+      credits: 15,
+      spots: 4,
+      location: "Parque das Nações",
+      peakLabel: "Premium",
+      trainer: {
+        name: "Miguel Santos",
+        avatarSrc: "/images/trainer-miguel.jpg",
+        certifications: ["NSCA-CPT", "Treino funcional"],
+        specialty: "Força e recomposição corporal",
+        zone: "Lisboa",
+      },
+    },
+    {
+      title: "Personal training 45'",
+      time: "18:30",
+      durationMinutes: 45,
+      credits: 12,
+      spots: 4,
+      location: "Parque das Nações",
+      peakLabel: "Premium",
+      trainer: {
+        name: "Miguel Santos",
+        avatarSrc: "/images/trainer-miguel.jpg",
+        certifications: ["NSCA-CPT", "Treino funcional"],
+        specialty: "Força e recomposição corporal",
+        zone: "Lisboa",
+      },
+    },
+  ],
+  "pt-porto-performance": [
+    {
+      title: "Personal training 60'",
+      time: "19:00",
+      durationMinutes: 60,
+      credits: 15,
+      spots: 4,
+      location: "Foz",
+      peakLabel: "Premium",
+      trainer: {
+        name: "Inês Ribeiro",
+        avatarSrc: "/images/trainer-ines.jpg",
+        certifications: ["CrossFit L1", "Mobilidade"],
+        specialty: "Performance e mobilidade",
+        zone: "Porto",
+      },
+    },
   ],
   "porto-crossfit-box": [
     { title: "WOD", time: "18:30", durationMinutes: 60, credits: 10, spots: 14, location: "Bonfim" },
@@ -559,6 +874,8 @@ export function getMockActivitiesForPartner(partnerId: string): MockActivity[] {
         credits: slot.credits,
         spots: slot.spots,
         location: slot.location,
+        peakLabel: slot.peakLabel,
+        trainer: slot.trainer,
       });
     });
   }

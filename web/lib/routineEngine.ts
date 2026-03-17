@@ -88,12 +88,18 @@ function normalizeTypeToCategorySlug(t: RoutineActivityType): string[] {
     case "yoga":
       return ["yoga"];
     case "pilates":
+      return ["pilates"];
     case "pilates_reformer":
-    case "personal_training":
-    case "boxe":
+      return ["pilates-reformer"];
     case "danca":
-    case "nutricao":
+      return ["danca"];
     case "massagem_desportiva":
+      return ["massagem-desportiva"];
+    case "nutricao":
+      return ["nutricao"];
+    case "personal_training":
+      return ["personal-training"];
+    case "boxe":
       return ["estudios"];
     case "piscina":
       return ["piscinas"];
@@ -122,16 +128,52 @@ function goalWeights(goal: RoutineGoal): Record<RoutineActivityType, number> {
     massagem_desportiva: 1,
   };
   if (goal === "perder_peso" || goal === "melhorar_performance") {
-    return { ...base, crossfit: 5, gym_access: 4, boxe: 4, pilates: 3, padel: 3 };
+    return {
+      ...base,
+      crossfit: 5,
+      gym_access: 4,
+      boxe: 4,
+      pilates: 3,
+      pilates_reformer: 3,
+      danca: 3,
+      padel: 3,
+      personal_training: 4,
+    };
   }
   if (goal === "relaxar_bem_estar") {
-    return { ...base, yoga: 5, piscina: 4, massagem_desportiva: 5, pilates: 3 };
+    return {
+      ...base,
+      yoga: 5,
+      piscina: 4,
+      massagem_desportiva: 5,
+      pilates: 3,
+      danca: 3,
+      nutricao: 2,
+    };
   }
   if (goal === "manter_forma") {
-    return { ...base, gym_access: 4, yoga: 3, pilates: 3, piscina: 3, padel: 3, crossfit: 3 };
+    return {
+      ...base,
+      gym_access: 4,
+      yoga: 3,
+      pilates: 4,
+      pilates_reformer: 3,
+      piscina: 3,
+      danca: 3,
+      padel: 3,
+      crossfit: 3,
+      nutricao: 2,
+    };
   }
   if (goal === "ganhar_massa") {
-    return { ...base, gym_access: 5, personal_training: 4, pilates_reformer: 4, pilates: 3 };
+    return {
+      ...base,
+      gym_access: 5,
+      personal_training: 5,
+      pilates_reformer: 4,
+      pilates: 3,
+      nutricao: 2,
+    };
   }
   return base;
 }
