@@ -31,6 +31,7 @@ import { getStoredUser } from "@/lib/storedUser";
 import type { MockReservation } from "@/lib/mockReservations";
 import type { RestaurantReservation } from "@/lib/mockRestaurantReservations";
 import { useCreditActivity } from "@/app/context/CreditActivityContext";
+import { setStoredUser } from "@/lib/storedUser";
 
 type AddReservationInput = Omit<MockReservation, "id" | "status">;
 type AddRestaurantReservationInput = Omit<RestaurantReservation, "id" | "status">;
@@ -92,6 +93,40 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
     setReservations(list);
     setPurchasedCredits(getStoredPurchasedCredits(effectiveUserId));
   }, [pathname, effectiveUserId]);
+
+  // Cross-device demo persistence: when user has a NextAuth session, hydrate credits/plan from server store.
+  useEffect(() => {
+    if (!session?.user) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/customer/state", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = (await res.json().catch(() => null)) as
+          | { purchasedCredits?: number; subscriptionPlanId?: string | null; subscriptionPlanName?: string | null }
+          | null;
+        if (!data || cancelled) return;
+        if (typeof data.purchasedCredits === "number" && Number.isFinite(data.purchasedCredits)) {
+          setPurchasedCredits(Math.max(0, Math.floor(data.purchasedCredits)));
+          // Keep local compatibility in sync for pages reading local storage.
+          setStoredPurchasedCredits(effectiveUserId, Math.max(0, Math.floor(data.purchasedCredits)));
+        }
+        if (data.subscriptionPlanId || data.subscriptionPlanName) {
+          try {
+            setStoredUser({
+              subscriptionPlanId: data.subscriptionPlanId ?? null,
+              subscriptionPlanName: data.subscriptionPlanName ?? null,
+            });
+          } catch {}
+        }
+      } catch {
+        // ignore
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [session, effectiveUserId]);
 
   const activeReservationCount = useMemo(
     () => getActiveReservationCount(reservations),
@@ -335,6 +370,14 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
     setPurchasedCredits((prev) => {
       const next = prev + n;
       setStoredPurchasedCredits(userId, next);
+      // Best-effort: persist to server store for session users (cross-device).
+      if (session?.user) {
+        fetch("/api/customer/state", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ purchasedCredits: next }),
+        }).catch(() => {});
+      }
       return next;
     });
     if (creditActivity && n > 0) {
@@ -347,7 +390,7 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
         creditActivity.showToast("Créditos adicionados", `+${n} créditos`);
       }
     }
-  }, [effectiveUserId, creditActivity]);
+  }, [effectiveUserId, creditActivity, session]);
 
   const monthlyCancellationCount = getMonthlyCancellationCount(effectiveUserId);
 

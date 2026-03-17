@@ -187,7 +187,8 @@ export default function Nav() {
     "";
   const firstName = displayName || "Utilizador";
   const avatarLetter = (firstName.charAt(0) || "U").toUpperCase();
-  const planName = user?.subscriptionPlanName ?? null;
+  const storedForPlan = getStoredUser();
+  const planName = storedForPlan?.subscriptionPlanName ?? user?.subscriptionPlanName ?? null;
   const planLabel = planName ? `Plano ${planName.replace(/^FitLife\s+/i, "")}` : null;
   const mobilePlanLabel = planName ? planName.replace(/^FitLife\s+/i, "").trim() : "Sem plano";
   const mobileCreditsLabel =
