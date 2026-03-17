@@ -155,6 +155,11 @@ function candidateFromMockActivity(
   partner: PartnerWithCategory,
   act: MockActivity
 ): RoutineSessionCandidate {
+  const peakLabel =
+    "peakLabel" in (act as unknown as Record<string, unknown>) &&
+    typeof (act as unknown as { peakLabel?: unknown }).peakLabel === "string"
+      ? (act as unknown as { peakLabel: string }).peakLabel
+      : undefined;
   return {
     kind: "activity",
     categorySlug,
@@ -168,7 +173,7 @@ function candidateFromMockActivity(
     time: act.time,
     credits: act.credits,
     score: 0,
-    meta: act.peakLabel ? { peakLabel: act.peakLabel } : undefined,
+    meta: peakLabel ? { peakLabel } : undefined,
   };
 }
 
