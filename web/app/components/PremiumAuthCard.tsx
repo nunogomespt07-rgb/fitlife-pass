@@ -212,31 +212,31 @@ export default function PremiumAuthCard({ desktopWider, mode = "landing" }: Prem
         setLoading(false);
         return;
       }
-      if (typeof window !== "undefined" && data && typeof data === "object" && "token" in data) {
-        const { token, user } = data as {
-          token?: string;
-          user?: { id?: string; name?: string; email?: string };
-        };
-        if (token) {
-          localStorage.setItem("token", token);
-          try {
-            if (user) {
-              setStoredUser({
-                id: user.id ?? "",
-                name: fullName,
-                firstName: firstName.trim(),
-                lastName: lastName.trim(),
-                email: user.email ?? emailVal,
-                dateOfBirth: dateOfBirth.trim() || null,
-                profileCompleted: true,
-              });
-            }
-          } catch {
-            // ignore
-          }
-        }
+      // Auto-login after successful registration (preferred)
+      const loginResult = await signIn("credentials", {
+        email: emailVal,
+        password,
+        redirect: false,
+      });
+      if (loginResult?.ok) {
+        // keep demo stored user for non-NextAuth parts
+        try {
+          setStoredUser({
+            id: "",
+            name: fullName,
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
+            email: emailVal,
+            dateOfBirth: dateOfBirth.trim() || null,
+            profileCompleted: true,
+          });
+        } catch {}
+        router.push("/dashboard");
+        return;
       }
-      router.push("/onboarding/preferences");
+
+      // Fallback: keep user on form with error (no silent redirect)
+      setError("Conta criada, mas não foi possível iniciar sessão automaticamente. Entra com o teu email.");
     } catch (e) {
       const msg = e instanceof Error ? e.message : "";
       const isNetwork =

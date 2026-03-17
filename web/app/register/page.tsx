@@ -66,33 +66,19 @@ export default function RegisterPage() {
         return;
       }
 
-      const success = data && typeof data === "object" && ((data as { success?: boolean }).success === true);
-      const token = data && typeof data === "object" && typeof (data as { token?: string }).token === "string"
-        ? (data as { token: string }).token
-        : null;
-      const userFromApi = data && typeof data === "object" && (data as { user?: unknown }).user;
-
-      if (typeof window !== "undefined" && (token || (success && userFromApi))) {
-        if (token) {
-          localStorage.setItem("token", token);
-        }
-        localStorage.removeItem("fitlife-purchased-credits");
-        const payload = {
-          id: (userFromApi && typeof userFromApi === "object" && (userFromApi as { id?: string }).id) ?? "",
-          name: (userFromApi && typeof userFromApi === "object" && (userFromApi as { name?: string }).name) ?? name.trim(),
-          email: (userFromApi && typeof userFromApi === "object" && (userFromApi as { email?: string }).email) ?? email.trim().toLowerCase(),
-          subscriptionPlanId: null as string | null,
-          subscriptionPlanName: null as string | null,
-          acceptedTerms: true,
-          acceptedTermsAt: new Date().toISOString(),
-          acceptedPrivacy: true,
-          acceptedAgeConfirmation: true,
-        };
-        localStorage.setItem("fitlife-user", JSON.stringify(payload));
-        router.push("/onboarding/profile");
+      // Auto-login via NextAuth Credentials (preferred)
+      const emailVal = email.trim().toLowerCase();
+      const loginResult = await signIn("credentials", {
+        email: emailVal,
+        password,
+        redirect: false,
+      });
+      if (loginResult?.ok) {
+        router.push("/dashboard");
         return;
       }
-      setError("Não foi possível criar a conta. Tenta novamente.");
+
+      setError("Conta criada, mas não foi possível iniciar sessão automaticamente. Entra com o teu email.");
     } catch (e) {
       const msg = e instanceof Error ? e.message : "";
       const isNetwork =

@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
 
 // Validate required env at load time so /api/auth/error is easier to diagnose
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
@@ -30,8 +31,59 @@ const handler = NextAuth({
       clientId: GOOGLE_CLIENT_ID!,
       clientSecret: GOOGLE_CLIENT_SECRET!,
     }),
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        const email = String(credentials?.email ?? "").trim().toLowerCase();
+        const password = String(credentials?.password ?? "").trim();
+        if (!email || !password) return null;
+
+        // Server-side login against backend auth (demo/prod). This enables auto-login after register.
+        const base =
+          process.env.BACKEND_API_URL?.replace(/\/$/, "") ||
+          process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+        if (!base) return null;
+
+        const res = await fetch(`${base}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+        if (!res.ok) return null;
+
+        const data = (await res.json().catch(() => null)) as
+          | { user?: { id?: string; name?: string; email?: string } }
+          | null;
+        const u = data?.user;
+        if (!u?.id) return null;
+        return {
+          id: u.id,
+          name: u.name ?? "",
+          email: u.email ?? email,
+        };
+      },
+    }),
   ],
   secret: NEXTAUTH_SECRET ?? undefined,
+  session: { strategy: "jwt" },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.userId = (user as { id?: string }).id ?? token.sub;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        (session.user as { id?: string }).id = (token as { userId?: string }).userId ?? token.sub ?? "";
+      }
+      return session;
+    },
+  },
 });
 
 export { handler as GET, handler as POST };
