@@ -8,7 +8,7 @@ import {
   getPartnerReservationsForCurrentUser,
   setEurPerCredit,
 } from "@/lib/backoffice";
-import { getCurrentBackofficePartnerId, migrateLegacySelectedPartner } from "@/lib/backofficePartner";
+import { getAuthedBackofficePartnerId } from "@/lib/backofficeAuth";
 
 function currentMonthKey(now: Date = new Date()): string {
   const y = now.getFullYear();
@@ -26,8 +26,7 @@ export default function BackofficeFinanceiroPage() {
   const [eurPerCredit, setEurPerCreditState] = useState<number>(() => getEurPerCredit());
 
   useEffect(() => {
-    const pid = getCurrentBackofficePartnerId() ?? migrateLegacySelectedPartner();
-    setPartnerId(pid);
+    setPartnerId(getAuthedBackofficePartnerId());
   }, [partners]);
 
   const monthKey = currentMonthKey();

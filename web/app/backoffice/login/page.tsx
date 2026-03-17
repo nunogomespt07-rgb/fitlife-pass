@@ -5,12 +5,15 @@ import { useRouter } from "next/navigation";
 import GlassCard from "@/app/components/ui/GlassCard";
 import PrimaryButton from "@/app/components/ui/PrimaryButton";
 import { getAllPartnersWithCategory } from "@/lib/activitiesData";
+import { loginBackofficeDemo } from "@/lib/backofficeAuth";
 import { setCurrentBackofficePartnerId } from "@/lib/backofficePartner";
 
 export default function BackofficeLoginPage() {
   const router = useRouter();
   const partners = useMemo(() => getAllPartnersWithCategory(), []);
   const [partnerId, setPartnerId] = useState<string>(partners[0]?.id ?? "");
+  const [pin, setPin] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!partnerId && partners[0]?.id) setPartnerId(partners[0].id);
@@ -53,11 +56,36 @@ export default function BackofficeLoginPage() {
             </p>
           )}
 
+          <p className="mt-6 text-xs font-semibold uppercase tracking-wider text-white/60">
+            PIN de acesso
+          </p>
+          <input
+            value={pin}
+            onChange={(e) => setPin(e.target.value)}
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            placeholder="••••"
+            className="mt-3 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white/90 outline-none"
+          />
+
+          {error && (
+            <div className="mt-4 rounded-xl border border-red-400/25 bg-red-500/10 px-4 py-3 text-sm text-red-100">
+              {error}
+            </div>
+          )}
+
           <PrimaryButton
             variant="appPrimary"
             className="mt-6 w-full rounded-xl py-3 text-sm font-semibold"
             onClick={() => {
               if (!partnerId) return;
+              setError(null);
+              const result = loginBackofficeDemo({ partnerId, pin });
+              if (!result.ok) {
+                setError(result.error);
+                return;
+              }
+              // keep partner id also stored for existing schedule storage keys
               setCurrentBackofficePartnerId(partnerId);
               router.push("/backoffice");
             }}

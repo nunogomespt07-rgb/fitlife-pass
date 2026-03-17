@@ -5,7 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { getAllPartnersWithCategory, type PartnerWithCategory } from "@/lib/activitiesData";
-import { getCurrentBackofficePartnerId, migrateLegacySelectedPartner } from "@/lib/backofficePartner";
+import { getAuthedBackofficePartnerId, clearBackofficeSession } from "@/lib/backofficeAuth";
+import { clearCurrentBackofficePartner } from "@/lib/backofficePartner";
 
 const navItems: { href: string; label: string }[] = [
   { href: "/backoffice", label: "Agenda" },
@@ -25,7 +26,7 @@ export default function BackofficeLayout({ children }: { children: ReactNode }) 
   const [partner, setPartner] = useState<PartnerWithCategory | null>(null);
 
   useEffect(() => {
-    const pid = getCurrentBackofficePartnerId() ?? migrateLegacySelectedPartner();
+    const pid = getAuthedBackofficePartnerId();
     if (!pid) {
       // Allow login route without redirect loop
       if (pathname.startsWith("/backoffice/login")) return;
@@ -64,6 +65,17 @@ export default function BackofficeLayout({ children }: { children: ReactNode }) 
                 {item.label}
               </Link>
             ))}
+            <button
+              type="button"
+              onClick={() => {
+                clearBackofficeSession();
+                clearCurrentBackofficePartner();
+                window.location.assign("/backoffice/login");
+              }}
+              className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/8 hover:border-white/20"
+            >
+              Sair
+            </button>
           </div>
         </div>
 

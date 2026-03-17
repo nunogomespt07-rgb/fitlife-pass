@@ -3,15 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import GlassCard from "@/app/components/ui/GlassCard";
 import { getAllPartnersWithCategory } from "@/lib/activitiesData";
-import { getCurrentBackofficePartnerId, migrateLegacySelectedPartner } from "@/lib/backofficePartner";
+import { getAuthedBackofficePartnerId } from "@/lib/backofficeAuth";
 
 export default function BackofficePerfilPage() {
   const partners = useMemo(() => getAllPartnersWithCategory(), []);
   const [partnerId, setPartnerId] = useState<string | null>(null);
 
   useEffect(() => {
-    const pid = getCurrentBackofficePartnerId() ?? migrateLegacySelectedPartner();
-    setPartnerId(pid);
+    setPartnerId(getAuthedBackofficePartnerId());
   }, [partners]);
 
   const partner = useMemo(

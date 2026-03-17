@@ -6,7 +6,7 @@ import { getAllPartnersWithCategory } from "@/lib/activitiesData";
 import {
   getPartnerReservationsForCurrentUser,
 } from "@/lib/backoffice";
-import { getCurrentBackofficePartnerId, migrateLegacySelectedPartner } from "@/lib/backofficePartner";
+import { getAuthedBackofficePartnerId } from "@/lib/backofficeAuth";
 
 function currentMonthKey(now: Date = new Date()): string {
   const y = now.getFullYear();
@@ -23,8 +23,7 @@ export default function BackofficeEstatisticasPage() {
   const [partnerId, setPartnerId] = useState<string | null>(null);
 
   useEffect(() => {
-    const pid = getCurrentBackofficePartnerId() ?? migrateLegacySelectedPartner();
-    setPartnerId(pid);
+    setPartnerId(getAuthedBackofficePartnerId());
   }, [partners]);
 
   const monthKey = currentMonthKey();

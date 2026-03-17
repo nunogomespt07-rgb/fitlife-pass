@@ -9,7 +9,7 @@ import {
 import {
   getPartnerReservationsForCurrentUser,
 } from "@/lib/backoffice";
-import { getCurrentBackofficePartnerId, migrateLegacySelectedPartner } from "@/lib/backofficePartner";
+import { getAuthedBackofficePartnerId } from "@/lib/backofficeAuth";
 
 function formatDate(dateISO: string): string {
   const d = new Date(dateISO + "T12:00:00");
@@ -21,8 +21,7 @@ export default function BackofficeReservasPage() {
   const [partnerId, setPartnerId] = useState<string | null>(null);
 
   useEffect(() => {
-    const pid = getCurrentBackofficePartnerId() ?? migrateLegacySelectedPartner();
-    setPartnerId(pid);
+    setPartnerId(getAuthedBackofficePartnerId());
   }, [partners]);
 
   const partner = useMemo<PartnerWithCategory | null>(

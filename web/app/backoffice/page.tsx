@@ -23,7 +23,7 @@ import {
   type Weekday,
   weekdayLabel,
 } from "@/lib/backoffice";
-import { getCurrentBackofficePartnerId, migrateLegacySelectedPartner } from "@/lib/backofficePartner";
+import { getAuthedBackofficePartnerId } from "@/lib/backofficeAuth";
 
 const weekdays: Weekday[] = [
   "segunda",
@@ -153,8 +153,7 @@ export default function BackofficeAgendaPage() {
   );
 
   useEffect(() => {
-    const pid = getCurrentBackofficePartnerId() ?? migrateLegacySelectedPartner();
-    setPartnerId(pid);
+    setPartnerId(getAuthedBackofficePartnerId());
   }, [allPartners]);
 
   useEffect(() => {
