@@ -2,9 +2,6 @@ const jwt = require("jsonwebtoken");
 
 module.exports = (req, res, next) => {
   try {
-    // LOG TEM DE ESTAR AQUI DENTRO
-    console.log("AUTH HEADER:", req.headers.authorization);
-
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
@@ -29,7 +26,6 @@ module.exports = (req, res, next) => {
 
     next();
   } catch (err) {
-    console.log("AUTH ERROR:", err.message);
     return res.status(401).json({ message: "Token inválido" });
   }
 };

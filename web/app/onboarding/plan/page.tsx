@@ -8,6 +8,7 @@ import {
   SUBSCRIPTION_PLANS,
   type SubscriptionPlan,
 } from "@/lib/mockPayments";
+import { useHasCustomerAuth } from "@/app/hooks/useEffectiveUserId";
 
 type StoredUser = {
   id: string;
@@ -22,12 +23,13 @@ type StoredUser = {
 
 export default function OnboardingPlanPage() {
   const router = useRouter();
+  const hasAuth = useHasCustomerAuth();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (!localStorage.getItem("token")) {
+    if (!hasAuth) {
       router.replace("/");
       return;
     }
@@ -43,7 +45,7 @@ export default function OnboardingPlanPage() {
     } catch {
       // ignore
     }
-  }, []);
+  }, [router, hasAuth]);
 
   function handleSelect(plan: SubscriptionPlan) {
     setSelectedId(plan.id);

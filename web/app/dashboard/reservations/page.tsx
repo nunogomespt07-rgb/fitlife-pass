@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import {
   getMe,
   getApiBookings,
@@ -48,6 +49,7 @@ function formatDateTime(raw: string | undefined): string {
 }
 
 export default function ReservationsHistoryPage() {
+  const { data: session } = useSession();
   const [user, setUser] = useState<MeUser | null>(null);
   const [bookings, setBookings] = useState<ApiBooking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,7 +62,12 @@ export default function ReservationsHistoryPage() {
       typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
     if (!token) {
-      setError("Precisas de fazer login para ver o histórico de reservas.");
+      // This page is API-backed (JWT). If user is logged via NextAuth only, keep UX stable and redirect to mock reservations.
+      setError(
+        session?.user
+          ? "Este histórico está ligado à versão API (JWT). Para já, consulta as tuas reservas em “Reservas”."
+          : "Precisas de fazer login para ver o histórico de reservas."
+      );
       setLoading(false);
       return;
     }
@@ -104,7 +111,7 @@ export default function ReservationsHistoryPage() {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [session]);
 
   const firstName = user?.name?.split(/\s+/)[0] ?? "Utilizador";
 

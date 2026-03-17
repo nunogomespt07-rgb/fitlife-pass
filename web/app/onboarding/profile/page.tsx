@@ -6,9 +6,11 @@ import Link from "next/link";
 import GlassCard from "@/app/components/ui/GlassCard";
 import PrimaryButton from "@/app/components/ui/PrimaryButton";
 import { getStoredUser, setStoredUser } from "@/lib/storedUser";
+import { useHasCustomerAuth } from "@/app/hooks/useEffectiveUserId";
 
 export default function OnboardingProfilePage() {
   const router = useRouter();
+  const hasAuth = useHasCustomerAuth();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
@@ -18,7 +20,7 @@ export default function OnboardingProfilePage() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (!localStorage.getItem("token")) {
+    if (!hasAuth) {
       router.replace("/");
       return;
     }
@@ -41,7 +43,7 @@ export default function OnboardingProfilePage() {
     } catch {
       // ignore
     }
-  }, [router]);
+  }, [router, hasAuth]);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

@@ -9,12 +9,14 @@ import PrimaryButton from "../../components/ui/PrimaryButton";
 import ReservationQRModal from "../../components/ui/ReservationQRModal";
 import type { UnifiedReservation } from "@/lib/unifiedReservations";
 import { isGymQrExpired, canCancelReservation } from "@/lib/unifiedReservations";
+import { useSession } from "next-auth/react";
 
 function todayYMD(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
 export default function QRCodesPage() {
+  const { data: session } = useSession();
   const [user, setUser] = useState<MeUser | null>(null);
   const [loading, setLoading] = useState(true);
   const { reservations, cancelReservation } = useMockReservations();
@@ -38,6 +40,7 @@ export default function QRCodesPage() {
     let alive = true;
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     if (!token) {
+      // If user is logged via NextAuth, still allow the page to load using mock reservations.
       setLoading(false);
       return;
     }
@@ -65,7 +68,7 @@ export default function QRCodesPage() {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [session]);
 
   function handleCancel(id: string) {
     const r = reservations.find((x) => x.id === id);

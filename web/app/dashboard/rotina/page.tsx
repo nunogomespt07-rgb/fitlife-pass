@@ -7,6 +7,7 @@ import GlassCard from "@/app/components/ui/GlassCard";
 import PrimaryButton from "@/app/components/ui/PrimaryButton";
 import { useMockReservations } from "@/app/context/MockReservationsContext";
 import { getStoredUser } from "@/lib/storedUser";
+import { useEffectiveUserId } from "@/app/hooks/useEffectiveUserId";
 import { useGeolocation, useProfileCoords } from "@/app/hooks/useGeolocation";
 import {
   getStoredRoutinePreferences,
@@ -35,7 +36,8 @@ function formatCredits(n: number): string {
 
 export default function DashboardRotinaPage() {
   const router = useRouter();
-  const userId = getStoredUser()?.id ?? null;
+  const effectiveUserId = useEffectiveUserId();
+  const userId = effectiveUserId ?? getStoredUser()?.id ?? null;
   const { credits, reservations, addReservation, addGymReservation } = useMockReservations();
   const { position } = useGeolocation();
   const profileCoords = useProfileCoords();

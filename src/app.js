@@ -64,10 +64,12 @@ app.use("/partners", partnerRoutes);
 // eslint-disable-next-line no-unused-vars
 app.use((err, _req, res, _next) => {
   console.error("UNHANDLED ERROR:", err);
-  return res.status(500).json({
-    message: "Erro interno",
-    error: err?.message || String(err),
-  });
+  const isProd = process.env.NODE_ENV === "production";
+  return res.status(500).json(
+    isProd
+      ? { message: "Erro interno" }
+      : { message: "Erro interno", error: err?.message || String(err) }
+  );
 });
 
 module.exports = app;

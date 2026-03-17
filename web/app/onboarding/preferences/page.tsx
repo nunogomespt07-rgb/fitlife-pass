@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import GlassCard from "@/app/components/ui/GlassCard";
 import PrimaryButton from "@/app/components/ui/PrimaryButton";
+import { useHasCustomerAuth } from "@/app/hooks/useEffectiveUserId";
 
 const ACTIVITY_OPTIONS = [
   { id: "gym", label: "Ginásio" },
@@ -43,6 +44,7 @@ type StoredUser = {
 
 export default function OnboardingPreferencesPage() {
   const router = useRouter();
+  const hasAuth = useHasCustomerAuth();
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
   const [frequency, setFrequency] = useState<string | null>(null);
   const [objective, setObjective] = useState<string | null>(null);
@@ -50,7 +52,7 @@ export default function OnboardingPreferencesPage() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (!localStorage.getItem("token")) {
+    if (!hasAuth) {
       router.replace("/");
       return;
     }
@@ -64,7 +66,7 @@ export default function OnboardingPreferencesPage() {
     } catch {
       // ignore
     }
-  }, []);
+  }, [router, hasAuth]);
 
   function toggleActivity(id: string) {
     setSelectedActivities((prev) =>

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import GlassCard from "@/app/components/ui/GlassCard";
 import PrimaryButton from "@/app/components/ui/PrimaryButton";
 import { getStoredUser } from "@/lib/storedUser";
+import { useEffectiveUserId } from "@/app/hooks/useEffectiveUserId";
 import {
   getStoredRoutinePreferences,
   setStoredRoutinePreferences,
@@ -80,7 +81,8 @@ function deriveGoalFromProfile(raw: string | null | undefined): RoutineGoal {
 
 export default function RoutinePreferencesPage() {
   const router = useRouter();
-  const userId = getStoredUser()?.id ?? null;
+  const effectiveUserId = useEffectiveUserId();
+  const userId = effectiveUserId ?? getStoredUser()?.id ?? null;
 
   const existing = useMemo<RoutinePreferences | null>(
     () => getStoredRoutinePreferences(userId),

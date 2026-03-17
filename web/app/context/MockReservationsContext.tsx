@@ -69,25 +69,28 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
   const [reservations, setReservations] = useState<UnifiedReservation[]>([]);
   const [purchasedCredits, setPurchasedCredits] = useState(0);
 
-  useEffect(() => {
+  const effectiveUserId = useMemo(() => {
     const stored = getStoredUser();
     const sessionUser = session?.user;
     const sessionUserId =
       sessionUser != null
         ? (sessionUser as { id?: string }).id ?? (sessionUser.email ?? null)
         : null;
-    const userId = stored?.id ?? sessionUserId ?? null;
-    let list = getStoredUnifiedReservations(userId);
+    return stored?.id ?? sessionUserId ?? null;
+  }, [session]);
+
+  useEffect(() => {
+    let list = getStoredUnifiedReservations(effectiveUserId);
     const now = new Date();
     const withNoShow = applyNoShowToReservations(list, now);
     const hasNoShowChanges = list.some((r, i) => withNoShow[i].status !== r.status);
     if (hasNoShowChanges) {
-      setStoredUnifiedReservations(userId, withNoShow);
+      setStoredUnifiedReservations(effectiveUserId, withNoShow);
       list = withNoShow;
     }
     setReservations(list);
-    setPurchasedCredits(getStoredPurchasedCredits(userId));
-  }, [pathname, session]);
+    setPurchasedCredits(getStoredPurchasedCredits(effectiveUserId));
+  }, [pathname, effectiveUserId]);
 
   const activeReservationCount = useMemo(
     () => getActiveReservationCount(reservations),
@@ -101,7 +104,7 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
 
   const addReservation = useCallback(
     (input: AddReservationInput): { success: boolean; error?: string } => {
-      const userId = getStoredUser()?.id ?? null;
+      const userId = effectiveUserId;
       const currentCredits = getCreditsFromUnified(reservations, purchasedCredits);
       if (currentCredits < input.creditsRequired) {
         return { success: false, error: "Créditos insuficientes." };
@@ -142,12 +145,12 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
       }
       return { success: true };
     },
-    [reservations, purchasedCredits, creditActivity]
+    [effectiveUserId, reservations, purchasedCredits, creditActivity]
   );
 
   const addGymReservation = useCallback(
     (input: { partnerId: string; partnerName: string; creditsRequired: number }): { success: boolean; error?: string; reservation?: UnifiedReservation } => {
-      const userId = getStoredUser()?.id ?? null;
+      const userId = effectiveUserId;
       const currentCredits = getCreditsFromUnified(reservations, purchasedCredits);
       if (currentCredits < input.creditsRequired) {
         return { success: false, error: "Créditos insuficientes." };
@@ -188,12 +191,12 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
       }
       return { success: true, reservation: r };
     },
-    [reservations, purchasedCredits, creditActivity]
+    [effectiveUserId, reservations, purchasedCredits, creditActivity]
   );
 
   const addRestaurantReservation = useCallback(
     (input: AddRestaurantReservationInput): { success: boolean; error?: string } => {
-      const userId = getStoredUser()?.id ?? null;
+      const userId = effectiveUserId;
       const mode: "credits" | "discount" = (input as { bookingMode?: "credits" | "discount" }).bookingMode ?? "discount";
       let creditsToUse = 0;
       if (mode === "credits") {
@@ -240,7 +243,7 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
       }
       return { success: true };
     },
-    [reservations, purchasedCredits, creditActivity]
+    [effectiveUserId, reservations, purchasedCredits, creditActivity]
   );
 
   const cancelReservation = useCallback((id: string): { success: boolean; error?: string } => {
@@ -250,7 +253,7 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
     if (!canCancelReservation(r, now)) {
       return { success: false, error: "Não é possível cancelar com menos de 6 horas de antecedência." };
     }
-    const userId = getStoredUser()?.id ?? null;
+    const userId = effectiveUserId;
     const monthKey = getCurrentMonthKey(now);
     const currentCount = getMonthlyCancellationCount(userId, now);
     if (currentCount >= MONTHLY_CANCELLATION_LIMIT) {
@@ -283,14 +286,14 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
         return next;
       });
       return { success: true };
-  }, [reservations, creditActivity]);
+  }, [effectiveUserId, reservations, creditActivity]);
 
   const cancelRestaurantReservation = useCallback((id: string) => {
     return cancelReservation(id);
   }, [cancelReservation]);
 
   const completeReservation = useCallback((id: string) => {
-    const userId = getStoredUser()?.id ?? null;
+    const userId = effectiveUserId;
     setReservations((prev) => {
       const now = new Date().toISOString();
       const next = prev.map((r) =>
@@ -299,7 +302,7 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
       setStoredUnifiedReservations(userId, next);
       return next;
     });
-  }, []);
+  }, [effectiveUserId]);
 
   const countReservationsForActivity = useCallback(
     (partnerId: string, activityId: string) =>
@@ -314,7 +317,7 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
   );
 
   const clearHistory = useCallback(() => {
-    const userId = getStoredUser()?.id ?? null;
+    const userId = effectiveUserId;
     const today = todayYMD();
     setReservations((prev) => {
       const next = prev.filter(
@@ -323,10 +326,10 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
       setStoredUnifiedReservations(userId, next);
       return next;
     });
-  }, []);
+  }, [effectiveUserId]);
 
   const addPurchasedCredits = useCallback((amount: number, reason?: string) => {
-    const userId = getStoredUser()?.id ?? null;
+    const userId = effectiveUserId;
     const n = Math.max(0, Math.floor(amount));
     setPurchasedCredits((prev) => {
       const next = prev + n;
@@ -343,9 +346,9 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
         creditActivity.showToast("Créditos adicionados", `+${n} créditos`);
       }
     }
-  }, [creditActivity]);
+  }, [effectiveUserId, creditActivity]);
 
-  const monthlyCancellationCount = getMonthlyCancellationCount(getStoredUser()?.id ?? null);
+  const monthlyCancellationCount = getMonthlyCancellationCount(effectiveUserId);
 
   const value = useMemo<MockReservationsContextValue>(
     () => ({
