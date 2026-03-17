@@ -209,11 +209,14 @@ export default function DashboardPage() {
                 Ver atividade →
               </span>
             </Link>
-            <Link href="/dashboard/rotina">
-              <span className="mt-2 inline-flex items-center text-sm font-medium text-white/90 underline-offset-2 hover:underline">
-                A tua rotina →
-              </span>
-            </Link>
+            <div className="mt-4 rounded-xl border border-white/15 bg-white/5 px-4 py-3">
+              <p className="text-sm font-semibold text-white">A tua rotina</p>
+              <Link href="/dashboard/rotina" className="mt-2 inline-flex">
+                <span className="inline-flex items-center justify-center rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition duration-[180ms] hover:bg-white/15 hover:border-white/30 active:scale-[0.98]">
+                  Gerar rotina semanal
+                </span>
+              </Link>
+            </div>
           </DashboardCard>
 
           <DashboardCard
