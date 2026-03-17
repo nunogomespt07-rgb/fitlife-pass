@@ -46,9 +46,10 @@ export async function POST(req: Request) {
       httpOnly: true,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
-      path: "/admin",
+      path: "/",
       expires: new Date(exp),
     });
+    console.log("[admin login] cookie set", { key: COOKIE_NAME, path: "/", exp: new Date(exp).toISOString() });
     return res;
   } catch {
     return NextResponse.json({ ok: false, error: "Erro ao autenticar." }, { status: 500 });

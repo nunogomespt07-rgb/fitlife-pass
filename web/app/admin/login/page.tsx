@@ -60,7 +60,9 @@ export default function AdminLoginPage() {
                     return;
                   }
                   const next = new URLSearchParams(window.location.search).get("next");
-                  router.push(next && next.startsWith("/admin") ? next : "/admin");
+                  const target = next && next.startsWith("/admin") ? next : "/admin";
+                  console.log("[admin login] success, redirect", { target });
+                  router.push(target);
                 } catch {
                   setError("Não foi possível entrar. Tenta novamente.");
                 }

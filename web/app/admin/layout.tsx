@@ -29,11 +29,13 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         setAuthed(res.ok);
         if (!res.ok) {
           const next = pathname;
+          console.log("[admin layout] redirect to login", { reason: "session not ok", next });
           router.replace(`/admin/login?next=${encodeURIComponent(next)}`);
         }
-      } catch {
+      } catch (e) {
         setAuthed(false);
         const next = pathname;
+        console.log("[admin layout] redirect to login", { reason: "fetch error", error: String(e), next });
         router.replace(`/admin/login?next=${encodeURIComponent(next)}`);
       }
     })();

@@ -32,6 +32,7 @@ export async function GET(req: Request) {
   const match = cookie.match(new RegExp(`(?:^|;\\s*)${COOKIE_NAME}=([^;]+)`));
   const value = match?.[1] ? decodeURIComponent(match[1]) : undefined;
   const ok = verify(value);
+  console.log("[admin session]", { cookiePresent: !!value, ok });
   if (!ok) return NextResponse.json({ ok: false }, { status: 401 });
   return NextResponse.json({ ok: true });
 }

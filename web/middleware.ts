@@ -12,6 +12,15 @@ function getCookieSecret(): string {
   );
 }
 
+/** Must match api/admin/login and api/admin/session (ADMIN_COOKIE_SECRET). */
+function getAdminCookieSecret(): string {
+  return (
+    process.env.ADMIN_COOKIE_SECRET ||
+    process.env.NEXTAUTH_SECRET ||
+    "insecure-dev-secret"
+  );
+}
+
 function safeBase64UrlDecode(input: string): string | null {
   try {
     const base64 =
@@ -74,7 +83,7 @@ async function verifyAdminCookie(raw: string | undefined): Promise<boolean> {
   const [payloadB64, sig] = raw.split(".");
   if (!payloadB64 || !sig) return false;
 
-  const secret = getCookieSecret();
+  const secret = getAdminCookieSecret();
   const expected = await hmacSha256Base64Url(secret, payloadB64);
   if (sig !== expected) return false;
 
@@ -108,11 +117,14 @@ export async function middleware(req: NextRequest) {
   // Admin backoffice protection (demo PIN cookie)
   if (pathname.startsWith("/admin")) {
     if (pathname.startsWith("/admin/login")) return NextResponse.next();
-    const ok = await verifyAdminCookie(req.cookies.get(ADMIN_COOKIE)?.value);
+    const cookieValue = req.cookies.get(ADMIN_COOKIE)?.value;
+    const ok = await verifyAdminCookie(cookieValue);
+    console.log("[admin middleware]", { pathname, cookiePresent: !!cookieValue, ok });
     if (!ok) {
       const url = req.nextUrl.clone();
       url.pathname = "/admin/login";
       url.searchParams.set("next", pathname);
+      console.log("[admin middleware] redirect to login", { reason: !cookieValue ? "no cookie" : "verify failed" });
       return NextResponse.redirect(url);
     }
     return NextResponse.next();
