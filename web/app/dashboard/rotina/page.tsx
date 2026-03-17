@@ -252,8 +252,7 @@ export default function DashboardRotinaPage() {
   }
 
   return (
-    <div className="page-bg text-white font-sans min-h-screen">
-      <div className="mx-auto max-w-4xl px-4 pb-24 pt-24 sm:px-6 lg:px-10">
+    <div className="mx-auto max-w-4xl px-4 pb-24 pt-24 sm:px-6 lg:px-10">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/70">
           FitLife Pass · Rotina
         </p>
@@ -481,7 +480,6 @@ export default function DashboardRotinaPage() {
             </div>
           </>
         )}
-      </div>
     </div>
   );
 }
