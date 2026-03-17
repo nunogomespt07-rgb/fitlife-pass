@@ -209,6 +209,11 @@ export default function DashboardPage() {
                 Ver atividade →
               </span>
             </Link>
+            <Link href="/dashboard/rotina">
+              <span className="mt-2 inline-flex items-center text-sm font-medium text-white/90 underline-offset-2 hover:underline">
+                A tua rotina →
+              </span>
+            </Link>
           </DashboardCard>
 
           <DashboardCard
