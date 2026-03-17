@@ -14,10 +14,10 @@ export function useEffectiveUserId(): string | null {
 
   return useMemo(() => {
     const sessionUser = session?.user;
-    const sessionUserId =
-      sessionUser != null
-        ? (sessionUser as { id?: string }).id ?? (sessionUser.email ?? null)
-        : null;
+    // Prefer email for cross-device stability (OAuth `id` may differ across environments/providers).
+    const sessionEmail = sessionUser?.email ? String(sessionUser.email).trim().toLowerCase() : "";
+    if (sessionEmail) return sessionEmail;
+    const sessionUserId = sessionUser != null ? (sessionUser as { id?: string }).id ?? null : null;
     if (sessionUserId && String(sessionUserId).trim()) return String(sessionUserId);
     const stored = getStoredUser();
     return stored?.id ?? null;

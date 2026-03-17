@@ -6,6 +6,9 @@ import CredentialsProvider from "next-auth/providers/credentials";
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET;
+// DEMO ONLY fallback so JWT decoding works consistently without env vars in dev.
+// In production, always set NEXTAUTH_SECRET.
+const AUTH_SECRET = (NEXTAUTH_SECRET && NEXTAUTH_SECRET.trim()) ? NEXTAUTH_SECRET : "demo-nextauth-secret";
 const NEXTAUTH_URL = process.env.NEXTAUTH_URL;
 
 if (typeof window === "undefined") {
@@ -68,7 +71,7 @@ const handler = NextAuth({
       },
     }),
   ],
-  secret: NEXTAUTH_SECRET ?? undefined,
+  secret: AUTH_SECRET,
   session: { strategy: "jwt" },
   callbacks: {
     async jwt({ token, user }) {

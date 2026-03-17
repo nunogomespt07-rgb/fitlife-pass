@@ -11,6 +11,11 @@ type CustomerState = {
 
 type StoreShape = Record<string, CustomerState>;
 
+const AUTH_SECRET =
+  process.env.NEXTAUTH_SECRET && process.env.NEXTAUTH_SECRET.trim()
+    ? process.env.NEXTAUTH_SECRET
+    : "demo-nextauth-secret";
+
 function isRecord(v: unknown): v is Record<string, unknown> {
   return !!v && typeof v === "object" && !Array.isArray(v);
 }
@@ -44,7 +49,7 @@ async function writeStore(store: StoreShape): Promise<void> {
 }
 
 async function getUserKey(req: NextRequest): Promise<string | null> {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  const token = await getToken({ req, secret: AUTH_SECRET });
   const email = typeof token?.email === "string" ? token.email.trim().toLowerCase() : "";
   const sub = typeof token?.sub === "string" ? token.sub.trim() : "";
   const userId = typeof (token as { userId?: unknown })?.userId === "string" ? String((token as { userId?: unknown }).userId).trim() : "";

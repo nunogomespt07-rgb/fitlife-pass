@@ -72,10 +72,9 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
 
   const effectiveUserId = useMemo(() => {
     const sessionUser = session?.user;
-    const sessionUserId =
-      sessionUser != null
-        ? (sessionUser as { id?: string }).id ?? (sessionUser.email ?? null)
-        : null;
+    const sessionEmail = sessionUser?.email ? String(sessionUser.email).trim().toLowerCase() : "";
+    if (sessionEmail) return sessionEmail;
+    const sessionUserId = sessionUser != null ? (sessionUser as { id?: string }).id ?? null : null;
     if (sessionUserId) return sessionUserId;
     const stored = getStoredUser();
     return stored?.id ?? null;
