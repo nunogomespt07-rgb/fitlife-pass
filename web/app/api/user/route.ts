@@ -1,20 +1,15 @@
 import { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
-import { readCustomerState, updateCustomerState } from "@/lib/adminDataServer";
+import { ensureCustomer } from "@/lib/customerDb";
 
 const AUTH_SECRET =
   process.env.NEXTAUTH_SECRET && process.env.NEXTAUTH_SECRET.trim()
     ? process.env.NEXTAUTH_SECRET
     : "demo-nextauth-secret";
 
-function clampCredits(n: unknown): number {
-  if (typeof n !== "number" || !Number.isFinite(n)) return 0;
-  return Math.max(0, Math.floor(n));
-}
-
 /**
- * GET /api/user — Returns current authenticated user from backend.
- * Credits come ONLY from backend; creates user with credits=0 on first login (find by email, create if not exists).
+ * GET /api/user — Returns current authenticated user from DB.
+ * Creates user with credits=0 on first login (find by email, create if not exists).
  */
 export async function GET(req: NextRequest) {
   const token = await getToken({ req, secret: AUTH_SECRET });
@@ -23,28 +18,19 @@ export async function GET(req: NextRequest) {
     return Response.json({ message: "Unauthorized" }, { status: 401 });
   }
 
-  const key = `u:${email}`;
-  const store = await readCustomerState();
-  let state = store[key] ?? {};
+  const user = await ensureCustomer({
+    email,
+    name: typeof token?.name === "string" ? token.name.trim() : null,
+  });
 
-  if (state.blocked || state.deletedAt) {
+  if (user.blocked || user.deletedAt) {
     return Response.json({ message: "Forbidden" }, { status: 403 });
   }
 
-  const isNewUser = !state.createdAt;
-  if (isNewUser) {
-    await updateCustomerState(key, {
-      purchasedCredits: 0,
-      createdAt: new Date().toISOString(),
-      fullName: typeof token?.name === "string" ? token.name.trim() : null,
-    });
-    state = { ...state, purchasedCredits: 0, createdAt: new Date().toISOString(), fullName: token?.name ?? null };
-  }
-
-  const credits = clampCredits(state.purchasedCredits);
-  const name = state.fullName ?? (typeof token?.name === "string" ? token.name.trim() : null) ?? email;
-  const planId = state.subscriptionPlanId ?? null;
-  const planName = state.subscriptionPlanName ?? null;
+  const credits = typeof user.credits === "number" && Number.isFinite(user.credits) ? Math.max(0, Math.floor(user.credits)) : 0;
+  const name = user.name ?? (typeof token?.name === "string" ? token.name.trim() : null) ?? email;
+  const planId = user.planId ?? null;
+  const planName = user.planName ?? null;
   const plan = planName ?? planId ?? null;
 
   return Response.json({

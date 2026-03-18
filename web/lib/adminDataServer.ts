@@ -1,13 +1,14 @@
 /**
  * Server-only data access for admin and customer state.
+ * Customer state is stored in MongoDB (see lib/customerDb). Reservations remain file-based.
  * Used by API routes only. Do not import in client components.
  */
 
 import { promises as fs } from "fs";
 import path from "path";
+import { findAllCustomersAsStore, updateCustomerByEmail } from "@/lib/customerDb";
 
 const DATA_DIR = path.join(process.cwd(), ".data");
-const CUSTOMER_STATE_FILE = path.join(DATA_DIR, "demo-customer-state.json");
 const RESERVATIONS_FILE = path.join(DATA_DIR, "demo-reservations.json");
 
 export type CustomerStateRecord = {
@@ -51,9 +52,7 @@ function isRecord(v: unknown): v is Record<string, unknown> {
 
 export async function readCustomerState(): Promise<CustomerStateStore> {
   try {
-    const raw = await fs.readFile(CUSTOMER_STATE_FILE, "utf8");
-    const parsed = JSON.parse(raw) as unknown;
-    return isRecord(parsed) ? (parsed as CustomerStateStore) : {};
+    return await findAllCustomersAsStore();
   } catch {
     return {};
   }
@@ -88,9 +87,6 @@ export async function updateCustomerState(
   key: string,
   patch: Partial<CustomerStateRecord>
 ): Promise<void> {
-  const store = await readCustomerState();
-  const prev = store[key] ?? {};
-  store[key] = { ...prev, ...patch };
-  await fs.mkdir(DATA_DIR, { recursive: true });
-  await fs.writeFile(CUSTOMER_STATE_FILE, JSON.stringify(store, null, 2), "utf8");
+  const email = key.startsWith("u:") ? key.slice(2) : key;
+  await updateCustomerByEmail(email, patch);
 }
