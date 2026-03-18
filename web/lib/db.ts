@@ -32,6 +32,8 @@ export type CustomerDocument = {
   email: string;
   name: string | null;
   credits: number;
+  /** Idempotency keys for credit grants (e.g., Stripe session/payment intent ids) */
+  processedCreditEvents?: string[];
   plan: string | null;
   planId?: string | null;
   planName?: string | null;

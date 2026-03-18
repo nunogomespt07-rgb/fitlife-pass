@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
-import { ensureCustomerWithMeta, findCustomerByEmail, updateCustomerByEmail } from "@/lib/customerDb";
+import { ensureCustomerWithMeta, findCustomerByEmail, grantCreditsIdempotent, updateCustomerByEmail } from "@/lib/customerDb";
 
 const AUTH_SECRET =
   process.env.NEXTAUTH_SECRET && process.env.NEXTAUTH_SECRET.trim()
@@ -67,6 +67,18 @@ export async function POST(req: NextRequest) {
   }
 
   const patch: { purchasedCredits?: number; subscriptionPlanId?: string | null; subscriptionPlanName?: string | null } = {};
+  const incCredits =
+    "incCredits" in body && typeof body.incCredits === "number" && Number.isFinite(body.incCredits)
+      ? Math.max(0, Math.floor(body.incCredits))
+      : null;
+  const eventId = "eventId" in body && typeof body.eventId === "string" ? body.eventId : null;
+
+  // Preferred authenticated credit grant path: atomic increment (idempotent if eventId provided).
+  if (incCredits != null && incCredits > 0) {
+    console.log("[api/customer/state][POST] grant credits", { email, incCredits, eventId: eventId ? String(eventId).slice(0, 80) : null });
+    const result = await grantCreditsIdempotent({ email, amount: incCredits, eventId });
+    console.log("[api/customer/state][POST] grant result", { email, applied: result.applied, credits: result.credits });
+  }
   if ("purchasedCredits" in body) {
     const v = clampCredits(body.purchasedCredits);
     if (v !== undefined) patch.purchasedCredits = v;
@@ -74,7 +86,8 @@ export async function POST(req: NextRequest) {
   if ("subscriptionPlanId" in body) patch.subscriptionPlanId = body.subscriptionPlanId == null ? null : String(body.subscriptionPlanId);
   if ("subscriptionPlanName" in body) patch.subscriptionPlanName = body.subscriptionPlanName == null ? null : String(body.subscriptionPlanName);
 
-  if (Object.keys(patch).length > 0) {
+  // Back-compat: allow absolute set. For authenticated purchases we should prefer incCredits above.
+  if (Object.keys(patch).length > 0 && incCredits == null) {
     console.log("[api/customer/state][POST] write patch keys", Object.keys(patch));
     await updateCustomerByEmail(email, patch);
   }

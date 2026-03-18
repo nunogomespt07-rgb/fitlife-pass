@@ -146,6 +146,54 @@ export async function updateCustomerByEmail(
   );
 }
 
+export async function grantCreditsIdempotent(params: {
+  email: string;
+  amount: number;
+  eventId?: string | null;
+}): Promise<{ applied: boolean; credits: number }> {
+  const email = params.email.trim().toLowerCase();
+  const amount = Math.max(0, Math.floor(params.amount));
+  const eventId = (params.eventId ?? "").trim();
+  const col = await getCustomersCollection();
+  await ensureCollectionIndex();
+
+  const now = new Date().toISOString();
+  const filter: Record<string, unknown> = { email };
+  if (eventId) {
+    filter.processedCreditEvents = { $ne: eventId };
+  }
+
+  const update: Record<string, unknown> = {
+    $inc: { credits: amount },
+    $set: { updatedAt: now },
+    $setOnInsert: {
+      email,
+      name: null,
+      credits: 0,
+      plan: null,
+      createdAt: now,
+      updatedAt: now,
+    },
+  };
+  if (eventId) {
+    update.$addToSet = { processedCreditEvents: eventId };
+  }
+
+  const res = await col.findOneAndUpdate(filter, update, { upsert: true, returnDocument: "after" });
+  const doc = (res.value ?? null) as CustomerDocument | null;
+  if (doc) {
+    const credits = typeof doc.credits === "number" && Number.isFinite(doc.credits) ? Math.max(0, Math.floor(doc.credits)) : 0;
+    // applied when matched filter; if eventId existed and was already processed, update would not match and may upsert false.
+    const applied = true;
+    return { applied, credits };
+  }
+
+  // If eventId was already processed, filter won't match and doc can be null; fetch existing and return.
+  const existing = (await col.findOne({ email })) as CustomerDocument | null;
+  const credits = existing && typeof existing.credits === "number" && Number.isFinite(existing.credits) ? Math.max(0, Math.floor(existing.credits)) : 0;
+  return { applied: false, credits };
+}
+
 /** Returns store shape keyed by u:email for drop-in replacement of readCustomerState. */
 export async function findAllCustomersAsStore(): Promise<Record<string, CustomerStateRecord>> {
   const col = await getCustomersCollection();

@@ -447,20 +447,32 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
   const addPurchasedCredits = useCallback((amount: number, reason?: string) => {
     const userId = isAuthenticated ? effectiveUserId : (effectiveUserId ?? getStoredUser()?.id ?? null);
     const n = Math.max(0, Math.floor(amount));
-    setPurchasedCredits((prev) => {
-      const next = prev + n;
-      setCreditsReady(true);
-      if (isAuthenticated) {
-        fetch("/api/customer/state", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ purchasedCredits: next }),
-        }).catch(() => {});
-      } else if (userId) {
+    setCreditsReady(true);
+    if (isAuthenticated) {
+      // Authenticated: backend-only grant (atomic + idempotent). Do NOT update credits locally.
+      const eventId = typeof crypto !== "undefined" && "randomUUID" in crypto ? (crypto as Crypto).randomUUID() : `grant-${Date.now()}-${Math.random()}`;
+      fetch("/api/customer/state", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ incCredits: n, eventId }),
+      })
+        .then(() => fetch("/api/user", { cache: "no-store" }))
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          const next = data && typeof data.credits === "number" && Number.isFinite(data.credits)
+            ? Math.max(0, Math.floor(data.credits))
+            : null;
+          if (next != null) setPurchasedCredits(next);
+        })
+        .catch(() => {});
+    } else if (userId) {
+      // Demo/unauthenticated only: local storage source of truth.
+      setPurchasedCredits((prev) => {
+        const next = prev + n;
         setStoredPurchasedCredits(userId, next);
-      }
-      return next;
-    });
+        return next;
+      });
+    }
     if (creditActivity && n > 0) {
       creditActivity.addTransaction({
         type: "credit",
