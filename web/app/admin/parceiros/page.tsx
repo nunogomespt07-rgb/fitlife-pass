@@ -27,7 +27,7 @@ type ListRes = {
 export default function AdminPartnersPage() {
   const [list, setList] = useState<ListRes | null>(null);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState("");
   const [visibility, setVisibility] = useState("");
   const [sort, setSort] = useState("name");
@@ -51,7 +51,7 @@ export default function AdminPartnersPage() {
 
   return (
     <div>
-      <GlassCard variant="app" padding="lg" className="border-white/10">
+      <GlassCard variant="app" padding="lg" className="admin-card border-white/15">
         <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Parceiros</p>
         <p className="mt-2 text-sm text-white/70">Gestão interna: créditos peak/off-peak e configuração base por parceiro.</p>
       </GlassCard>
@@ -62,13 +62,13 @@ export default function AdminPartnersPage() {
           placeholder="Pesquisar (nome, cidade, categoria)"
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/40 outline-none max-w-xs"
+            className="rounded-xl border border-white/15 bg-slate-900/80 px-3 py-2 text-sm text-slate-200 placeholder:text-white/40 outline-none max-w-xs focus:ring-1 focus:ring-white/30"
         />
         <div className="flex flex-wrap items-center gap-2">
           <select
             value={visibility}
             onChange={(e) => { setVisibility(e.target.value); setPage(1); }}
-            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none"
+            className="rounded-xl border border-white/15 bg-slate-900/80 px-3 py-2 text-sm text-slate-200 outline-none focus:ring-1 focus:ring-white/30"
           >
             <option value="">Todos</option>
             <option value="visible">Visíveis</option>
@@ -77,7 +77,7 @@ export default function AdminPartnersPage() {
           <select
             value={sort}
             onChange={(e) => { setSort(e.target.value); setPage(1); }}
-            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none"
+            className="rounded-xl border border-white/15 bg-slate-900/80 px-3 py-2 text-sm text-slate-200 outline-none focus:ring-1 focus:ring-white/30"
           >
             <option value="name">Nome</option>
             <option value="reservations">Reservas</option>
@@ -95,7 +95,7 @@ export default function AdminPartnersPage() {
 
       <div className="mt-6 grid gap-3">
         {list?.items?.map((p) => (
-          <GlassCard key={p.partnerId} variant="app" padding="md" className="border-white/10">
+          <GlassCard key={p.partnerId} variant="app" padding="md" className="admin-card border-white/15">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-white">{p.partnerName}</p>
@@ -127,7 +127,7 @@ export default function AdminPartnersPage() {
               className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-sm text-white outline-none"
             >
               {[10, 20, 50].map((n) => (
-                <option key={n} value={n} className="bg-[#020617]">{n}</option>
+                <option key={n} value={n}>{n}</option>
               ))}
             </select>
           </div>

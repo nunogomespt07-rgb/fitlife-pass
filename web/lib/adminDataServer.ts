@@ -15,6 +15,12 @@ export type CustomerStateRecord = {
   subscriptionPlanId?: string | null;
   subscriptionPlanName?: string | null;
   createdAt?: string;
+  fullName?: string | null;
+  country?: string | null;
+  city?: string | null;
+  phone?: string | null;
+  blocked?: boolean;
+  deletedAt?: string | null;
 };
 
 export type CustomerStateStore = Record<string, CustomerStateRecord>;
@@ -76,4 +82,15 @@ export async function appendReservation(r: ServerReservation): Promise<void> {
 export async function writeReservations(list: ServerReservation[]): Promise<void> {
   await fs.mkdir(DATA_DIR, { recursive: true });
   await fs.writeFile(RESERVATIONS_FILE, JSON.stringify({ reservations: list }, null, 2), "utf8");
+}
+
+export async function updateCustomerState(
+  key: string,
+  patch: Partial<CustomerStateRecord>
+): Promise<void> {
+  const store = await readCustomerState();
+  const prev = store[key] ?? {};
+  store[key] = { ...prev, ...patch };
+  await fs.mkdir(DATA_DIR, { recursive: true });
+  await fs.writeFile(CUSTOMER_STATE_FILE, JSON.stringify(store, null, 2), "utf8");
 }

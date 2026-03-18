@@ -1,0 +1,22 @@
+/* Admin area: fix native select/option invisible text on dark background */
+.admin-area select {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+.admin-area select option {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+/* Focus/contrast for inputs and cards */
+.admin-area .admin-card {
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+.admin-area .admin-table th {
+  color: rgba(255, 255, 255, 0.85);
+  border-bottom-color: rgba(255, 255, 255, 0.15);
+}
+.admin-area .admin-table td {
+  color: rgba(255, 255, 255, 0.9);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}

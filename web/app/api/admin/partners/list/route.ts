@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = req.nextUrl;
   const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10));
-  const pageSize = Math.min(100, Math.max(1, parseInt(searchParams.get("pageSize") ?? "20", 10)));
+  const pageSize = Math.min(100, Math.max(1, parseInt(searchParams.get("pageSize") ?? "10", 10)));
   const search = (searchParams.get("search") ?? "").trim().toLowerCase();
   const visibility = searchParams.get("visibility") ?? "";
   const category = searchParams.get("category") ?? "";

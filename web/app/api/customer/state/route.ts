@@ -8,6 +8,8 @@ type CustomerState = {
   subscriptionPlanId?: string | null;
   subscriptionPlanName?: string | null;
   createdAt?: string;
+  blocked?: boolean;
+  deletedAt?: string | null;
 };
 
 type StoreShape = Record<string, CustomerState>;
@@ -67,6 +69,9 @@ export async function GET(req: NextRequest) {
 
   const store = await readStore();
   const state = store[key] ?? {};
+  if (state.blocked || state.deletedAt) {
+    return Response.json({ message: "Forbidden" }, { status: 403 });
+  }
   const purchasedCredits = clampCredits(state.purchasedCredits) ?? 0;
   console.log("[credits][GET] canonical key", key, "[credits][session email]", key.replace(/^u:/, ""), "[credits][final returned value]", purchasedCredits);
   return Response.json(
@@ -97,6 +102,9 @@ export async function POST(req: NextRequest) {
 
   const store = await readStore();
   const prev = store[key] ?? {};
+  if (prev.blocked || prev.deletedAt) {
+    return Response.json({ message: "Forbidden" }, { status: 403 });
+  }
   const merged: CustomerState = {
     ...prev,
     ...Object.fromEntries(Object.entries(next).filter(([, v]) => v !== undefined)),

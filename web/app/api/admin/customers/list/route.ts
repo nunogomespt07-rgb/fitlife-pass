@@ -37,24 +37,33 @@ export async function GET(req: NextRequest) {
     totalReservations: number;
     lastActivity: string | null;
     status: string;
+    blocked: boolean;
   };
 
-  let rows: CustomerRow[] = userEmails.map((email) => {
-    const key = `u:${email}`;
-    const state = store[key] ?? {};
-    const res = resByEmail[email.toLowerCase()] ?? { count: 0, lastDate: null };
-    return {
-      userEmail: email,
-      fullName: null,
-      email,
-      createdAt: (state as { createdAt?: string })?.createdAt ?? null,
-      currentPlan: state.subscriptionPlanName ?? state.subscriptionPlanId ?? null,
-      purchasedCredits: typeof state.purchasedCredits === "number" ? state.purchasedCredits : 0,
-      totalReservations: res.count,
-      lastActivity: res.lastDate,
-      status: res.count > 0 ? "active" : "inactive",
-    };
-  });
+  let rows: CustomerRow[] = userEmails
+    .filter((email) => {
+      const key = `u:${email}`;
+      const state = store[key] ?? {};
+      return !(state as { deletedAt?: string | null })?.deletedAt;
+    })
+    .map((email) => {
+      const key = `u:${email}`;
+      const state = store[key] ?? {};
+      const res = resByEmail[email.toLowerCase()] ?? { count: 0, lastDate: null };
+      const blocked = (state as { blocked?: boolean })?.blocked;
+      return {
+        userEmail: email,
+        fullName: (state as { fullName?: string | null })?.fullName ?? null,
+        email,
+        createdAt: (state as { createdAt?: string })?.createdAt ?? null,
+        currentPlan: state.subscriptionPlanName ?? state.subscriptionPlanId ?? null,
+        purchasedCredits: typeof state.purchasedCredits === "number" ? state.purchasedCredits : 0,
+        totalReservations: res.count,
+        lastActivity: res.lastDate,
+        status: blocked ? "blocked" : res.count > 0 ? "active" : "inactive",
+        blocked: !!blocked,
+      };
+    });
 
   if (search) {
     rows = rows.filter(

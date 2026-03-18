@@ -13,6 +13,7 @@ type CustomerItem = {
   totalReservations: number;
   lastActivity: string | null;
   status: string;
+  blocked: boolean;
 };
 
 type ListRes = {
@@ -40,6 +41,11 @@ export default function AdminClientesPage() {
   const [search, setSearch] = useState("");
   const [planFilter, setPlanFilter] = useState("");
   const [sort, setSort] = useState("newest");
+  const [refetch, setRefetch] = useState(0);
+
+  const api = (path: string, options?: RequestInit) =>
+    fetch(path, { credentials: "include", ...options });
+  const enc = (e: string) => encodeURIComponent(e.trim().toLowerCase());
 
   useEffect(() => {
     fetch("/api/admin/customers/metrics")
@@ -59,11 +65,11 @@ export default function AdminClientesPage() {
       .then((r) => (r.ok ? r.json() : null))
       .then(setList)
       .catch(() => setList(null));
-  }, [page, pageSize, search, planFilter, sort]);
+  }, [page, pageSize, search, planFilter, sort, refetch]);
 
   return (
     <div className="space-y-6">
-      <GlassCard variant="app" padding="lg" className="border-white/10">
+      <GlassCard variant="app" padding="lg" className="admin-card border-white/15">
         <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Base de dados de clientes</p>
         {metrics != null ? (
           <div className="mt-2 flex flex-wrap gap-4 text-sm text-white/80">
@@ -79,65 +85,141 @@ export default function AdminClientesPage() {
         )}
       </GlassCard>
 
-      <GlassCard variant="app" padding="lg" className="border-white/10">
+      <GlassCard variant="app" padding="lg" className="admin-card border-white/15">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <input
             type="text"
             placeholder="Pesquisar (email, nome)"
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/40 outline-none"
+            className="rounded-xl border border-white/15 bg-slate-900/80 px-3 py-2 text-sm text-slate-200 placeholder:text-white/40 outline-none focus:ring-1 focus:ring-white/30"
           />
-          <div className="flex flex-wrap items-center gap-2">
-            <select
-              value={planFilter}
-              onChange={(e) => { setPlanFilter(e.target.value); setPage(1); }}
-              className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none"
-            >
-              <option value="">Todos os planos</option>
-              <option value="with">Com plano</option>
-              <option value="without">Sem plano</option>
-            </select>
-            <select
-              value={sort}
-              onChange={(e) => { setSort(e.target.value); setPage(1); }}
-              className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none"
-            >
-              <option value="newest">Mais recentes</option>
-              <option value="oldest">Mais antigos</option>
-              <option value="email">Email</option>
-              <option value="reservations">Por reservas</option>
-            </select>
-          </div>
+          <details className="rounded-xl border border-white/15 bg-slate-900/80">
+            <summary className="cursor-pointer px-3 py-2 text-sm text-slate-200 list-none [&::-webkit-details-marker]:hidden">
+              Filtrar por
+            </summary>
+            <div className="flex flex-wrap items-center gap-2 border-t border-white/10 p-3">
+              <select
+                value={planFilter}
+                onChange={(e) => { setPlanFilter(e.target.value); setPage(1); }}
+                className="rounded-lg border border-white/15 bg-slate-900 px-2 py-1.5 text-sm text-slate-200 outline-none"
+              >
+                <option value="">Plano: todos</option>
+                <option value="with">Com plano</option>
+                <option value="without">Sem plano</option>
+              </select>
+              <select
+                value={sort}
+                onChange={(e) => { setSort(e.target.value); setPage(1); }}
+                className="rounded-lg border border-white/15 bg-slate-900 px-2 py-1.5 text-sm text-slate-200 outline-none"
+              >
+                <option value="newest">Ordenar: mais recentes</option>
+                <option value="oldest">Ordenar: mais antigos</option>
+                <option value="email">Ordenar: email</option>
+                <option value="reservations">Ordenar: reservas</option>
+              </select>
+            </div>
+          </details>
         </div>
 
         <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[720px] text-left text-sm">
+          <table className="admin-table w-full min-w-[800px] text-left text-sm">
             <thead>
-              <tr className="border-b border-white/10 text-white/60">
+              <tr className="border-b border-white/15 text-white/70">
+                <th className="pb-2 pr-2">Nome</th>
                 <th className="pb-2 pr-2">Email</th>
                 <th className="pb-2 pr-2">Plano</th>
                 <th className="pb-2 pr-2">Créditos</th>
+                <th className="pb-2 pr-2">Adesão</th>
                 <th className="pb-2 pr-2">Reservas</th>
                 <th className="pb-2 pr-2">Última atividade</th>
                 <th className="pb-2 pr-2">Estado</th>
+                <th className="pb-2 pr-2">Ações</th>
               </tr>
             </thead>
             <tbody>
               {list?.items?.length ? (
                 list.items.map((c) => (
-                  <tr key={c.email} className="border-b border-white/5 text-white/80">
+                  <tr key={c.email} className="border-b border-white/10 text-white/90">
+                    <td className="py-2 pr-2">{c.fullName ?? "—"}</td>
                     <td className="py-2 pr-2">{c.email}</td>
                     <td className="py-2 pr-2">{c.currentPlan ?? "—"}</td>
                     <td className="py-2 pr-2">{c.purchasedCredits}</td>
+                    <td className="py-2 pr-2">{c.createdAt ? new Date(c.createdAt).toLocaleDateString("pt-PT") : "—"}</td>
                     <td className="py-2 pr-2">{c.totalReservations}</td>
                     <td className="py-2 pr-2">{c.lastActivity ?? "—"}</td>
                     <td className="py-2 pr-2">{c.status}</td>
+                    <td className="py-2 pr-2">
+                      <div className="flex flex-wrap gap-1">
+                        {c.blocked ? (
+                          <button
+                            type="button"
+                            onClick={() => api(`/api/admin/customers/${enc(c.email)}/unblock`, { method: "POST" }).then(() => setRefetch((x) => x + 1))}
+                            className="rounded border border-white/20 bg-white/10 px-2 py-1 text-xs text-white hover:bg-white/20"
+                          >
+                            Desbloquear
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => api(`/api/admin/customers/${enc(c.email)}/block`, { method: "POST" }).then(() => setRefetch((x) => x + 1))}
+                            className="rounded border border-white/20 bg-white/10 px-2 py-1 text-xs text-white hover:bg-white/20"
+                          >
+                            Bloquear
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const n = prompt("Créditos a adicionar:", "10");
+                            const num = parseInt(n ?? "0", 10);
+                            if (Number.isFinite(num) && num > 0) {
+                              api(`/api/admin/customers/${enc(c.email)}/credits`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ add: num }),
+                              }).then(() => setRefetch((x) => x + 1));
+                            }
+                          }}
+                          className="rounded border border-white/20 bg-white/10 px-2 py-1 text-xs text-white hover:bg-white/20"
+                        >
+                          + Créditos
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const n = prompt("Créditos a remover:", "10");
+                            const num = parseInt(n ?? "0", 10);
+                            if (Number.isFinite(num) && num > 0) {
+                              api(`/api/admin/customers/${enc(c.email)}/credits`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ remove: num }),
+                              }).then(() => setRefetch((x) => x + 1));
+                            }
+                          }}
+                          className="rounded border border-white/20 bg-white/10 px-2 py-1 text-xs text-white hover:bg-white/20"
+                        >
+                          − Créditos
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (confirm("Remover cliente (soft delete)?")) {
+                              api(`/api/admin/customers/${enc(c.email)}/remove`, { method: "POST" }).then(() => setRefetch((x) => x + 1));
+                            }
+                          }}
+                          className="rounded border border-red-400/30 bg-red-500/10 px-2 py-1 text-xs text-red-200 hover:bg-red-500/20"
+                        >
+                          Remover
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={6} className="py-6 text-center text-white/50">Nenhum cliente encontrado.</td>
+                  <td colSpan={9} className="py-6 text-center text-white/50">Nenhum cliente encontrado.</td>
                 </tr>
               )}
             </tbody>
@@ -151,7 +233,7 @@ export default function AdminClientesPage() {
               <select
                 value={pageSize}
                 onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}
-                className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-sm text-white outline-none"
+                className="rounded-lg border border-white/15 bg-slate-900/80 px-2 py-1 text-sm text-slate-200 outline-none"
               >
                 {[10, 20, 50].map((n) => (
                   <option key={n} value={n}>{n}</option>

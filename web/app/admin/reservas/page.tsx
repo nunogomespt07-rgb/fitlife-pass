@@ -69,7 +69,7 @@ export default function AdminReservasPage() {
 
   return (
     <div className="space-y-6">
-      <GlassCard variant="app" padding="lg" className="border-white/10">
+      <GlassCard variant="app" padding="lg" className="admin-card border-white/15">
         <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Reservas globais</p>
         {metrics != null ? (
           <div className="mt-2 flex flex-wrap gap-4 text-sm text-white/80">
@@ -84,7 +84,7 @@ export default function AdminReservasPage() {
         )}
       </GlassCard>
 
-      <GlassCard variant="app" padding="lg" className="border-white/10">
+      <GlassCard variant="app" padding="lg" className="admin-card border-white/15">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <input
             type="text"
@@ -100,7 +100,7 @@ export default function AdminReservasPage() {
             <select
               value={status}
               onChange={(e) => { setStatus(e.target.value); setPage(1); }}
-              className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none"
+              className="rounded-xl border border-white/15 bg-slate-900/80 px-3 py-2 text-sm text-slate-200 outline-none focus:ring-1 focus:ring-white/30"
             >
               <option value="">Todos os estados</option>
               <option value="confirmed">Confirmada</option>
@@ -112,18 +112,18 @@ export default function AdminReservasPage() {
               type="date"
               value={dateFrom}
               onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
-              className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none"
+              className="rounded-xl border border-white/15 bg-slate-900/80 px-3 py-2 text-sm text-slate-200 outline-none focus:ring-1 focus:ring-white/30"
             />
             <input
               type="date"
               value={dateTo}
               onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
-              className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none"
+              className="rounded-xl border border-white/15 bg-slate-900/80 px-3 py-2 text-sm text-slate-200 outline-none focus:ring-1 focus:ring-white/30"
             />
             <select
               value={sort}
               onChange={(e) => { setSort(e.target.value); setPage(1); }}
-              className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none"
+              className="rounded-xl border border-white/15 bg-slate-900/80 px-3 py-2 text-sm text-slate-200 outline-none focus:ring-1 focus:ring-white/30"
             >
               <option value="newest">Mais recentes</option>
               <option value="oldest">Mais antigas</option>
@@ -133,9 +133,9 @@ export default function AdminReservasPage() {
         </div>
 
         <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[720px] text-left text-sm">
+          <table className="admin-table w-full min-w-[720px] text-left text-sm">
             <thead>
-              <tr className="border-b border-white/10 text-white/60">
+              <tr className="border-b border-white/15 text-white/70">
                 <th className="pb-2 pr-2">Data / Hora</th>
                 <th className="pb-2 pr-2">Cliente</th>
                 <th className="pb-2 pr-2">Parceiro</th>
@@ -147,7 +147,7 @@ export default function AdminReservasPage() {
             <tbody>
               {list?.items?.length ? (
                 list.items.map((r) => (
-                  <tr key={r.id} className="border-b border-white/5 text-white/80">
+                  <tr key={r.id} className="border-b border-white/10 text-white/90">
                     <td className="py-2 pr-2">{r.date} {r.time}</td>
                     <td className="py-2 pr-2">{r.customerName || r.userEmail}</td>
                     <td className="py-2 pr-2">{r.partnerName}</td>

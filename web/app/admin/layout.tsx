@@ -4,12 +4,13 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import "./admin.css";
 
 const navItems: { href: string; label: string }[] = [
   { href: "/admin", label: "Visão geral" },
   { href: "/admin/reservas", label: "Reservas" },
   { href: "/admin/clientes", label: "Clientes" },
-  { href: "/admin/financeiro", label: "Financeiro" },
+  { href: "/admin/financas", label: "Finanças" },
   { href: "/admin/parceiros", label: "Parceiros" },
 ];
 
@@ -63,7 +64,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               Gestão interna da plataforma (parceiros, créditos peak/off-peak, visibilidade e operações).
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {navItems.map((item) => (
               <Link
                 key={item.href}
@@ -77,6 +78,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 {item.label}
               </Link>
             ))}
+            <span className="ml-2 h-6 w-px border-l border-white/20" aria-hidden />
             <button
               type="button"
               onClick={() => {
@@ -90,7 +92,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           </div>
         </div>
 
-        <div className="mt-10">{children}</div>
+        <div className="admin-area mt-10">{children}</div>
       </div>
     </div>
   );

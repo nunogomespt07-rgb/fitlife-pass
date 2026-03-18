@@ -81,9 +81,9 @@ export default function AdminHomePage() {
           )}
         </GlassCard>
       </Link>
-      <Link href="/admin/financeiro">
+      <Link href="/admin/financas">
         <GlassCard variant="app" padding="lg" className="border-white/10 hover:border-white/20 transition-colors">
-          <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Financeiro</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Finanças</p>
           {fin != null ? (
             <div className="mt-2 text-sm text-white/80">
               <p>Receita total: {fin.totalRevenue.toFixed(2)} €</p>
