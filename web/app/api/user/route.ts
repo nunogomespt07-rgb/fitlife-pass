@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
-import { readCustomerState } from "@/lib/adminDataServer";
+import { getCustomersCollection } from "@/lib/db";
 
 const AUTH_SECRET =
   process.env.NEXTAUTH_SECRET && process.env.NEXTAUTH_SECRET.trim()
@@ -23,25 +23,44 @@ export async function GET(req: NextRequest) {
     const token = await getToken({ req, secret: AUTH_SECRET });
     console.log("TOKEN OK");
 
-    const email = typeof token?.email === "string" ? token.email : null;
+    const email = normalizeEmail(token?.email);
     console.log("EMAIL:", email);
 
     if (!email) {
       return Response.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // TEMPORARY: read-only customer state (no writes/operators yet)
-    let customer: unknown = null;
-    try {
-      const store = await readCustomerState();
-      const key = `u:${email.trim().toLowerCase()}`;
-      customer = (store as Record<string, unknown>)[key] ?? null;
-      console.log("CUSTOMER OK", { key, customer });
-    } catch (e) {
-      console.error("CUSTOMER READ ERROR", e);
+    const now = new Date();
+
+    const safeSet: Record<string, any> = {
+      updatedAt: now,
+    };
+
+    if (email) {
+      safeSet.email = email;
     }
 
-    return Response.json({ ok: true, email, customer }, { status: 200 });
+    // TEMPORARY: update-only to isolate Mongo update crashes.
+    const collection = await getCustomersCollection();
+    try {
+      await collection.updateOne(
+        { email },
+        {
+          $set: safeSet,
+          $setOnInsert: {
+            email,
+            credits: 0,
+            createdAt: now,
+          },
+        },
+        { upsert: true }
+      );
+      console.log("UPDATE OK");
+    } catch (e) {
+      console.error("UPDATE ERROR", e);
+    }
+
+    return Response.json({ ok: true, email }, { status: 200 });
   } catch (err) {
     console.error("ERROR /api/user:", err);
     return Response.json(
