@@ -23,8 +23,7 @@ function toRecord(doc: CustomerDocument | null): CustomerStateRecord | null {
 }
 
 function patchToSet(patch: Partial<CustomerStateRecord>): Record<string, unknown> {
-  const now = new Date().toISOString();
-  const set: Record<string, unknown> = { updatedAt: now };
+  const set: Record<string, unknown> = {};
   if (patch.purchasedCredits !== undefined) set.credits = Math.max(0, Math.floor(patch.purchasedCredits));
   if (patch.subscriptionPlanId !== undefined) set.planId = patch.subscriptionPlanId;
   if (patch.subscriptionPlanName !== undefined) set.planName = patch.subscriptionPlanName;
@@ -71,18 +70,20 @@ export async function ensureCustomerWithMeta(params: {
   const now = new Date().toISOString();
   const safeSet: Record<string, unknown> = { updatedAt: now };
   if (safeName) safeSet.name = safeName;
+  const update = {
+    $setOnInsert: {
+      email,
+      name: safeName,
+      credits: 0,
+      plan: null,
+      createdAt: now,
+    },
+    $set: safeSet,
+  };
+  console.log("FINAL UPDATE ensureCustomerWithMeta", JSON.stringify(update, null, 2));
   const res = await col.findOneAndUpdate(
     { email },
-    {
-      $setOnInsert: {
-        email,
-        name: safeName,
-        credits: 0,
-        plan: null,
-        createdAt: now,
-      },
-      $set: safeSet,
-    },
+    update,
     { upsert: true, returnDocument: "after" }
   );
 
@@ -123,22 +124,25 @@ export async function updateCustomerByEmail(
   const canonical = email.trim().toLowerCase();
   if (!canonical) return;
   const set = patchToSet(patch);
-  if (Object.keys(set).length <= 1) return; // only updatedAt
+  if (Object.keys(set).length === 0) return;
   const col = await getCustomersCollection();
   const now = new Date().toISOString();
   await ensureCollectionIndex();
+  const finalSet: Record<string, unknown> = { ...set, updatedAt: now };
+  const update = {
+    $set: finalSet,
+    $setOnInsert: {
+      email: canonical,
+      name: null,
+      credits: 0,
+      plan: null,
+      createdAt: now,
+    },
+  };
+  console.log("FINAL UPDATE updateCustomerByEmail", JSON.stringify(update, null, 2));
   await col.updateOne(
     { email: canonical },
-    {
-      $set: set,
-      $setOnInsert: {
-        email: canonical,
-        name: null,
-        credits: 0,
-        plan: null,
-        createdAt: now,
-      },
-    },
+    update,
     { upsert: true }
   );
 }
@@ -175,6 +179,7 @@ export async function grantCreditsIdempotent(params: {
     // Emit operator key explicitly. Root update object must only contain operator keys.
     update["$addToSet"] = { processedCreditEvents: eventId };
   }
+  console.log("FINAL UPDATE grantCreditsIdempotent", JSON.stringify(update, null, 2));
 
   const res = await col.findOneAndUpdate(filter, update, { upsert: true, returnDocument: "after" });
   const doc = (res.value ?? null) as CustomerDocument | null;

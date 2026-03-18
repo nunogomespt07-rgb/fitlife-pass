@@ -43,16 +43,18 @@ export async function GET(req: NextRequest) {
     // TEMPORARY: update-only to isolate Mongo update crashes.
     const collection = await getCustomersCollection();
     try {
+      const update = {
+        $set: safeSet,
+        $setOnInsert: {
+          email,
+          credits: 0,
+          createdAt: now.toISOString(),
+        },
+      };
+      console.log("FINAL UPDATE /api/user", JSON.stringify(update, null, 2));
       await collection.updateOne(
         { email },
-        {
-          $set: safeSet,
-          $setOnInsert: {
-            email,
-            credits: 0,
-            createdAt: now.toISOString(),
-          },
-        },
+        update,
         { upsert: true }
       );
       console.log("UPDATE OK");
