@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
     const now = new Date();
 
     const safeSet: Record<string, any> = {
-      updatedAt: now,
+      updatedAt: now.toISOString(),
     };
 
     if (email) {
@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
           $setOnInsert: {
             email,
             credits: 0,
-            createdAt: now,
+            createdAt: now.toISOString(),
           },
         },
         { upsert: true }
