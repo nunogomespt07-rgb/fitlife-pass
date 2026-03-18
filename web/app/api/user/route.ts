@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
-import { ensureCustomerWithMeta } from "@/lib/customerDb";
+import { readCustomerState } from "@/lib/adminDataServer";
 
 const AUTH_SECRET =
   process.env.NEXTAUTH_SECRET && process.env.NEXTAUTH_SECRET.trim()
@@ -30,14 +30,18 @@ export async function GET(req: NextRequest) {
       return Response.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // TEMPORARY: comment out helper/db calls one by one
-    // const customer = await ensureCustomerWithMeta(email);
-    // console.log("CUSTOMER OK", customer);
+    // TEMPORARY: read-only customer state (no writes/operators yet)
+    let customer: unknown = null;
+    try {
+      const store = await readCustomerState();
+      const key = `u:${email.trim().toLowerCase()}`;
+      customer = (store as Record<string, unknown>)[key] ?? null;
+      console.log("CUSTOMER OK", { key, customer });
+    } catch (e) {
+      console.error("CUSTOMER READ ERROR", e);
+    }
 
-    // const state = await readCustomerState(email);
-    // console.log("STATE OK", state);
-
-    return Response.json({ ok: true, email }, { status: 200 });
+    return Response.json({ ok: true, email, customer }, { status: 200 });
   } catch (err) {
     console.error("ERROR /api/user:", err);
     return Response.json(
