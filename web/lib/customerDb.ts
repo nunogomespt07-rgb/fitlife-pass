@@ -58,28 +58,64 @@ export async function findCustomerByEmail(email: string): Promise<CustomerDocume
   return doc as CustomerDocument | null;
 }
 
-/** Create user if not exists; return existing or new. */
-export async function ensureCustomer(params: {
+/** Create user if not exists; return existing or new (atomic upsert). */
+export async function ensureCustomerWithMeta(params: {
   email: string;
   name?: string | null;
-}): Promise<CustomerDocument> {
+}): Promise<{ customer: CustomerDocument; created: boolean }> {
   const email = params.email.trim().toLowerCase();
   const name = params.name ?? null;
   const col = await getCustomersCollection();
   await ensureCollectionIndex();
-  const existing = await col.findOne({ email }) as CustomerDocument | null;
-  if (existing) return existing;
+
   const now = new Date().toISOString();
-  const doc: CustomerDocument = {
-    email,
-    name,
-    credits: 0,
-    plan: null,
-    createdAt: now,
-    updatedAt: now,
-  };
-  await col.insertOne(doc as never);
-  return doc;
+  const res = await col.findOneAndUpdate(
+    { email },
+    {
+      $setOnInsert: {
+        email,
+        name,
+        credits: 0,
+        plan: null,
+        createdAt: now,
+        updatedAt: now,
+      },
+      $set: {
+        ...(name ? { name } : {}),
+        updatedAt: now,
+      },
+    },
+    { upsert: true, returnDocument: "after" }
+  );
+
+  const customer = (res.value ?? null) as CustomerDocument | null;
+  // MongoDB driver shape varies slightly; use best-effort flag.
+  const created =
+    !!(res as unknown as { lastErrorObject?: { updatedExisting?: boolean } }).lastErrorObject &&
+    (res as unknown as { lastErrorObject?: { updatedExisting?: boolean } }).lastErrorObject!.updatedExisting === false;
+
+  if (!customer) {
+    // Fallback: should not happen, but keep API stable.
+    const doc: CustomerDocument = {
+      email,
+      name,
+      credits: 0,
+      plan: null,
+      createdAt: now,
+      updatedAt: now,
+    };
+    return { customer: doc, created: true };
+  }
+
+  return { customer, created };
+}
+
+export async function ensureCustomer(params: {
+  email: string;
+  name?: string | null;
+}): Promise<CustomerDocument> {
+  const { customer } = await ensureCustomerWithMeta(params);
+  return customer;
 }
 
 export async function updateCustomerByEmail(
@@ -91,7 +127,23 @@ export async function updateCustomerByEmail(
   const set = patchToSet(patch);
   if (Object.keys(set).length <= 1) return; // only updatedAt
   const col = await getCustomersCollection();
-  await col.updateOne({ email: canonical }, { $set: set });
+  const now = new Date().toISOString();
+  await ensureCollectionIndex();
+  await col.updateOne(
+    { email: canonical },
+    {
+      $set: set,
+      $setOnInsert: {
+        email: canonical,
+        name: null,
+        credits: 0,
+        plan: null,
+        createdAt: now,
+        updatedAt: now,
+      },
+    },
+    { upsert: true }
+  );
 }
 
 /** Returns store shape keyed by u:email for drop-in replacement of readCustomerState. */

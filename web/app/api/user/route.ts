@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
-import { ensureCustomer } from "@/lib/customerDb";
+import { ensureCustomerWithMeta } from "@/lib/customerDb";
 
 const AUTH_SECRET =
   process.env.NEXTAUTH_SECRET && process.env.NEXTAUTH_SECRET.trim()
@@ -18,10 +18,11 @@ export async function GET(req: NextRequest) {
     return Response.json({ message: "Unauthorized" }, { status: 401 });
   }
 
-  const user = await ensureCustomer({
+  const { customer: user, created } = await ensureCustomerWithMeta({
     email,
     name: typeof token?.name === "string" ? token.name.trim() : null,
   });
+  console.log("[api/user] resolved canonicalEmail", email, "created", created);
 
   if (user.blocked || user.deletedAt) {
     return Response.json({ message: "Forbidden" }, { status: 403 });

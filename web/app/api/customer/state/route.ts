@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
-import { ensureCustomer, findCustomerByEmail, updateCustomerByEmail } from "@/lib/customerDb";
+import { ensureCustomerWithMeta, findCustomerByEmail, updateCustomerByEmail } from "@/lib/customerDb";
 
 const AUTH_SECRET =
   process.env.NEXTAUTH_SECRET && process.env.NEXTAUTH_SECRET.trim()
@@ -29,10 +29,11 @@ export async function GET(req: NextRequest) {
     return Response.json({ message: "Unauthorized" }, { status: 401 });
   }
 
-  const user = await ensureCustomer({
+  const { customer: user, created } = await ensureCustomerWithMeta({
     email,
     name: null,
   });
+  console.log("[api/customer/state][GET] canonicalEmail", email, "created", created);
 
   if (user.blocked || user.deletedAt) {
     return Response.json({ message: "Forbidden" }, { status: 403 });
@@ -59,7 +60,8 @@ export async function POST(req: NextRequest) {
   const body = (await req.json().catch(() => ({}))) as unknown;
   if (!isRecord(body)) return Response.json({ message: "Invalid payload" }, { status: 400 });
 
-  const user = await ensureCustomer({ email, name: null });
+  const { customer: user, created } = await ensureCustomerWithMeta({ email, name: null });
+  console.log("[api/customer/state][POST] canonicalEmail", email, "created", created);
   if (user.blocked || user.deletedAt) {
     return Response.json({ message: "Forbidden" }, { status: 403 });
   }
@@ -73,6 +75,7 @@ export async function POST(req: NextRequest) {
   if ("subscriptionPlanName" in body) patch.subscriptionPlanName = body.subscriptionPlanName == null ? null : String(body.subscriptionPlanName);
 
   if (Object.keys(patch).length > 0) {
+    console.log("[api/customer/state][POST] write patch keys", Object.keys(patch));
     await updateCustomerByEmail(email, patch);
   }
 

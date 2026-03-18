@@ -115,8 +115,10 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
     let cancelled = false;
     (async () => {
       try {
+        console.log("[credits][auth] hydrate start", { canonicalEmail: effectiveUserId });
         const res = await fetch("/api/user", { cache: "no-store" });
         if (!res.ok) {
+          console.warn("[credits][auth] hydrate failed", { status: res.status });
           setCreditsReady(true);
           return;
         }
@@ -127,6 +129,7 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
         const next = typeof data.credits === "number" && Number.isFinite(data.credits)
           ? Math.max(0, Math.floor(data.credits))
           : 0;
+        console.log("[credits][auth] hydrate success", { canonicalEmail: effectiveUserId, credits: next });
         setPurchasedCredits(next);
         setCreditsReady(true);
         if (data.planId != null || data.planName != null) {
