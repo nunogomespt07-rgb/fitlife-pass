@@ -85,18 +85,31 @@ export async function getDb(): Promise<Db> {
     const message = err instanceof Error ? err.message : String(err);
     console.error("[mongo] connect error", { message });
 
-    // If Atlas URI is missing authSource and we got an auth failure, retry with the common Atlas default.
-    // This avoids hardcoding except for the last-resort path and only when authSource is not present.
-    if (
-      !authSourceFromUri &&
-      !envAuthSource &&
-      isAuthError(message)
-    ) {
-      console.warn("[mongo] retrying connect with authSource=admin (last resort)");
-      const client2 = await connectOnce("admin");
-      cachedClient = client2;
-      cachedDb = client2.db(dbName);
-      return cachedDb;
+    if (isAuthError(message)) {
+      // Retry matrix for authSource mismatch. Never changes credentials.
+      const candidates: string[] = [];
+      // Common Atlas default.
+      if (!candidates.includes("admin")) candidates.push("admin");
+      // URI db name, if present.
+      if (dbFromUri && !candidates.includes(dbFromUri)) candidates.push(dbFromUri);
+      // App selected db name.
+      if (dbName && !candidates.includes(dbName)) candidates.push(dbName);
+
+      for (const candidate of candidates) {
+        try {
+          console.warn("[mongo] retrying connect with authSource", candidate);
+          const client2 = await connectOnce(candidate);
+          cachedClient = client2;
+          cachedDb = client2.db(dbName);
+          return cachedDb;
+        } catch (e2) {
+          const m2 = e2 instanceof Error ? e2.message : String(e2);
+          console.warn("[mongo] retry authSource failed", {
+            authSource: candidate,
+            message: m2,
+          });
+        }
+      }
     }
 
     throw err;
