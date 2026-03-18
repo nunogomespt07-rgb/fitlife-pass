@@ -80,7 +80,6 @@ export async function ensureCustomerWithMeta(params: {
         credits: 0,
         plan: null,
         createdAt: now,
-        updatedAt: now,
       },
       $set: safeSet,
     },
@@ -138,7 +137,6 @@ export async function updateCustomerByEmail(
         credits: 0,
         plan: null,
         createdAt: now,
-        updatedAt: now,
       },
     },
     { upsert: true }
@@ -171,7 +169,6 @@ export async function grantCreditsIdempotent(params: {
       credits: 0,
       plan: null,
       createdAt: now,
-      updatedAt: now,
     },
   };
   if (eventId) {
