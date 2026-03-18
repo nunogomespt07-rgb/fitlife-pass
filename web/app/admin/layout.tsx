@@ -20,13 +20,11 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const isActive = (href: string) => (href === "/admin" ? pathname === href : pathname.startsWith(href));
 
   // Login route must not show authenticated admin chrome.
-  if (pathname.startsWith("/admin/login")) {
-    return <>{children}</>;
-  }
-
+ 
   const [authed, setAuthed] = useState<boolean | null>(null);
 
   useEffect(() => {
+    if (pathname?.startsWith("/admin/login")) return;
     (async () => {
       try {
         const res = await fetch("/api/admin/session", { method: "GET" });
@@ -44,6 +42,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       }
     })();
   }, [pathname, router]);
+
+  if (pathname?.startsWith("/admin/login")) {
+  return <>{children}</>;
+}
 
   if (authed === false) {
     return <>{children}</>;
