@@ -64,26 +64,25 @@ export async function ensureCustomerWithMeta(params: {
   name?: string | null;
 }): Promise<{ customer: CustomerDocument; created: boolean }> {
   const email = params.email.trim().toLowerCase();
-  const name = params.name ?? null;
+  const safeName = typeof params.name === "string" ? params.name.trim() : null;
   const col = await getCustomersCollection();
   await ensureCollectionIndex();
 
   const now = new Date().toISOString();
+  const safeSet: Record<string, unknown> = { updatedAt: now };
+  if (safeName) safeSet.name = safeName;
   const res = await col.findOneAndUpdate(
     { email },
     {
       $setOnInsert: {
         email,
-        name,
+        name: safeName,
         credits: 0,
         plan: null,
         createdAt: now,
         updatedAt: now,
       },
-      $set: {
-        ...(name ? { name } : {}),
-        updatedAt: now,
-      },
+      $set: safeSet,
     },
     { upsert: true, returnDocument: "after" }
   );
@@ -98,7 +97,7 @@ export async function ensureCustomerWithMeta(params: {
     // Fallback: should not happen, but keep API stable.
     const doc: CustomerDocument = {
       email,
-      name,
+      name: safeName,
       credits: 0,
       plan: null,
       createdAt: now,
@@ -176,8 +175,8 @@ export async function grantCreditsIdempotent(params: {
     },
   };
   if (eventId) {
-    // Ensure operator key is emitted as "$addToSet" (no root-level non-operator fields).
-    (update as Record<string, unknown>)["$addToSet"] = { processedCreditEvents: eventId };
+    // Emit operator key explicitly. Root update object must only contain operator keys.
+    update["$addToSet"] = { processedCreditEvents: eventId };
   }
 
   const res = await col.findOneAndUpdate(filter, update, { upsert: true, returnDocument: "after" });
