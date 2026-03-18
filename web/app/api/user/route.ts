@@ -18,45 +18,34 @@ function normalizeEmail(v: unknown): string {
  */
 export async function GET(req: NextRequest) {
   try {
+    console.log("START /api/user");
+
     const token = await getToken({ req, secret: AUTH_SECRET });
-    const email = normalizeEmail(token?.email);
+    console.log("TOKEN OK");
+
+    const email = typeof token?.email === "string" ? token.email : null;
+    console.log("EMAIL:", email);
+
     if (!email) {
       return Response.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { customer: user, created } = await ensureCustomerWithMeta({
-      email,
-      name: typeof token?.name === "string" ? token.name.trim() : null,
-    });
-    console.log("[api/user] canonicalEmail", email, "created", created);
+    // TEMPORARY: comment out helper/db calls one by one
+    // const customer = await ensureCustomerWithMeta(email);
+    // console.log("CUSTOMER OK", customer);
 
-    if (!user || user.blocked || user.deletedAt) {
-      return Response.json({ message: "Forbidden" }, { status: 403 });
-    }
+    // const state = await readCustomerState(email);
+    // console.log("STATE OK", state);
 
-    const credits =
-      typeof user.credits === "number" && Number.isFinite(user.credits)
-        ? Math.max(0, Math.floor(user.credits))
-        : 0;
-    const name =
-      user.name ?? (typeof token?.name === "string" ? token.name.trim() : null) ?? email;
-    const planId = user.planId ?? null;
-    const planName = user.planName ?? null;
-    const plan = planName ?? planId ?? null;
-
-    console.log("[api/user] return credits", { email, credits });
-
-    return Response.json({
-      id: email,
-      email,
-      name,
-      credits,
-      plan,
-      planId,
-      planName,
-    });
+    return Response.json({ ok: true, email }, { status: 200 });
   } catch (err) {
-    console.error("[api/user] failed", err);
-    return Response.json({ message: "Internal Server Error" }, { status: 500 });
+    console.error("ERROR /api/user:", err);
+    return Response.json(
+      {
+        message: "Internal Server Error",
+        error: err instanceof Error ? err.message : String(err),
+      },
+      { status: 500 }
+    );
   }
 }
