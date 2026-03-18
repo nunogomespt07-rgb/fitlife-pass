@@ -176,7 +176,8 @@ export async function grantCreditsIdempotent(params: {
     },
   };
   if (eventId) {
-    update.$addToSet = { processedCreditEvents: eventId };
+    // Ensure operator key is emitted as "$addToSet" (no root-level non-operator fields).
+    (update as Record<string, unknown>)["$addToSet"] = { processedCreditEvents: eventId };
   }
 
   const res = await col.findOneAndUpdate(filter, update, { upsert: true, returnDocument: "after" });
