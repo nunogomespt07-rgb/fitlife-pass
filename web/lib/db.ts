@@ -7,19 +7,100 @@ import { MongoClient, Db } from "mongodb";
 
 const uri = process.env.MONGODB_URI ?? "";
 const dbName = process.env.MONGODB_DB ?? "fitlife";
+const envAuthSource = process.env.MONGODB_AUTH_SOURCE ?? "";
 
 let cachedClient: MongoClient | null = null;
 let cachedDb: Db | null = null;
+
+function maskMongoUri(input: string): string {
+  // Mask password part only (keep host/path).
+  // Example: mongodb+srv://user:pass@host/db?...
+  return input.replace(/^(mongodb(?:\+srv)?:\/\/[^:]+):([^@]+)@/i, "$1:***@");
+}
+
+function parseMongoHost(input: string): string | null {
+  const at = input.indexOf("@");
+  if (at === -1) return null;
+  const afterAt = input.slice(at + 1);
+  const host = afterAt.split("/")[0]?.split("?")[0];
+  return host || null;
+}
+
+function parseMongoDbFromUri(input: string): string | null {
+  // Extract DB name from "/<db>" segment in the URI path.
+  const at = input.indexOf("@");
+  if (at === -1) return null;
+  const firstSlashAfterAt = input.indexOf("/", at);
+  if (firstSlashAfterAt === -1) return null;
+  const pathPart = input.slice(firstSlashAfterAt + 1);
+  const dbPart = pathPart.split("?")[0]?.split("/")[0];
+  return dbPart || null;
+}
+
+function parseAuthSourceFromUri(input: string): string | null {
+  const m = input.match(/[?&]authSource=([^&]+)/i);
+  return m?.[1] ? decodeURIComponent(m[1]) : null;
+}
+
+function isAuthError(errMessage: string): boolean {
+  return /bad auth|authentication failed|auth failed/i.test(errMessage);
+}
 
 export async function getDb(): Promise<Db> {
   if (!uri) {
     throw new Error("MONGODB_URI is not set. Add it to .env.local to use the database.");
   }
   if (cachedDb) return cachedDb;
-  const client = await MongoClient.connect(uri);
-  cachedClient = client;
-  cachedDb = client.db(dbName);
-  return cachedDb;
+
+  const scheme = uri.startsWith("mongodb+srv://") ? "mongodb+srv" : "mongodb";
+  const host = parseMongoHost(uri);
+  const dbFromUri = parseMongoDbFromUri(uri);
+  const authSourceFromUri = parseAuthSourceFromUri(uri);
+  const maskedUri = maskMongoUri(uri);
+
+  console.log("[mongo] connect config", {
+    envVar: "MONGODB_URI",
+    scheme,
+    host,
+    dbNameSelected: dbName,
+    dbNameFromUri: dbFromUri,
+    authSourceFromUri: authSourceFromUri ?? null,
+    hasEnvAuthSource: !!envAuthSource,
+    authSourceEnv: envAuthSource ? "***" : null,
+    maskedUri,
+  });
+
+  async function connectOnce(authSource?: string) {
+    const options: Record<string, unknown> = {};
+    if (authSource) options.authSource = authSource;
+    return MongoClient.connect(uri, options);
+  }
+
+  try {
+    const client = await connectOnce(envAuthSource || undefined);
+    cachedClient = client;
+    cachedDb = client.db(dbName);
+    return cachedDb;
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("[mongo] connect error", { message });
+
+    // If Atlas URI is missing authSource and we got an auth failure, retry with the common Atlas default.
+    // This avoids hardcoding except for the last-resort path and only when authSource is not present.
+    if (
+      !authSourceFromUri &&
+      !envAuthSource &&
+      isAuthError(message)
+    ) {
+      console.warn("[mongo] retrying connect with authSource=admin (last resort)");
+      const client2 = await connectOnce("admin");
+      cachedClient = client2;
+      cachedDb = client2.db(dbName);
+      return cachedDb;
+    }
+
+    throw err;
+  }
 }
 
 export function getCustomersCollection() {
