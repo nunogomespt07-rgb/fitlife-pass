@@ -1,49 +1,87 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import GlassCard from "@/app/components/ui/GlassCard";
-import { getAllPartnersWithCategory } from "@/lib/activitiesData";
+
+type PartnerItem = {
+  partnerId: string;
+  partnerName: string;
+  category: string;
+  city: string;
+  visible: boolean;
+  totalActivities: number;
+  totalReservations: number;
+  totalRevenue: number;
+  payoutEstimate: number;
+};
+
+type ListRes = {
+  items: PartnerItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+};
 
 export default function AdminPartnersPage() {
-  const partners = useMemo(() => getAllPartnersWithCategory(), []);
-  const [pageSize, setPageSize] = useState(10);
+  const [list, setList] = useState<ListRes | null>(null);
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [search, setSearch] = useState("");
+  const [visibility, setVisibility] = useState("");
+  const [sort, setSort] = useState("name");
 
-  const total = partners.length;
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  useEffect(() => {
+    const params = new URLSearchParams();
+    params.set("page", String(page));
+    params.set("pageSize", String(pageSize));
+    if (search) params.set("search", search);
+    if (visibility) params.set("visibility", visibility);
+    if (sort) params.set("sort", sort);
+    fetch(`/api/admin/partners/list?${params}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then(setList)
+      .catch(() => setList(null));
+  }, [page, pageSize, search, visibility, sort]);
+
+  const total = list?.total ?? 0;
+  const totalPages = list?.totalPages ?? 1;
   const safePage = Math.min(totalPages, Math.max(1, page));
-  const start = (safePage - 1) * pageSize;
-  const end = start + pageSize;
-  const pageItems = partners.slice(start, end);
 
   return (
     <div>
-      <GlassCard variant="app" padding="lg" className="border-white/10 select-none cursor-default">
-        <p className="text-xs font-semibold uppercase tracking-wider text-white/60">
-          Parceiros
-        </p>
-        <p className="mt-2 text-sm text-white/70">
-          Gestão interna: créditos peak/off-peak e configuração base por parceiro.
-        </p>
+      <GlassCard variant="app" padding="lg" className="border-white/10">
+        <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Parceiros</p>
+        <p className="mt-2 text-sm text-white/70">Gestão interna: créditos peak/off-peak e configuração base por parceiro.</p>
       </GlassCard>
 
-      <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2">
-          <span className="text-xs font-semibold text-white/60">Por página</span>
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <input
+          type="text"
+          placeholder="Pesquisar (nome, cidade, categoria)"
+          value={search}
+          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/40 outline-none max-w-xs"
+        />
+        <div className="flex flex-wrap items-center gap-2">
           <select
-            value={pageSize}
-            onChange={(e) => {
-              setPageSize(Number(e.target.value));
-              setPage(1);
-            }}
-            className="bg-transparent text-sm font-semibold text-white outline-none"
+            value={visibility}
+            onChange={(e) => { setVisibility(e.target.value); setPage(1); }}
+            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none"
           >
-            {[10, 20, 50].map((n) => (
-              <option key={n} value={n} className="bg-[#020617]">
-                {n}
-              </option>
-            ))}
+            <option value="">Todos</option>
+            <option value="visible">Visíveis</option>
+            <option value="hidden">Ocultos</option>
+          </select>
+          <select
+            value={sort}
+            onChange={(e) => { setSort(e.target.value); setPage(1); }}
+            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none"
+          >
+            <option value="name">Nome</option>
+            <option value="reservations">Reservas</option>
+            <option value="revenue">Receita</option>
           </select>
           <span className="text-xs text-white/50">{total} total</span>
         </div>
@@ -56,15 +94,16 @@ export default function AdminPartnersPage() {
       </div>
 
       <div className="mt-6 grid gap-3">
-        {pageItems.map((p) => (
-          <GlassCard key={p.id} variant="app" padding="md" className="border-white/10">
+        {list?.items?.map((p) => (
+          <GlassCard key={p.partnerId} variant="app" padding="md" className="border-white/10">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-white">{p.name}</p>
-                <p className="mt-1 text-xs text-white/60">{p.categoryLabel} · {p.location}</p>
+                <p className="text-sm font-semibold text-white">{p.partnerName}</p>
+                <p className="mt-1 text-xs text-white/60">{p.category} · {p.city || "—"}</p>
+                <p className="mt-1 text-xs text-white/50">Reservas: {p.totalReservations} · Receita: {p.totalRevenue.toFixed(2)} €</p>
               </div>
               <Link
-                href={`/admin/parceiros/${p.id}`}
+                href={`/admin/parceiros/${p.partnerId}`}
                 className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white/85 hover:bg-white/10"
               >
                 Abrir
@@ -74,27 +113,45 @@ export default function AdminPartnersPage() {
         ))}
       </div>
 
-      <div className="mt-6 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={() => setPage((p) => Math.max(1, p - 1))}
-          disabled={safePage <= 1}
-          className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white/85 hover:bg-white/10 disabled:opacity-40"
-        >
-          ← Anterior
-        </button>
-        <span className="text-sm text-white/70">
-          Página {safePage} de {totalPages}
-        </span>
-        <button
-          type="button"
-          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-          disabled={safePage >= totalPages}
-          className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white/85 hover:bg-white/10 disabled:opacity-40"
-        >
-          Seguinte →
-        </button>
-      </div>
+      {list?.items?.length === 0 && (
+        <p className="mt-6 text-center text-sm text-white/50">Nenhum parceiro encontrado.</p>
+      )}
+
+      {list && totalPages > 1 && (
+        <div className="mt-6 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-white/60">Por página</span>
+            <select
+              value={pageSize}
+              onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}
+              className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-sm text-white outline-none"
+            >
+              {[10, 20, 50].map((n) => (
+                <option key={n} value={n} className="bg-[#020617]">{n}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={safePage <= 1}
+              className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white/85 hover:bg-white/10 disabled:opacity-40"
+            >
+              ← Anterior
+            </button>
+            <span className="text-sm text-white/70">Página {safePage} de {totalPages}</span>
+            <button
+              type="button"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={safePage >= totalPages}
+              className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white/85 hover:bg-white/10 disabled:opacity-40"
+            >
+              Seguinte →
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

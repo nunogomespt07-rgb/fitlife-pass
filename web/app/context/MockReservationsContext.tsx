@@ -220,9 +220,27 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
         });
         creditActivity.showToast("Reserva confirmada", `-${input.creditsRequired} créditos usados`);
       }
+      if (isAuthenticated) {
+        fetch("/api/customer/reservations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id,
+            partnerId: input.partnerId,
+            partnerName: input.partnerName,
+            type: "activity",
+            date: input.date,
+            time: input.time,
+            status: "confirmed",
+            creditsUsed: input.creditsRequired,
+            activityTitle: input.activityTitle,
+            activityId: input.activityId,
+          }),
+        }).catch(() => {});
+      }
       return { success: true };
     },
-    [effectiveUserId, reservations, purchasedCredits, creditActivity]
+    [effectiveUserId, reservations, purchasedCredits, creditActivity, isAuthenticated]
   );
 
   const addGymReservation = useCallback(
@@ -266,9 +284,26 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
         });
         creditActivity.showToast("Reserva confirmada", `-${input.creditsRequired} créditos usados`);
       }
+      if (isAuthenticated) {
+        fetch("/api/customer/reservations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id,
+            partnerId: input.partnerId,
+            partnerName: input.partnerName,
+            type: "gym",
+            date: dateYMD,
+            time: timeHM,
+            status: "confirmed",
+            creditsUsed: input.creditsRequired,
+            activityTitle: "Acesso ginásio",
+          }),
+        }).catch(() => {});
+      }
       return { success: true, reservation: r };
     },
-    [effectiveUserId, reservations, purchasedCredits, creditActivity]
+    [effectiveUserId, reservations, purchasedCredits, creditActivity, isAuthenticated]
   );
 
   const addRestaurantReservation = useCallback(
@@ -318,9 +353,25 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
         });
         creditActivity.showToast("Reserva confirmada", `-${creditsToUse} créditos usados`);
       }
+      if (isAuthenticated && creditsToUse >= 0) {
+        fetch("/api/customer/reservations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id,
+            partnerId: input.restaurantId,
+            partnerName: input.restaurantName,
+            type: "restaurant",
+            date: input.date,
+            time: input.time,
+            status: "confirmed",
+            creditsUsed: creditsToUse,
+          }),
+        }).catch(() => {});
+      }
       return { success: true };
     },
-    [effectiveUserId, reservations, purchasedCredits, creditActivity]
+    [effectiveUserId, reservations, purchasedCredits, creditActivity, isAuthenticated]
   );
 
   const cancelReservation = useCallback((id: string): { success: boolean; error?: string } => {

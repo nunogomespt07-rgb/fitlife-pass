@@ -7,6 +7,9 @@ import { useEffect, useState } from "react";
 
 const navItems: { href: string; label: string }[] = [
   { href: "/admin", label: "Visão geral" },
+  { href: "/admin/reservas", label: "Reservas" },
+  { href: "/admin/clientes", label: "Clientes" },
+  { href: "/admin/financeiro", label: "Financeiro" },
   { href: "/admin/parceiros", label: "Parceiros" },
 ];
 

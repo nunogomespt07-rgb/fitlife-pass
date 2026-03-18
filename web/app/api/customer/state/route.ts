@@ -7,6 +7,7 @@ type CustomerState = {
   purchasedCredits?: number;
   subscriptionPlanId?: string | null;
   subscriptionPlanName?: string | null;
+  createdAt?: string;
 };
 
 type StoreShape = Record<string, CustomerState>;
@@ -99,6 +100,7 @@ export async function POST(req: NextRequest) {
   const merged: CustomerState = {
     ...prev,
     ...Object.fromEntries(Object.entries(next).filter(([, v]) => v !== undefined)),
+    createdAt: (prev as CustomerState).createdAt ?? new Date().toISOString(),
   };
   store[key] = merged;
   await writeStore(store);
