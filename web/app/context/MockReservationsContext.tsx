@@ -109,54 +109,39 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
     }
   }, [pathname, effectiveUserId, isAuthenticated, sessionStatus]);
 
-  // Cross-device demo persistence: when user has a NextAuth session, hydrate credits/plan from server store.
-  // SINGLE WRITER for authenticated users: only the success path below may set purchasedCredits.
+  // Authenticated users: credits ONLY from backend (GET /api/user). No localStorage for credits.
   useEffect(() => {
     if (!isAuthenticated) return;
     let cancelled = false;
-    console.log("[credits write] /api/customer/state request start", { session: isAuthenticated });
     (async () => {
       try {
-        const res = await fetch("/api/customer/state", { cache: "no-store" });
+        const res = await fetch("/api/user", { cache: "no-store" });
         if (!res.ok) {
-          // Do NOT write credits for authenticated users on API failure; preserve previous state.
-          console.warn("[credits write] /api/customer/state !res.ok", { status: res.status, session: isAuthenticated });
           setCreditsReady(true);
           return;
         }
         const data = (await res.json().catch(() => null)) as
-          | { purchasedCredits?: number; subscriptionPlanId?: string | null; subscriptionPlanName?: string | null }
+          | { credits?: number; planId?: string | null; planName?: string | null }
           | null;
-        console.log("[credits write] /api/customer/state response payload", { data, cancelled, session: isAuthenticated });
         if (!data || cancelled) return;
-        if (typeof data.purchasedCredits === "number" && Number.isFinite(data.purchasedCredits)) {
-          const next = Math.max(0, Math.floor(data.purchasedCredits));
-          setPurchasedCredits((prev) => {
-            console.log("[credits write]", { source: "api/customer/state success", session: isAuthenticated, prev, next });
-            return next;
-          });
-          // Optional mirror only; never source of truth for authenticated users.
-          if (effectiveUserId) setStoredPurchasedCredits(effectiveUserId, next);
-          console.log("[credits][final returned value]", next, "[credits][session email]", isAuthenticated ? effectiveUserId : "(unauthenticated)");
-        }
+        const next = typeof data.credits === "number" && Number.isFinite(data.credits)
+          ? Math.max(0, Math.floor(data.credits))
+          : 0;
+        setPurchasedCredits(next);
         setCreditsReady(true);
-        if (data.subscriptionPlanId || data.subscriptionPlanName) {
+        if (data.planId != null || data.planName != null) {
           try {
             setStoredUser({
-              subscriptionPlanId: data.subscriptionPlanId ?? null,
-              subscriptionPlanName: data.subscriptionPlanName ?? null,
+              subscriptionPlanId: data.planId ?? null,
+              subscriptionPlanName: data.planName ?? null,
             });
           } catch {}
         }
-      } catch (err) {
-        // Do NOT write credits for authenticated users on network error; preserve previous state.
-        console.error("[credits write] /api/customer/state failed", err);
+      } catch {
         setCreditsReady(true);
       }
     })();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [isAuthenticated, effectiveUserId]);
 
   // Persist credits to storage only when NOT authenticated. STRICT: never call getStoredPurchasedCredits when authenticated.
@@ -457,15 +442,10 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
   }, [effectiveUserId]);
 
   const addPurchasedCredits = useCallback((amount: number, reason?: string) => {
-    // Authenticated: only canonical key (session email). Unauthenticated: effectiveUserId or stored id.
     const userId = isAuthenticated ? effectiveUserId : (effectiveUserId ?? getStoredUser()?.id ?? null);
-    const canonicalKey = isAuthenticated ? effectiveUserId : null;
     const n = Math.max(0, Math.floor(amount));
     setPurchasedCredits((prev) => {
       const next = prev + n;
-      console.log("[credits write]", { source: "addPurchasedCredits", session: isAuthenticated, prev, next });
-      if (canonicalKey) console.log("[credits][addPurchasedCredits] canonical key", canonicalKey);
-      setStoredPurchasedCredits(userId, next); // optional mirror when auth; never source of truth
       setCreditsReady(true);
       if (isAuthenticated) {
         fetch("/api/customer/state", {
@@ -473,6 +453,8 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ purchasedCredits: next }),
         }).catch(() => {});
+      } else if (userId) {
+        setStoredPurchasedCredits(userId, next);
       }
       return next;
     });
