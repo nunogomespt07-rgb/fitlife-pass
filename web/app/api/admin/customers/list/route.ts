@@ -12,6 +12,15 @@ export async function GET(req: NextRequest) {
   const search = (searchParams.get("search") ?? "").trim().toLowerCase();
   const planFilter = searchParams.get("plan") ?? "";
   const sort = searchParams.get("sort") ?? "newest";
+  const dateFrom = (searchParams.get("dateFrom") ?? "").trim();
+  const dateTo = (searchParams.get("dateTo") ?? "").trim();
+  const country = (searchParams.get("country") ?? "").trim().toLowerCase();
+  const city = (searchParams.get("city") ?? "").trim().toLowerCase();
+  const creditsMin = searchParams.get("creditsMin") !== null && searchParams.get("creditsMin") !== "" ? parseInt(searchParams.get("creditsMin") ?? "0", 10) : null;
+  const creditsMax = searchParams.get("creditsMax") !== null && searchParams.get("creditsMax") !== "" ? parseInt(searchParams.get("creditsMax") ?? "0", 10) : null;
+  const reservationsMin = searchParams.get("reservationsMin") !== null && searchParams.get("reservationsMin") !== "" ? parseInt(searchParams.get("reservationsMin") ?? "0", 10) : null;
+  const statusFilter = searchParams.get("status") ?? ""; // active | inactive | blocked
+  const activityFilter = searchParams.get("activity") ?? ""; // with | without
 
   const store = await readCustomerState();
   const reservations = await readReservations();
@@ -31,6 +40,9 @@ export async function GET(req: NextRequest) {
     userEmail: string;
     fullName: string | null;
     email: string;
+    phone: string | null;
+    country: string | null;
+    city: string | null;
     createdAt: string | null;
     currentPlan: string | null;
     purchasedCredits: number;
@@ -55,6 +67,9 @@ export async function GET(req: NextRequest) {
         userEmail: email,
         fullName: (state as { fullName?: string | null })?.fullName ?? null,
         email,
+        phone: (state as { phone?: string | null })?.phone ?? null,
+        country: (state as { country?: string | null })?.country ?? null,
+        city: (state as { city?: string | null })?.city ?? null,
         createdAt: (state as { createdAt?: string })?.createdAt ?? null,
         currentPlan: state.subscriptionPlanName ?? state.subscriptionPlanId ?? null,
         purchasedCredits: typeof state.purchasedCredits === "number" ? state.purchasedCredits : 0,
@@ -69,13 +84,47 @@ export async function GET(req: NextRequest) {
     rows = rows.filter(
       (r) =>
         r.email.toLowerCase().includes(search) ||
-        (r.fullName ?? "").toLowerCase().includes(search)
+        (r.fullName ?? "").toLowerCase().includes(search) ||
+        (r.phone ?? "").toLowerCase().includes(search)
     );
   }
   if (planFilter === "with") {
     rows = rows.filter((r) => r.currentPlan != null && r.currentPlan !== "");
   } else if (planFilter === "without") {
     rows = rows.filter((r) => r.currentPlan == null || r.currentPlan === "");
+  }
+  if (dateFrom) {
+    rows = rows.filter((r) => r.createdAt && r.createdAt.slice(0, 10) >= dateFrom);
+  }
+  if (dateTo) {
+    rows = rows.filter((r) => r.createdAt && r.createdAt.slice(0, 10) <= dateTo);
+  }
+  if (country) {
+    rows = rows.filter((r) => (r.country ?? "").toLowerCase().includes(country));
+  }
+  if (city) {
+    rows = rows.filter((r) => (r.city ?? "").toLowerCase().includes(city));
+  }
+  if (creditsMin !== null && !Number.isNaN(creditsMin)) {
+    rows = rows.filter((r) => r.purchasedCredits >= creditsMin);
+  }
+  if (creditsMax !== null && !Number.isNaN(creditsMax)) {
+    rows = rows.filter((r) => r.purchasedCredits <= creditsMax);
+  }
+  if (reservationsMin !== null && !Number.isNaN(reservationsMin)) {
+    rows = rows.filter((r) => r.totalReservations >= reservationsMin);
+  }
+  if (statusFilter === "active") {
+    rows = rows.filter((r) => r.status === "active");
+  } else if (statusFilter === "inactive") {
+    rows = rows.filter((r) => r.status === "inactive");
+  } else if (statusFilter === "blocked") {
+    rows = rows.filter((r) => r.status === "blocked");
+  }
+  if (activityFilter === "with") {
+    rows = rows.filter((r) => r.totalReservations > 0 || (r.lastActivity != null && r.lastActivity !== ""));
+  } else if (activityFilter === "without") {
+    rows = rows.filter((r) => r.totalReservations === 0 && (r.lastActivity == null || r.lastActivity === ""));
   }
 
   if (sort === "oldest") {

@@ -85,22 +85,37 @@ export default function AdminReservasPage() {
       </GlassCard>
 
       <GlassCard variant="app" padding="lg" className="admin-card border-white/15">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <input
-            type="text"
+            type="search"
             placeholder="Pesquisar (cliente, email, parceiro, atividade)"
             value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/40 outline-none"
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            className="admin-input w-full max-w-xs rounded-lg px-3 py-2 text-sm"
           />
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="admin-date-range flex items-center gap-2">
+              <label className="text-xs text-white/55">Data de</label>
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
+                className="admin-input rounded-lg px-3 py-2 text-sm"
+              />
+            </div>
+            <div className="admin-date-range flex items-center gap-2">
+              <label className="text-xs text-white/55">até</label>
+              <input
+                type="date"
+                value={dateTo}
+                onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
+                className="admin-input rounded-lg px-3 py-2 text-sm"
+              />
+            </div>
             <select
               value={status}
               onChange={(e) => { setStatus(e.target.value); setPage(1); }}
-              className="rounded-xl border border-white/15 bg-slate-900/80 px-3 py-2 text-sm text-slate-200 outline-none focus:ring-1 focus:ring-white/30"
+              className="admin-input rounded-lg px-3 py-2 text-sm"
             >
               <option value="">Todos os estados</option>
               <option value="confirmed">Confirmada</option>
@@ -108,22 +123,10 @@ export default function AdminReservasPage() {
               <option value="cancelled">Cancelada</option>
               <option value="no_show">No-show</option>
             </select>
-            <input
-              type="date"
-              value={dateFrom}
-              onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
-              className="rounded-xl border border-white/15 bg-slate-900/80 px-3 py-2 text-sm text-slate-200 outline-none focus:ring-1 focus:ring-white/30"
-            />
-            <input
-              type="date"
-              value={dateTo}
-              onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
-              className="rounded-xl border border-white/15 bg-slate-900/80 px-3 py-2 text-sm text-slate-200 outline-none focus:ring-1 focus:ring-white/30"
-            />
             <select
               value={sort}
               onChange={(e) => { setSort(e.target.value); setPage(1); }}
-              className="rounded-xl border border-white/15 bg-slate-900/80 px-3 py-2 text-sm text-slate-200 outline-none focus:ring-1 focus:ring-white/30"
+              className="admin-input rounded-lg px-3 py-2 text-sm"
             >
               <option value="newest">Mais recentes</option>
               <option value="oldest">Mais antigas</option>
@@ -135,30 +138,30 @@ export default function AdminReservasPage() {
         <div className="mt-4 overflow-x-auto">
           <table className="admin-table w-full min-w-[720px] text-left text-sm">
             <thead>
-              <tr className="border-b border-white/15 text-white/70">
-                <th className="pb-2 pr-2">Data / Hora</th>
-                <th className="pb-2 pr-2">Cliente</th>
-                <th className="pb-2 pr-2">Parceiro</th>
-                <th className="pb-2 pr-2">Atividade</th>
-                <th className="pb-2 pr-2">Estado</th>
-                <th className="pb-2 pr-2">Créditos</th>
+              <tr>
+                <th>Data / Hora</th>
+                <th>Cliente</th>
+                <th>Parceiro</th>
+                <th>Atividade</th>
+                <th>Estado</th>
+                <th>Créditos</th>
               </tr>
             </thead>
             <tbody>
               {list?.items?.length ? (
                 list.items.map((r) => (
-                  <tr key={r.id} className="border-b border-white/10 text-white/90">
-                    <td className="py-2 pr-2">{r.date} {r.time}</td>
-                    <td className="py-2 pr-2">{r.customerName || r.userEmail}</td>
-                    <td className="py-2 pr-2">{r.partnerName}</td>
-                    <td className="py-2 pr-2">{r.activityTitle ?? "—"}</td>
-                    <td className="py-2 pr-2">{r.status}</td>
-                    <td className="py-2 pr-2">{r.creditsUsed}</td>
+                  <tr key={r.id}>
+                    <td className="tabular-nums text-white/85">{r.date} {r.time}</td>
+                    <td className="text-white/90">{r.customerName || r.userEmail}</td>
+                    <td className="text-white/85">{r.partnerName}</td>
+                    <td className="text-white/80">{r.activityTitle ?? "—"}</td>
+                    <td>{r.status}</td>
+                    <td className="tabular-nums">{r.creditsUsed}</td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={6} className="py-6 text-center text-white/50">Nenhuma reserva encontrada.</td>
+                  <td colSpan={6} className="admin-empty">Nenhuma reserva encontrada.</td>
                 </tr>
               )}
             </tbody>
@@ -166,13 +169,13 @@ export default function AdminReservasPage() {
         </div>
 
         {list && list.totalPages > 1 && (
-          <div className="mt-4 flex items-center justify-between">
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-xs text-white/60">Por página</span>
+              <span className="text-xs text-white/55">Por página</span>
               <select
                 value={pageSize}
                 onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}
-                className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-sm text-white outline-none"
+                className="admin-input rounded-lg px-2 py-1.5 text-sm"
               >
                 {[10, 20, 50].map((n) => (
                   <option key={n} value={n}>{n}</option>
@@ -185,16 +188,16 @@ export default function AdminReservasPage() {
                 type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
-                className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white/85 hover:bg-white/10 disabled:opacity-40"
+                className="admin-pagination-btn"
               >
                 ← Anterior
               </button>
-              <span className="text-sm text-white/70">Página {list.page} de {list.totalPages}</span>
+              <span className="text-sm text-white/65">Página {list.page} de {list.totalPages}</span>
               <button
                 type="button"
                 onClick={() => setPage((p) => Math.min(list.totalPages, p + 1))}
                 disabled={page >= list.totalPages}
-                className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white/85 hover:bg-white/10 disabled:opacity-40"
+                className="admin-pagination-btn"
               >
                 Seguinte →
               </button>

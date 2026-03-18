@@ -54,43 +54,43 @@ export default function AdminHomePage() {
   }, []);
 
   return (
-    <div className="grid gap-4 sm:grid-cols-3">
-      <Link href="/admin/reservas">
-        <GlassCard variant="app" padding="lg" className="border-white/10 hover:border-white/20 transition-colors">
-          <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Reservas globais</p>
+    <div className="grid gap-5 sm:grid-cols-3">
+      <Link href="/admin/reservas" className="block">
+        <GlassCard variant="app" padding="lg" className="admin-card border-white/15 transition-colors hover:border-white/20">
+          <p className="admin-kpi-label">Reservas globais</p>
           {res != null ? (
             <div className="mt-2 text-sm text-white/80">
-              <p>Total: {res.total}</p>
-              <p className="text-white/60">Próximas: {res.upcoming} · Concluídas: {res.completed} · Canceladas: {res.cancelled}</p>
+              <p className="font-medium text-white/90">Total: {res.total}</p>
+              <p className="mt-0.5 text-white/60">Próximas: {res.upcoming} · Concluídas: {res.completed} · Canceladas: {res.cancelled}</p>
             </div>
           ) : (
-            <p className="mt-2 text-sm text-white/70">A carregar…</p>
+            <p className="mt-2 text-sm text-white/60">A carregar…</p>
           )}
         </GlassCard>
       </Link>
-      <Link href="/admin/clientes">
-        <GlassCard variant="app" padding="lg" className="border-white/10 hover:border-white/20 transition-colors">
-          <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Novos registos / Clientes</p>
+      <Link href="/admin/clientes" className="block">
+        <GlassCard variant="app" padding="lg" className="admin-card border-white/15 transition-colors hover:border-white/20">
+          <p className="admin-kpi-label">Novos registos / Clientes</p>
           {cust != null ? (
             <div className="mt-2 text-sm text-white/80">
-              <p>Total utilizadores: {cust.totalUsers}</p>
-              <p className="text-white/60">Hoje: {cust.newToday} · Esta semana: {cust.newWeek} · Com plano: {cust.withPlan}</p>
+              <p className="font-medium text-white/90">Total utilizadores: {cust.totalUsers}</p>
+              <p className="mt-0.5 text-white/60">Hoje: {cust.newToday} · Esta semana: {cust.newWeek} · Com plano: {cust.withPlan}</p>
             </div>
           ) : (
-            <p className="mt-2 text-sm text-white/70">A carregar…</p>
+            <p className="mt-2 text-sm text-white/60">A carregar…</p>
           )}
         </GlassCard>
       </Link>
-      <Link href="/admin/financas">
-        <GlassCard variant="app" padding="lg" className="border-white/10 hover:border-white/20 transition-colors">
-          <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Finanças</p>
+      <Link href="/admin/financas" className="block">
+        <GlassCard variant="app" padding="lg" className="admin-card border-white/15 transition-colors hover:border-white/20">
+          <p className="admin-kpi-label">Finanças</p>
           {fin != null ? (
             <div className="mt-2 text-sm text-white/80">
-              <p>Receita total: {fin.totalRevenue.toFixed(2)} €</p>
-              <p className="text-white/60">Créditos vendidos: {fin.creditsSold} · Plataforma: {fin.platformRevenue.toFixed(2)} €</p>
+              <p className="font-medium text-white/90">Receita total: {fin.totalRevenue.toLocaleString("pt-PT", { minimumFractionDigits: 2 })} €</p>
+              <p className="mt-0.5 text-white/60">Créditos vendidos: {fin.creditsSold} · Plataforma: {fin.platformRevenue.toLocaleString("pt-PT", { minimumFractionDigits: 2 })} €</p>
             </div>
           ) : (
-            <p className="mt-2 text-sm text-white/70">A carregar…</p>
+            <p className="mt-2 text-sm text-white/60">A carregar…</p>
           )}
         </GlassCard>
       </Link>

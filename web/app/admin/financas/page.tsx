@@ -60,37 +60,44 @@ export default function AdminFinancasPage() {
   return (
     <div className="space-y-6">
       <section>
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-white/70 mb-3">Filtrar por</h2>
+        <h2 className="admin-kpi-label mb-3">Filtrar por período</h2>
         <GlassCard variant="app" padding="lg" className="admin-card border-white/15">
-          <div className="flex flex-wrap items-center gap-3">
-            <label className="text-xs text-white/60">Período</label>
-            <select
-              value={period}
-              onChange={(e) => setPeriod(e.target.value)}
-              className="rounded-xl border border-white/15 bg-slate-900/80 px-3 py-2 text-sm text-slate-200 outline-none focus:ring-1 focus:ring-white/30"
-            >
-              <option value="today">Hoje</option>
-              <option value="yesterday">Ontem</option>
-              <option value="week">Últimos 7 dias</option>
-              <option value="month">Últimos 30 dias / Este mês</option>
-              <option value="custom">Personalizado</option>
-            </select>
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-medium text-white/55">Período</label>
+              <select
+                value={period}
+                onChange={(e) => setPeriod(e.target.value)}
+                className="admin-input rounded-lg px-3 py-2 text-sm text-slate-200"
+              >
+                <option value="today">Hoje</option>
+                <option value="yesterday">Ontem</option>
+                <option value="week">Últimos 7 dias</option>
+                <option value="month">Últimos 30 dias / Este mês</option>
+                <option value="custom">Personalizado</option>
+              </select>
+            </div>
             {period === "custom" && (
-              <>
-                <input
-                  type="date"
-                  value={dateFrom}
-                  onChange={(e) => setDateFrom(e.target.value)}
-                  className="rounded-xl border border-white/15 bg-slate-900/80 px-3 py-2 text-sm text-slate-200 outline-none"
-                />
-                <span className="text-white/50">–</span>
-                <input
-                  type="date"
-                  value={dateTo}
-                  onChange={(e) => setDateTo(e.target.value)}
-                  className="rounded-xl border border-white/15 bg-slate-900/80 px-3 py-2 text-sm text-slate-200 outline-none"
-                />
-              </>
+              <div className="admin-date-range flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <label className="text-xs text-white/55">Data de</label>
+                  <input
+                    type="date"
+                    value={dateFrom}
+                    onChange={(e) => setDateFrom(e.target.value)}
+                    className="admin-input rounded-lg px-3 py-2 text-sm text-slate-200"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-xs text-white/55">até</label>
+                  <input
+                    type="date"
+                    value={dateTo}
+                    onChange={(e) => setDateTo(e.target.value)}
+                    className="admin-input rounded-lg px-3 py-2 text-sm text-slate-200"
+                  />
+                </div>
+              </div>
             )}
           </div>
         </GlassCard>
@@ -99,67 +106,67 @@ export default function AdminFinancasPage() {
       {metrics != null && hasData && (
         <>
           <section>
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-white/70 mb-3">Resumo (KPIs)</h2>
+            <h2 className="admin-kpi-label mb-3">Resumo (KPIs)</h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <GlassCard variant="app" padding="lg" className="admin-card border-white/15">
-                <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Receita total (€)</p>
-                <p className="mt-2 text-2xl font-semibold text-white">{metrics.totalRevenue.toFixed(2)} €</p>
+                <p className="admin-kpi-label">Receita total</p>
+                <p className="admin-kpi-value mt-1.5">{metrics.totalRevenue.toLocaleString("pt-PT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</p>
               </GlassCard>
               <GlassCard variant="app" padding="lg" className="admin-card border-white/15">
-                <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Receita no período (€)</p>
-                <p className="mt-2 text-2xl font-semibold text-white">{metrics.revenueInPeriod.toFixed(2)} €</p>
+                <p className="admin-kpi-label">Receita no período</p>
+                <p className="admin-kpi-value mt-1.5">{metrics.revenueInPeriod.toLocaleString("pt-PT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</p>
               </GlassCard>
               <GlassCard variant="app" padding="lg" className="admin-card border-white/15">
-                <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Créditos consumidos</p>
-                <p className="mt-2 text-2xl font-semibold text-white">{metrics.creditsConsumed}</p>
+                <p className="admin-kpi-label">Créditos consumidos</p>
+                <p className="admin-kpi-value mt-1.5">{metrics.creditsConsumed}</p>
               </GlassCard>
               <GlassCard variant="app" padding="lg" className="admin-card border-white/15">
-                <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Valor médio por crédito (€)</p>
-                <p className="mt-2 text-2xl font-semibold text-white">{metrics.valuePerCredit.toFixed(2)} €</p>
+                <p className="admin-kpi-label">Valor médio por crédito</p>
+                <p className="admin-kpi-value mt-1.5">{metrics.valuePerCredit.toLocaleString("pt-PT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</p>
               </GlassCard>
               <GlassCard variant="app" padding="lg" className="admin-card border-white/15">
-                <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Receita para parceiros (€)</p>
-                <p className="mt-2 text-2xl font-semibold text-white">{metrics.partnerPayoutTotal.toFixed(2)} €</p>
+                <p className="admin-kpi-label">Receita para parceiros</p>
+                <p className="admin-kpi-value mt-1.5">{metrics.partnerPayoutTotal.toLocaleString("pt-PT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</p>
               </GlassCard>
               <GlassCard variant="app" padding="lg" className="admin-card border-white/15">
-                <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Receita da plataforma (€)</p>
-                <p className="mt-2 text-2xl font-semibold text-white">{metrics.platformRevenue.toFixed(2)} €</p>
+                <p className="admin-kpi-label">Receita da plataforma</p>
+                <p className="admin-kpi-value mt-1.5">{metrics.platformRevenue.toLocaleString("pt-PT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</p>
               </GlassCard>
               <GlassCard variant="app" padding="lg" className="admin-card border-white/15">
-                <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Total de reservas</p>
-                <p className="mt-2 text-2xl font-semibold text-white">{metrics.totalReservations}</p>
+                <p className="admin-kpi-label">Total de reservas</p>
+                <p className="admin-kpi-value mt-1.5">{metrics.totalReservations}</p>
               </GlassCard>
               <GlassCard variant="app" padding="lg" className="admin-card border-white/15">
-                <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Ticket médio por reserva (€)</p>
-                <p className="mt-2 text-2xl font-semibold text-white">{metrics.ticketMedio.toFixed(2)} €</p>
+                <p className="admin-kpi-label">Ticket médio por reserva</p>
+                <p className="admin-kpi-value mt-1.5">{metrics.ticketMedio.toLocaleString("pt-PT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</p>
               </GlassCard>
             </div>
           </section>
 
           {partnerRows.length > 0 && (
             <section>
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-white/70 mb-3">Receita por parceiro</h2>
+              <h2 className="admin-kpi-label mb-3">Receita por parceiro</h2>
               <GlassCard variant="app" padding="lg" className="admin-card border-white/15 overflow-x-auto">
                 <table className="admin-table w-full min-w-[640px] text-left text-sm">
                   <thead>
                     <tr>
-                      <th className="pb-2 pr-2">Parceiro</th>
-                      <th className="pb-2 pr-2 cursor-pointer" onClick={() => setPartnerSort("reservations")}>nº reservas</th>
-                      <th className="pb-2 pr-2">Créditos consumidos</th>
-                      <th className="pb-2 pr-2 cursor-pointer" onClick={() => setPartnerSort("revenue")}>Receita gerada (€)</th>
-                      <th className="pb-2 pr-2">Valor pago ao parceiro (€)</th>
-                      <th className="pb-2 pr-2 cursor-pointer" onClick={() => setPartnerSort("platformMargin")}>Margem plataforma (€)</th>
+                      <th>Parceiro</th>
+                      <th className="cursor-pointer" onClick={() => setPartnerSort("reservations")}>nº reservas</th>
+                      <th>Créditos consumidos</th>
+                      <th className="cursor-pointer" onClick={() => setPartnerSort("revenue")}>Receita gerada</th>
+                      <th>Valor pago ao parceiro</th>
+                      <th className="cursor-pointer" onClick={() => setPartnerSort("platformMargin")}>Margem plataforma</th>
                     </tr>
                   </thead>
                   <tbody>
                     {partnerRows.map((row) => (
                       <tr key={row.partnerId}>
-                        <td className="py-2 pr-2">{row.partnerName || row.partnerId}</td>
-                        <td className="py-2 pr-2">{row.reservations}</td>
-                        <td className="py-2 pr-2">{row.credits}</td>
-                        <td className="py-2 pr-2">{row.revenue.toFixed(2)} €</td>
-                        <td className="py-2 pr-2">{row.partnerPayout.toFixed(2)} €</td>
-                        <td className="py-2 pr-2">{row.platformMargin.toFixed(2)} €</td>
+                        <td>{row.partnerName || row.partnerId}</td>
+                        <td className="tabular-nums">{row.reservations}</td>
+                        <td className="tabular-nums">{row.credits}</td>
+                        <td className="tabular-nums">{row.revenue.toLocaleString("pt-PT", { minimumFractionDigits: 2 })} €</td>
+                        <td className="tabular-nums">{row.partnerPayout.toLocaleString("pt-PT", { minimumFractionDigits: 2 })} €</td>
+                        <td className="tabular-nums">{row.platformMargin.toLocaleString("pt-PT", { minimumFractionDigits: 2 })} €</td>
                       </tr>
                     ))}
                   </tbody>
@@ -172,13 +179,13 @@ export default function AdminFinancasPage() {
 
       {metrics != null && !hasData && (
         <GlassCard variant="app" padding="lg" className="admin-card border-white/15">
-          <p className="text-center text-white/70">Sem dados financeiros para o período selecionado.</p>
+          <p className="admin-empty">Sem dados financeiros para o período selecionado.</p>
         </GlassCard>
       )}
 
       {metrics == null && (
         <GlassCard variant="app" padding="lg" className="admin-card border-white/15">
-          <p className="text-sm text-white/70">A carregar…</p>
+          <p className="text-sm text-white/60">A carregar…</p>
         </GlassCard>
       )}
     </div>

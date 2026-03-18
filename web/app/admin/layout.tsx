@@ -51,49 +51,57 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="page-bg page-bg-dashboard text-white font-sans min-h-screen">
-      <div className="mx-auto max-w-6xl px-4 pb-28 pt-20 sm:px-6 lg:px-10">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/65">
+      {/* Top bar: primary nav + utility actions */}
+      <header className="admin-topbar sticky top-0 z-30 border-b border-white/[0.08] bg-slate-900/95 backdrop-blur-md">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-10">
+          <div className="flex min-w-0 items-center gap-6">
+            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/55">
               FitLife Pass · Admin
             </p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-              Backoffice Admin
-            </h1>
-            <p className="mt-2 text-sm text-white/70">
-              Gestão interna da plataforma (parceiros, créditos peak/off-peak, visibilidade e operações).
-            </p>
+            <nav className="flex items-center gap-0.5" aria-label="Secções do backoffice">
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={
+                    isActive(item.href)
+                      ? "admin-nav-tab admin-nav-tab-active rounded-lg px-3 py-2 text-sm font-medium text-white"
+                      : "admin-nav-tab rounded-lg px-3 py-2 text-sm font-medium text-white/75 hover:bg-white/[0.06] hover:text-white/90"
+                  }
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={
-                  isActive(item.href)
-                    ? "rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white"
-                    : "rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/8 hover:border-white/20"
-                }
-              >
-                {item.label}
-              </Link>
-            ))}
-            <span className="ml-2 h-6 w-px border-l border-white/20" aria-hidden />
+          <div className="flex shrink-0 items-center gap-2">
             <button
               type="button"
               onClick={() => {
                 fetch("/api/admin/logout", { method: "POST" }).catch(() => {});
                 router.replace("/admin/login");
               }}
-              className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/8 hover:border-white/20"
+              className="admin-util-btn rounded-lg px-3 py-2 text-sm text-white/65 hover:bg-white/[0.06] hover:text-white/85"
+              aria-label="Terminar sessão"
             >
               Sair
             </button>
           </div>
         </div>
+      </header>
 
-        <div className="admin-area mt-10">{children}</div>
-      </div>
+      <main className="mx-auto max-w-6xl px-4 pb-28 pt-8 sm:px-6 lg:px-10">
+        <div className="mb-8">
+          <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+            Backoffice Admin
+          </h1>
+          <p className="mt-1 text-sm text-white/60">
+            Gestão interna da plataforma (parceiros, créditos, visibilidade e operações).
+          </p>
+        </div>
+
+        <div className="admin-area">{children}</div>
+      </main>
     </div>
   );
 }
