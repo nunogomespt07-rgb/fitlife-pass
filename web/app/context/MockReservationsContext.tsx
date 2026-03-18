@@ -135,9 +135,9 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
             console.log("[credits write]", { source: "api/customer/state success", session: isAuthenticated, prev, next });
             return next;
           });
-          // Keep local compatibility in sync for pages reading local storage.
-          setStoredPurchasedCredits(effectiveUserId, next);
-          console.log("[credits write] final credits after hydration", { next, session: isAuthenticated });
+          // Optional mirror only; never source of truth for authenticated users.
+          if (effectiveUserId) setStoredPurchasedCredits(effectiveUserId, next);
+          console.log("[credits][final returned value]", next, "[credits][session email]", isAuthenticated ? effectiveUserId : "(unauthenticated)");
         }
         setCreditsReady(true);
         if (data.subscriptionPlanId || data.subscriptionPlanName) {
@@ -406,14 +406,16 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
   }, [effectiveUserId]);
 
   const addPurchasedCredits = useCallback((amount: number, reason?: string) => {
-    const userId = effectiveUserId ?? getStoredUser()?.id ?? null;
+    // Authenticated: only canonical key (session email). Unauthenticated: effectiveUserId or stored id.
+    const userId = isAuthenticated ? effectiveUserId : (effectiveUserId ?? getStoredUser()?.id ?? null);
+    const canonicalKey = isAuthenticated ? effectiveUserId : null;
     const n = Math.max(0, Math.floor(amount));
     setPurchasedCredits((prev) => {
       const next = prev + n;
       console.log("[credits write]", { source: "addPurchasedCredits", session: isAuthenticated, prev, next });
-      setStoredPurchasedCredits(userId, next);
+      if (canonicalKey) console.log("[credits][addPurchasedCredits] canonical key", canonicalKey);
+      setStoredPurchasedCredits(userId, next); // optional mirror when auth; never source of truth
       setCreditsReady(true);
-      // Best-effort: persist to server store for session users (cross-device).
       if (isAuthenticated) {
         fetch("/api/customer/state", {
           method: "POST",
