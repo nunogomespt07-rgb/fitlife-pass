@@ -18,12 +18,22 @@ export async function apiFetch<T = unknown>(
       : `/${path}`;
 
   const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    typeof window !== "undefined"
+      ? (localStorage.getItem("token") ||
+          localStorage.getItem("jwt") ||
+          localStorage.getItem("accessToken"))
+      : null;
 
   // Support Headers | [][]
   const headers = new Headers(init?.headers);
-  const hasAuthHeader = headers.has("authorization");
-  if (token && !hasAuthHeader) {
+  const existingAuth = headers.get("authorization");
+  const hasValidAuthHeader =
+    typeof existingAuth === "string" &&
+    existingAuth.trim().length > 0 &&
+    existingAuth.trim().toLowerCase() !== "undefined" &&
+    existingAuth.trim().toLowerCase() !== "null";
+
+  if (token && !hasValidAuthHeader) {
     headers.set("Authorization", `Bearer ${token}`);
   }
   // Default JSON header, but do not clobber existing content-type
@@ -32,7 +42,7 @@ export async function apiFetch<T = unknown>(
   }
 
   // Temporary safe debug log (never prints token)
-  if (typeof window !== "undefined" && process.env.NODE_ENV !== "production") {
+  if (typeof window !== "undefined") {
     console.log("[apiFetch]", {
       tokenExists: Boolean(token),
       hasAuthHeader: headers.has("authorization"),
