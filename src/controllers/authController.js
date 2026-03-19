@@ -121,7 +121,7 @@ exports.googleOAuth = async (req, res) => {
       return res.status(400).json({ ok: false, message: "Falta email" });
     }
 
-    // 🔥 cria ou atualiza utilizador pelo email
+    // cria ou atualiza utilizador pelo email
     const user = await User.findOneAndUpdate(
       { email },
       {
@@ -135,7 +135,15 @@ exports.googleOAuth = async (req, res) => {
       { new: true, upsert: true }
     );
 
-    return res.json({ ok: true, user });
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).json({ ok: false, message: "JWT_SECRET não definido no .env" });
+    }
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
+    return res.json({ ok: true, token, user });
   } catch (err) {
     console.error("googleOAuth error:", err);
     return res.status(500).json({ ok: false, message: "Erro no servidor" });

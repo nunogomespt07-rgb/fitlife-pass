@@ -7,6 +7,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useNotifications } from "@/app/context/NotificationsContext";
 import { useMockReservations } from "@/app/context/MockReservationsContext";
 import { getStoredUser, getStoredUserDisplayName, setStoredUser } from "@/lib/storedUser";
+import { apiFetch } from "@/lib/api";
 import { getAllPartnersWithCategory } from "@/lib/activitiesData";
 import { RESTAURANTS } from "@/lib/restaurantsData";
 
@@ -95,6 +96,41 @@ export default function Nav() {
       setUser(null);
     }
   }, [pathname, session]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!session?.user?.email) return;
+    const existingToken = localStorage.getItem("token");
+    if (existingToken) return;
+
+    const email = String(session.user.email).trim().toLowerCase();
+    if (!email) return;
+
+    const name = session.user.name ? String(session.user.name).trim() : email.split("@")[0];
+    const image = "image" in session.user ? (session.user as { image?: string | null }).image ?? null : null;
+
+    apiFetch<unknown>("/auth/oauth/google", {
+      method: "POST",
+      body: JSON.stringify({ email, name, image }),
+    })
+      .then((raw) => {
+        if (!raw || typeof raw !== "object") return;
+        const data = raw as Record<string, unknown>;
+        const token =
+          (typeof data.token === "string" && data.token) ||
+          (typeof data.accessToken === "string" && data.accessToken) ||
+          (data.data &&
+          typeof data.data === "object" &&
+          typeof (data.data as Record<string, unknown>).token === "string"
+            ? ((data.data as Record<string, unknown>).token as string)
+            : "");
+        if (token) {
+          localStorage.setItem("token", token);
+          setHasToken(true);
+        }
+      })
+      .catch(() => {});
+  }, [session]);
 
   /* Outside click only closes dropdown UI; must never trigger logout. */
   useEffect(() => {
