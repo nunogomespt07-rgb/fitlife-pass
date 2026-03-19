@@ -50,6 +50,8 @@ app.get("/", (_req, res) => {
 
 // rotas da API
 app.use("/users", userRoutes);
+// Alias group for frontend compatibility (keeps /users/me intact)
+app.use("/api", userRoutes);
 app.use("/auth", authRoutes);
 app.use("/credits", creditsRoutes);
 app.use("/activities", activityRoutes);
