@@ -84,7 +84,10 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
     return stored?.id ?? null;
   }, [session]);
 
-  const isAuthenticated = !!session?.user;
+  // For Railway backend auth, the source of truth is the JWT stored in localStorage.
+  // NextAuth session alone does not authenticate requests to the Railway API.
+  const isAuthenticated =
+    typeof window !== "undefined" ? Boolean(localStorage.getItem("token")) : false;
 
   useEffect(() => {
     let list = getStoredUnifiedReservations(effectiveUserId);
@@ -446,9 +449,10 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
     if (isAuthenticated) {
       // Authenticated: backend-only grant (atomic + idempotent). Do NOT update credits locally.
       const eventId = typeof crypto !== "undefined" && "randomUUID" in crypto ? (crypto as Crypto).randomUUID() : `grant-${Date.now()}-${Math.random()}`;
-      apiFetch("/api/customer/state", {
+      apiFetch("/credits/add", {
         method: "POST",
-        body: JSON.stringify({ incCredits: n, eventId }),
+        // Railway API expects { amount }. eventId is kept client-side only for now.
+        body: JSON.stringify({ amount: n, eventId }),
       })
         .then(() => apiFetch<{ credits?: number } | null>("/api/user", { cache: "no-store" }).catch(() => null))
         .then((data) => {

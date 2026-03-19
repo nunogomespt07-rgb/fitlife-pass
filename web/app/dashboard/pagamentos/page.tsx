@@ -150,11 +150,6 @@ export default function DashboardPagamentosPage() {
       pendingPlanId: null,
       pendingPlanName: null,
     });
-    // Best-effort: persist plan to server store for session users (cross-device demo).
-    apiFetch("/api/customer/state", {
-      method: "POST",
-      body: JSON.stringify({ subscriptionPlanId: plan.id, subscriptionPlanName: plan.planName }),
-    }).catch(() => {});
     addPurchasedCredits(plan.creditsIncluded, `Plano ${plan.planName} ativado`);
     creditActivity?.showToast("Plano ativado", `+${plan.creditsIncluded} créditos adicionados`);
     setPurchaseSuccess(
