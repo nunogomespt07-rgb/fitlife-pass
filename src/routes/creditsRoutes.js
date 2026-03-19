@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const authMiddleware = require("../middlewares/authMiddleware");
 const User = require("../models/User");
 const CreditTransaction = require("../models/CreditTransaction");
+const creditLedgerService = require("../services/creditLedgerService");
 
 // GET /credits/balance
 router.get("/balance", authMiddleware, async (req, res) => {
@@ -51,30 +52,15 @@ router.post("/add", authMiddleware, async (req, res) => {
       return res.status(401).json({ message: "Utilizador autenticado inválido" });
     }
 
-    console.log("[credits/add] before findById");
-    const user = await User.findById(String(userId));
-    console.log("[credits/add] after findById", !!user);
-    if (!user)
-      return res.status(404).json({ message: "Utilizador não encontrado" });
-
-    const currentCredits =
-      typeof user.credits === "number" && Number.isFinite(user.credits)
-        ? user.credits
-        : 0;
-    console.log("[credits/add] user.credits before", user?.credits);
-    user.credits = currentCredits + amount;
-    await user.save();
-    console.log("[credits/add] user after update", {
-      id: String(user._id),
-      credits: user.credits,
-    });
-
-    await CreditTransaction.create({
-      user: user._id,
-      type: "top_up",
+    const { user } = await creditLedgerService.grantCredits({
+      userId: String(userId),
       amount,
-      balanceAfter: user.credits,
-      description: "Top-up de créditos (simulado)",
+      type: "CREDIT_PURCHASE",
+      relatedPlan: null,
+      relatedBookingId: null,
+      description: "Compra de créditos",
+      metadata: { source: "credits/add" },
+      expiresInDays: 30,
     });
 
     return res.json({ success: true, credits: user.credits });

@@ -38,7 +38,13 @@ async function computeAvailableCredits(userId, at = new Date(), session) {
   });
   if (session) q.session(session);
   const lots = await q;
-  return lots.reduce((sum, tx) => sum + (tx.remaining || 0), 0);
+  const sum = lots.reduce((acc, tx) => acc + (tx.remaining || 0), 0);
+  // Compatibility fallback for legacy credit state where ledger lots may not exist yet.
+  if (sum <= 0) {
+    const user = await ensureUser(userId, session);
+    return typeof user.credits === "number" && Number.isFinite(user.credits) ? Math.max(0, Math.floor(user.credits)) : 0;
+  }
+  return sum;
 }
 
 async function expireCreditsIfNeeded(userId, at = new Date(), session) {

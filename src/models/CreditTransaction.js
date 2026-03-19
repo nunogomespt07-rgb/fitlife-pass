@@ -11,6 +11,7 @@ const creditTransactionSchema = new mongoose.Schema(
     type: {
       type: String,
       enum: [
+        // Legacy/compat
         "subscription",
         "top_up",
         "spend",
@@ -21,6 +22,12 @@ const creditTransactionSchema = new mongoose.Schema(
         "booking_refund",
         "credit_expiry",
         "manual_adjustment",
+        // New ledger types (creditLedgerService)
+        "PLAN_GRANT",
+        "CREDIT_PURCHASE",
+        "BOOKING_DEBIT",
+        "BOOKING_REFUND",
+        "EXPIRATION",
       ],
       required: true,
     },
