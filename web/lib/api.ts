@@ -17,11 +17,18 @@ export async function apiFetch<T = unknown>(
       ? path
       : `/${path}`;
 
+  const existingHeaders = (init?.headers ?? {}) as Record<string, string>;
+  const hasAuthHeader =
+    Object.keys(existingHeaders).some((k) => k.toLowerCase() === "authorization");
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
   const res = await fetch(url, {
     cache: "no-store",
     ...init,
     headers: {
       "Content-Type": "application/json",
+      ...(token && !hasAuthHeader ? { Authorization: `Bearer ${token}` } : {}),
       ...(init?.headers || {}),
     },
   });
