@@ -54,8 +54,20 @@ export default function DashboardPagamentosPage() {
     methods.find((m) => m.type !== "mbway") ??
     null;
 
-  function handleBuyCredits(credits: number, label: string) {
-    addPurchasedCredits(credits);
+  async function handleBuyCredits(credits: number, label: string) {
+    const amount = Math.max(0, Math.floor(credits));
+    if (!Number.isFinite(amount) || amount <= 0) return;
+    const hasToken =
+      typeof window !== "undefined" && Boolean(localStorage.getItem("token"));
+    console.log("CLICK BUY PLAN", { kind: "credits", amount, label });
+    if (hasToken) {
+      await apiFetch<{ success?: boolean; credits?: number }>("/credits/add", {
+        method: "POST",
+        body: JSON.stringify({ amount }),
+      });
+    } else {
+      addPurchasedCredits(amount, label);
+    }
     setPurchaseSuccess(`${label} adicionados à tua conta.`);
     setTimeout(() => setPurchaseSuccess(null), 4000);
   }
@@ -134,26 +146,37 @@ export default function DashboardPagamentosPage() {
     setCreditsModalOpen(true);
   }
 
-  function handleConfirmCredits() {
+  async function handleConfirmCredits() {
     if (!pendingPackId || !creditsMethodType) return;
     const pack = MOCK_CREDIT_PACKS.find((p) => p.id === pendingPackId);
     if (!pack) return;
     if (creditsMethodType === "mbway" && !creditsMbwayPhone.trim()) return;
-    handleBuyCredits(pack.credits, pack.label);
+    await handleBuyCredits(pack.credits, pack.label);
     setCreditsModalOpen(false);
   }
 
-  function handleSubscribe(plan: SubscriptionPlan) {
+  async function handleSubscribe(plan: SubscriptionPlan) {
+    const amount = Math.max(0, Math.floor(plan.creditsIncluded));
+    const hasToken =
+      typeof window !== "undefined" && Boolean(localStorage.getItem("token"));
+    console.log("CLICK BUY PLAN", { kind: "subscription", planId: plan.id, amount });
+    if (hasToken) {
+      await apiFetch<{ success?: boolean; credits?: number }>("/credits/add", {
+        method: "POST",
+        body: JSON.stringify({ amount }),
+      });
+    } else {
+      addPurchasedCredits(amount, `Plano ${plan.planName} ativado`);
+    }
     setStoredUser({
       subscriptionPlanId: plan.id,
       subscriptionPlanName: plan.planName,
       pendingPlanId: null,
       pendingPlanName: null,
     });
-    addPurchasedCredits(plan.creditsIncluded, `Plano ${plan.planName} ativado`);
-    creditActivity?.showToast("Plano ativado", `+${plan.creditsIncluded} créditos adicionados`);
+    creditActivity?.showToast("Plano ativado", `+${amount} créditos adicionados`);
     setPurchaseSuccess(
-      `Subscrição ${plan.planName} ativada. ${plan.creditsIncluded} créditos adicionados.`
+      `Subscrição ${plan.planName} ativada. ${amount} créditos adicionados.`
     );
     setTimeout(() => setPurchaseSuccess(null), 5000);
     setSubscribeModalPlan(null);
@@ -548,7 +571,11 @@ export default function DashboardPagamentosPage() {
               <PrimaryButton
                 variant="primary"
                 className="rounded-xl px-5 py-2.5 text-sm font-semibold"
-                onClick={() => handleSubscribe(subscribeModalPlan)}
+                onClick={() => {
+                  handleSubscribe(subscribeModalPlan).catch((e) => {
+                    console.error("BUY PLAN ERROR", e);
+                  });
+                }}
               >
                 Confirmar e ativar
               </PrimaryButton>

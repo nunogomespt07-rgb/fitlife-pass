@@ -10,7 +10,18 @@ const creditTransactionSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["subscription", "top_up", "spend", "booking"],
+      enum: [
+        "subscription",
+        "top_up",
+        "spend",
+        "booking",
+        "plan_grant",
+        "credit_purchase",
+        "booking_debit",
+        "booking_refund",
+        "credit_expiry",
+        "manual_adjustment",
+      ],
       required: true,
     },
     amount: {
@@ -21,6 +32,17 @@ const creditTransactionSchema = new mongoose.Schema(
     balanceAfter: {
       type: Number,
       required: true,
+    },
+    // For grant-like movements, tracks how many credits are still available in this lot.
+    remaining: {
+      type: Number,
+      default: 0,
+    },
+    // 30-day expiration for granted/purchased/refunded credits.
+    expiresAt: {
+      type: Date,
+      default: null,
+      index: true,
     },
     description: {
       type: String,

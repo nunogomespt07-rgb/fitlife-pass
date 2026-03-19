@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
+    firstName: { type: String, trim: true, default: null },
+    lastName: { type: String, trim: true, default: null },
     name: { type: String, required: true, trim: true },
     email: {
       type: String,
@@ -27,6 +29,14 @@ const userSchema = new mongoose.Schema(
     planRenewAt: {
       type: Date,
     },
+    country: { type: String, trim: true, default: null },
+    city: { type: String, trim: true, default: null },
+    phone: { type: String, trim: true, default: null },
+    address: { type: String, trim: true, default: null },
+    postalCode: { type: String, trim: true, default: null },
+    dateOfBirth: { type: String, trim: true, default: null },
+    nif: { type: String, trim: true, default: null },
+    fitnessGoal: { type: String, trim: true, default: null },
     stripeCustomerId: {
       type: String,
     },

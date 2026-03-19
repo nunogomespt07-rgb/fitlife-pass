@@ -495,6 +495,12 @@ export default function Nav() {
           {showAuthenticatedUI && (
             <div className="hidden items-center gap-2.5 md:flex">
               <Link
+                href="/dashboard/perfil"
+                className={`${navLinkBase} ${isActive("/dashboard/perfil") ? navLinkActive : ""}`}
+              >
+                Perfil
+              </Link>
+              <Link
                 href="/dashboard/reservas"
                 className={`${navLinkBase} ${isActive("/dashboard/reservas") ? navLinkActive : ""}`}
               >

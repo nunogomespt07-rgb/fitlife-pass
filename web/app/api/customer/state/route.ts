@@ -1,152 +1,123 @@
 import { NextRequest } from "next/server";
-import { getToken } from "next-auth/jwt";
-import { ensureCustomerWithMeta, findCustomerByEmail, grantCreditsIdempotent, updateCustomerByEmail } from "@/lib/customerDb";
 
-const AUTH_SECRET =
-  process.env.NEXTAUTH_SECRET && process.env.NEXTAUTH_SECRET.trim()
-    ? process.env.NEXTAUTH_SECRET
-    : "demo-nextauth-secret";
+const BACKEND_API_URL = process.env.BACKEND_API_URL?.replace(/\/$/, "");
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return !!v && typeof v === "object" && !Array.isArray(v);
 }
 
-function clampCredits(n: unknown): number | undefined {
-  if (typeof n !== "number" || !Number.isFinite(n)) return undefined;
-  return Math.max(0, Math.floor(n));
+function pickAuthHeader(req: NextRequest): string | null {
+  const h = req.headers.get("authorization");
+  return h && h.trim() ? h : null;
 }
 
-async function getCanonicalEmail(req: NextRequest): Promise<string | null> {
-  const token = await getToken({ req, secret: AUTH_SECRET });
-  const email = typeof token?.email === "string" ? token.email.trim().toLowerCase() : "";
-  return email || null;
-}
-
-/** GET /api/customer/state — Returns customer state from DB (same shape as before). */
+/**
+ * Compatibility route only.
+ * Source of truth is Railway backend User model.
+ */
 export async function GET(req: NextRequest) {
-  const email = await getCanonicalEmail(req);
-  if (!email) {
+  if (!BACKEND_API_URL) {
+    return Response.json({ message: "Backend API URL não configurada (BACKEND_API_URL)." }, { status: 503 });
+  }
+  const auth = pickAuthHeader(req);
+  if (!auth) {
     return Response.json({ message: "Unauthorized" }, { status: 401 });
   }
 
-  const { customer: user, created } = await ensureCustomerWithMeta({
-    email,
-    name: null,
+  const upstream = await fetch(`${BACKEND_API_URL}/api/user`, {
+    method: "GET",
+    headers: { Authorization: auth },
+    cache: "no-store",
   });
-  console.log("[api/customer/state][GET] canonicalEmail", email, "created", created);
-
-  if (user.blocked || user.deletedAt) {
-    return Response.json({ message: "Forbidden" }, { status: 403 });
-  }
-
-  const purchasedCredits = typeof user.credits === "number" && Number.isFinite(user.credits) ? Math.max(0, Math.floor(user.credits)) : 0;
+  const payload = (await upstream.json().catch(() => ({}))) as Record<string, unknown>;
+  const purchasedCredits = typeof payload.credits === "number" ? payload.credits : 0;
   return Response.json(
     {
       purchasedCredits,
-      subscriptionPlanId: user.planId ?? null,
-      subscriptionPlanName: user.planName ?? null,
+      subscriptionPlanId: (payload.subscriptionPlanId ?? payload.plan ?? null) as string | null,
+      subscriptionPlanName: (payload.subscriptionPlanName ?? payload.plan ?? null) as string | null,
     },
-    { status: 200 }
+    { status: upstream.status }
   );
 }
 
-/** POST /api/customer/state — Updates customer state in DB (e.g. credits, plan). */
+/**
+ * Compatibility route only.
+ * Writes are forwarded to Railway API endpoints (never to customers collection).
+ */
 export async function POST(req: NextRequest) {
   try {
-    console.log("START /api/customer/state");
-
-    const email = await getCanonicalEmail(req);
-    console.log("NORMALIZED email", email);
-    if (!email) {
+    if (!BACKEND_API_URL) {
+      return Response.json({ message: "Backend API URL não configurada (BACKEND_API_URL)." }, { status: 503 });
+    }
+    const auth = pickAuthHeader(req);
+    if (!auth) {
       return Response.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     const body = (await req.json().catch(() => ({}))) as unknown;
-    console.log("[api/customer/state][POST] parsed body", body);
-    if (!isRecord(body)) return Response.json({ message: "Invalid payload" }, { status: 400 });
-
-    const { customer: user, created } = await ensureCustomerWithMeta({ email, name: null });
-    console.log("[api/customer/state][POST] ensureCustomerWithMeta", { email, created, blocked: user.blocked, deletedAt: user.deletedAt });
-    if (user.blocked || user.deletedAt) {
-      return Response.json({ message: "Forbidden" }, { status: 403 });
+    if (!isRecord(body)) {
+      return Response.json({ message: "Invalid payload" }, { status: 400 });
     }
 
-    const patch: {
-      purchasedCredits?: number;
-      subscriptionPlanId?: string | null;
-      subscriptionPlanName?: string | null;
-    } = {};
+    // Credits flow: map incCredits -> Railway /credits/add
+    if (typeof body.incCredits === "number" && Number.isFinite(body.incCredits) && body.incCredits > 0) {
+      const amount = Math.max(0, Math.floor(body.incCredits));
+      const addRes = await fetch(`${BACKEND_API_URL}/credits/add`, {
+        method: "POST",
+        headers: {
+          Authorization: auth,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ amount }),
+      });
+      const addData = (await addRes.json().catch(() => ({}))) as Record<string, unknown>;
+      return Response.json(
+        {
+          success: addRes.ok,
+          purchasedCredits: typeof addData.credits === "number" ? addData.credits : 0,
+        },
+        { status: addRes.status }
+      );
+    }
 
-    const incCredits =
-      "incCredits" in body && typeof body.incCredits === "number" && Number.isFinite(body.incCredits)
-        ? Math.max(0, Math.floor(body.incCredits))
-        : null;
-    const eventId =
-      "eventId" in body && typeof body.eventId === "string"
-        ? body.eventId
-        : null;
+    // Profile/plan fallback patch: forward to Railway PATCH /api/user
+    const patch: Record<string, unknown> = {};
+    if ("subscriptionPlanId" in body) patch.plan = body.subscriptionPlanId == null ? null : String(body.subscriptionPlanId);
+    if ("subscriptionStatus" in body) patch.planStatus = body.subscriptionStatus == null ? null : String(body.subscriptionStatus);
+    if ("subscriptionPlanName" in body && !("subscriptionPlanId" in body)) {
+      patch.plan = body.subscriptionPlanName == null ? null : String(body.subscriptionPlanName);
+    }
+    if ("fullName" in body) patch.name = body.fullName == null ? null : String(body.fullName);
+    if ("country" in body) patch.country = body.country == null ? null : String(body.country);
+    if ("city" in body) patch.city = body.city == null ? null : String(body.city);
+    if ("phone" in body) patch.phone = body.phone == null ? null : String(body.phone);
 
-    // Log exact update payload (NO secrets).
-    console.log("[api/customer/state][POST] update payload", {
-      email,
-      incCredits,
-      eventId: eventId ? String(eventId).slice(0, 80) : null,
-      purchasedCreditsInBody: "purchasedCredits" in body ? body.purchasedCredits : undefined,
-      subscriptionPlanIdInBody: "subscriptionPlanId" in body ? body.subscriptionPlanId : undefined,
-      subscriptionPlanNameInBody: "subscriptionPlanName" in body ? body.subscriptionPlanName : undefined,
+    if (Object.keys(patch).length === 0) {
+      return Response.json({ success: true }, { status: 200 });
+    }
+
+    const upRes = await fetch(`${BACKEND_API_URL}/api/user`, {
+      method: "PATCH",
+      headers: {
+        Authorization: auth,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(patch),
     });
-
-    // Preferred authenticated credit grant path: atomic increment (idempotent if eventId provided).
-    if (incCredits != null && incCredits > 0) {
-      const result = await grantCreditsIdempotent({ email, amount: incCredits, eventId });
-      console.log("[api/customer/state][POST] grant result", { applied: result.applied, credits: result.credits });
-    }
-
-    if ("purchasedCredits" in body) {
-      const v = clampCredits(body.purchasedCredits);
-      if (v !== undefined) patch.purchasedCredits = v;
-    }
-    if ("subscriptionPlanId" in body) patch.subscriptionPlanId = body.subscriptionPlanId == null ? null : String(body.subscriptionPlanId);
-    if ("subscriptionPlanName" in body) patch.subscriptionPlanName = body.subscriptionPlanName == null ? null : String(body.subscriptionPlanName);
-
-    // Back-compat: allow absolute set. For authenticated purchases we should prefer incCredits above.
-    if (Object.keys(patch).length > 0 && incCredits == null) {
-      console.log("[api/customer/state][POST] write patch keys", Object.keys(patch), "patch", patch);
-      await updateCustomerByEmail(email, patch);
-      console.log("[api/customer/state][POST] patch write OK");
-    }
-
-    const updated = await findCustomerByEmail(email);
-    console.log("[api/customer/state][POST] post-write find", {
-      credits: updated?.credits,
-      planId: updated?.planId,
-      planName: updated?.planName,
-    });
-
-    const purchasedCredits =
-      updated && typeof updated.credits === "number" && Number.isFinite(updated.credits)
-        ? Math.max(0, Math.floor(updated.credits))
-        : user.credits ?? 0;
-
+    const upData = (await upRes.json().catch(() => ({}))) as Record<string, unknown>;
     return Response.json(
       {
-        success: true,
-        purchasedCredits,
-        subscriptionPlanId: updated?.planId ?? user.planId ?? null,
-        subscriptionPlanName: updated?.planName ?? user.planName ?? null,
+        success: upRes.ok,
+        purchasedCredits: typeof upData.credits === "number" ? upData.credits : 0,
+        subscriptionPlanId: (upData.subscriptionPlanId ?? upData.plan ?? null) as string | null,
+        subscriptionPlanName: (upData.subscriptionPlanName ?? upData.plan ?? null) as string | null,
       },
-      { status: 200 }
+      { status: upRes.status }
     );
   } catch (err) {
-    console.error("[api/customer/state][POST] ERROR", {
-      message: err instanceof Error ? err.message : String(err),
-      stack: err instanceof Error ? err.stack : undefined,
-    });
     return Response.json(
-      {
-        message: "Internal Server Error",
-        error: err instanceof Error ? err.message : String(err),
-      },
+      { message: "Internal Server Error", error: err instanceof Error ? err.message : String(err) },
       { status: 500 }
     );
   }
