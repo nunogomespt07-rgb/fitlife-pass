@@ -196,6 +196,7 @@ export default function PremiumAuthCard({ desktopWider, mode = "landing" }: Prem
       });
       const data = (await res.json().catch(() => ({}))) as
         | { token?: string; user?: { id?: string; name?: string; email?: string } }
+        | { accessToken?: string; jwt?: string; data?: { token?: string } }
         | { message?: string }
         | null;
       if (!res.ok) {
@@ -211,6 +212,23 @@ export default function PremiumAuthCard({ desktopWider, mode = "landing" }: Prem
         setLoading(false);
         return;
       }
+
+      // Persist JWT token if backend returned it (token/accessToken/jwt/data.token)
+      const token =
+        (data && typeof data === "object" && typeof (data as any).token === "string" && (data as any).token) ||
+        (data && typeof data === "object" && typeof (data as any).accessToken === "string" && (data as any).accessToken) ||
+        (data && typeof data === "object" && typeof (data as any).jwt === "string" && (data as any).jwt) ||
+        (data &&
+          typeof data === "object" &&
+          (data as any).data &&
+          typeof (data as any).data === "object" &&
+          typeof (data as any).data.token === "string" &&
+          (data as any).data.token) ||
+        "";
+      if (typeof window !== "undefined" && token) {
+        localStorage.setItem("token", String(token));
+      }
+
       // Auto-login after successful registration (preferred)
       const loginResult = await signIn("credentials", {
         email: emailVal,

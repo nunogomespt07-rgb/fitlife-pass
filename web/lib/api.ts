@@ -200,14 +200,42 @@ export async function login(
   email: string,
   password: string
 ): Promise<{ token: string; user: { id: string; name: string; email: string } }> {
-  const data = await apiFetch<{
-    token: string;
-    user: { id: string; name: string; email: string };
-  }>("/auth/login", {
+  const raw = await apiFetch<unknown>("/auth/login", {
     method: "POST",
     body: JSON.stringify({ email, password }),
   });
-  return data;
+
+  if (!raw || typeof raw !== "object") {
+    throw new Error("Resposta inválida do servidor no login");
+  }
+
+  const obj = raw as Record<string, unknown>;
+  const token =
+    (typeof obj.token === "string" && obj.token) ||
+    (typeof obj.accessToken === "string" && obj.accessToken) ||
+    (typeof obj.jwt === "string" && obj.jwt) ||
+    (() => {
+      const data = obj.data;
+      if (!data || typeof data !== "object") return "";
+      const tokenFromData = (data as Record<string, unknown>).token;
+      return typeof tokenFromData === "string" ? tokenFromData : "";
+    })();
+
+  const userObj = (obj.user && typeof obj.user === "object" ? obj.user : null) as
+    | { id?: unknown; name?: unknown; email?: unknown }
+    | null;
+
+  const user = {
+    id: typeof userObj?.id === "string" ? userObj.id : "",
+    name: typeof userObj?.name === "string" ? userObj.name : "",
+    email: typeof userObj?.email === "string" ? userObj.email : email,
+  };
+
+  if (!token) {
+    throw new Error("Login sem token (token/jwt/accessToken ausente)");
+  }
+
+  return { token, user };
 }
 
 /** Change password. Backend should implement POST /auth/change-password with { currentPassword, newPassword } and Authorization: Bearer <token>. */
