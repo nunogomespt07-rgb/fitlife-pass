@@ -49,6 +49,7 @@ export function CreditActivityProvider({ children }: { children: React.ReactNode
   const [visibleCount, setVisibleCount] = useState(INITIAL_PAGE_SIZE);
   const [transactions, setTransactions] = useState<CreditTransaction[]>([]);
   const [toasts, setToasts] = useState<ToastItem[]>([]);
+  const [mounted, setMounted] = useState(false);
 
   const userId = getStoredUser()?.id ?? null;
 
@@ -58,6 +59,11 @@ export function CreditActivityProvider({ children }: { children: React.ReactNode
   useEffect(() => {
     setTransactions(readTransactions(userId, visibleCount));
   }, [userId, visibleCount]);
+
+  useEffect(() => {
+    // Prevent hydration mismatch: server never renders the portal, so client should render it only after mount.
+    setMounted(true);
+  }, []);
 
   const loadMore = useCallback(() => {
     setVisibleCount((prev) => prev + INITIAL_PAGE_SIZE);
@@ -96,26 +102,27 @@ export function CreditActivityProvider({ children }: { children: React.ReactNode
   return (
     <CreditActivityContext.Provider value={value}>
       {children}
-      {typeof document !== "undefined" &&
-        createPortal(
-          <div
-            className="pointer-events-none fixed right-4 top-4 z-[9999] flex flex-col gap-2"
-            aria-live="polite"
-          >
-            {toasts.map((t) => (
-              <div
-                key={t.id}
-                className="rounded-xl border border-white/20 bg-slate-900/95 px-4 py-3 shadow-lg backdrop-blur-sm"
-              >
-                <p className="text-sm font-medium text-white">{t.title}</p>
-                {t.subtitle && (
-                  <p className="mt-0.5 text-xs text-white/80">{t.subtitle}</p>
-                )}
-              </div>
-            ))}
-          </div>,
-          document.body
-        )}
+      {mounted
+        ? createPortal(
+            <div
+              className="pointer-events-none fixed right-4 top-4 z-[9999] flex flex-col gap-2"
+              aria-live="polite"
+            >
+              {toasts.map((t) => (
+                <div
+                  key={t.id}
+                  className="rounded-xl border border-white/20 bg-slate-900/95 px-4 py-3 shadow-lg backdrop-blur-sm"
+                >
+                  <p className="text-sm font-medium text-white">{t.title}</p>
+                  {t.subtitle && (
+                    <p className="mt-0.5 text-xs text-white/80">{t.subtitle}</p>
+                  )}
+                </div>
+              ))}
+            </div>,
+            document.body
+          )
+        : null}
     </CreditActivityContext.Provider>
   );
 }

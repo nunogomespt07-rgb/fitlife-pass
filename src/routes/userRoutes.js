@@ -79,6 +79,23 @@ async function updateCurrentUser(req, res) {
           set[field] = normalizedPlan;
           continue;
         }
+        if (field === "planStatus") {
+          if (value == null) {
+            set[field] = null;
+            continue;
+          }
+          const raw = String(value).trim().toLowerCase();
+          if (raw === "active") {
+            set[field] = "active";
+            continue;
+          }
+          if (raw === "canceled" || raw === "cancelled") {
+            set[field] = "canceled";
+            continue;
+          }
+          set[field] = null;
+          continue;
+        }
         set[field] = value == null ? null : String(value).trim();
       }
     }

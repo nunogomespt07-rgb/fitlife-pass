@@ -252,7 +252,7 @@ async function handleInvoiceFailed(stripeSubscriptionId) {
   const user = await User.findById(subscription.user);
   if (!user) return;
 
-  user.planStatus = "past_due";
+  user.planStatus = "canceled";
   await user.save();
 
   subscription.status = "past_due";
@@ -266,7 +266,7 @@ async function handleSubscriptionCancelled(stripeSubscriptionId) {
   const user = await User.findById(subscription.user);
   if (!user) return;
 
-  user.planStatus = "cancelled";
+  user.planStatus = "canceled";
   await user.save();
 
   subscription.status = "cancelled";

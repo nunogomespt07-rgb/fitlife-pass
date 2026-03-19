@@ -17,12 +17,14 @@ function addDays(date, days) {
 }
 
 function normalizePlan(raw) {
-  const v = String(raw || "").trim().toLowerCase();
+  const v = String(raw || "").trim();
+  const upper = v.toUpperCase();
+  const lower = v.toLowerCase();
   // Accept legacy equivalents ONLY to normalize existing stored users.
   // The final persisted values are always START|CORE|PRO.
-  if (v === "start" || v === "basic") return "START";
-  if (v === "core" || v === "premium") return "CORE";
-  if (v === "pro") return "PRO";
+  if (upper === "START" || lower === "basic") return "START";
+  if (upper === "CORE" || lower === "premium") return "CORE";
+  if (upper === "PRO") return "PRO";
   return null;
 }
 
@@ -37,11 +39,22 @@ async function ensureUser(userId, session) {
   const normalizedPlan = normalizePlan(user.plan);
   user.plan = normalizedPlan;
 
-  if (user.planStatus !== "active" && user.planStatus !== "cancelled") {
-    user.planStatus = null;
-  }
+  if (user.planStatus === "cancelled") user.planStatus = "canceled";
+  if (user.planStatus !== "active" && user.planStatus !== "canceled") user.planStatus = null;
 
   return user;
+}
+
+function sanitizeUserBeforeSave(user) {
+  // Rule: before every user.save ensure plan uppercase/null and planStatus valid.
+  if (user.plan == null) {
+    user.plan = null;
+  } else {
+    const normalizedPlan = normalizePlan(user.plan);
+    user.plan = normalizedPlan;
+  }
+  if (user.planStatus === "cancelled") user.planStatus = "canceled";
+  if (user.planStatus !== "active" && user.planStatus !== "canceled") user.planStatus = null;
 }
 
 async function computeAvailableCredits(userId, at = new Date(), session) {
@@ -82,6 +95,7 @@ async function expireCreditsIfNeeded(userId, at = new Date(), session) {
   if (expiredTotal > 0) {
     const user = await ensureUser(userId, session);
     user.credits = Math.max(0, (user.credits || 0) - expiredTotal);
+    sanitizeUserBeforeSave(user);
     if (session) await user.save({ session }); else await user.save();
     const tx = new CreditTransaction({
       user: user._id,
@@ -113,6 +127,7 @@ async function grantCredits({
   const user = await ensureUser(userId, session);
   const expiresAt = addDays(new Date(), expiresInDays);
   user.credits = (user.credits || 0) + safeAmount;
+  sanitizeUserBeforeSave(user);
   if (session) await user.save({ session }); else await user.save();
   const tx = new CreditTransaction({
     user: user._id,
@@ -164,6 +179,7 @@ async function debitCredits({
   if (remainingToDebit > 0) throw new Error("LEDGER_DEBIT_MISMATCH");
 
   user.credits = Math.max(0, (user.credits || 0) - safeAmount);
+  sanitizeUserBeforeSave(user);
   if (session) await user.save({ session }); else await user.save();
   const tx = new CreditTransaction({
     user: user._id,
@@ -183,6 +199,7 @@ async function debitCredits({
 async function applyPlan(userId, planRaw, session) {
   const plan = normalizePlan(planRaw);
   if (!plan) throw new Error("INVALID_PLAN");
+  if (!["START", "CORE", "PRO"].includes(plan)) throw new Error("INVALID_PLAN");
   const planCredits = PLAN_CREDITS[plan];
   const now = new Date();
   await expireCreditsIfNeeded(userId, now, session);
@@ -190,6 +207,7 @@ async function applyPlan(userId, planRaw, session) {
   user.plan = plan;
   user.planStatus = "active";
   user.planRenewAt = addDays(now, 30);
+  sanitizeUserBeforeSave(user);
   if (session) await user.save({ session }); else await user.save();
   const granted = await grantCredits({
     userId: user._id,

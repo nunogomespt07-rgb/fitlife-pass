@@ -19,17 +19,15 @@ exports.activatePlan = async (req, res) => {
     console.log("[activate] body", req.body);
     console.log("[activate] req.user", req.user || null);
     const userId = req.userId;
-    const { plan } = req.body;
-    console.log("[activate] plan raw", req.body?.plan);
-    console.log("[subscription/activate] start", { userId, plan, body: req.body });
+    const planRaw = req.body?.plan;
+    const plan = typeof planRaw === "string" ? planRaw.toUpperCase() : null;
+    console.log("[activate] plan raw", planRaw);
+    console.log("[subscription/activate] normalized plan", { plan });
 
-    const normalizedPlan = creditLedgerService.normalizePlan(plan);
-    if (!normalizedPlan || !PLAN_CONFIG[normalizedPlan]) {
-      return res.status(400).json({ message: "Plano inválido" });
+    if (!["START", "CORE", "PRO"].includes(plan)) {
+      throw new Error("INVALID_PLAN");
     }
-    console.log("[subscription/activate] normalizedPlan", { normalizedPlan });
-
-    const cfg = PLAN_CONFIG[normalizedPlan];
+    const cfg = PLAN_CONFIG[plan];
     const now = new Date();
     const end = new Date(now);
     end.setMonth(end.getMonth() + 1);
@@ -45,16 +43,38 @@ exports.activatePlan = async (req, res) => {
         return res.status(404).json({ message: "Utilizador não encontrado" });
       }
 
+      // Idempotency + safe overwrite:
+      // - If planStatus is active and same plan -> do nothing
+      // - If planStatus is active and different plan -> overwrite plan
+      // - Always ensure planStatus becomes "active"
+      const normalizedPlan = plan.toUpperCase();
+      if (user.planStatus === "active") {
+        if (user.plan === normalizedPlan) {
+          const safeUser = user.toObject();
+          delete safeUser.password;
+          await session.abortTransaction();
+          return res.json({
+            success: true,
+            message: "Plan already active",
+            user: safeUser,
+          });
+        }
+
+        user.plan = normalizedPlan;
+      } else {
+        user.plan = normalizedPlan;
+        user.planStatus = "active";
+      }
+
+      user.planStatus = "active";
+      await user.save({ session });
+
       // Ledger service is source of truth for how credits are attributed/expiring.
-      console.log("[activate] before save", user?.toObject ? user.toObject() : user);
-      console.log("[subscription/activate] applying plan credits", {
-        userId,
-        normalizedPlan,
-      });
-      const granted = await creditLedgerService.applyPlan(userId, normalizedPlan, session);
+      console.log("[activate] applying plan credits", { userId, plan });
+      const granted = await creditLedgerService.applyPlan(userId, plan, session);
       console.log("[subscription/activate] plan applied", {
         userId,
-        normalizedPlan,
+        plan,
         grantedCredits: granted?.grantedCredits,
         userCreditsAfter: granted?.user?.credits,
       });
@@ -63,7 +83,7 @@ exports.activatePlan = async (req, res) => {
         { user: user._id },
         {
           user: user._id,
-          plan: normalizedPlan,
+          plan,
           status: "active",
           creditsPerPeriod: cfg.creditsPerMonth,
           currentPeriodStart: now,
@@ -80,6 +100,7 @@ exports.activatePlan = async (req, res) => {
       delete safeUser.password;
 
       return res.json({
+        success: true,
         message: "Plano ativado com sucesso",
         user: safeUser,
       });
@@ -96,15 +117,10 @@ exports.activatePlan = async (req, res) => {
       console.log("VALIDATION ERROR FIELDS:", Object.keys(error.errors));
     }
     return res.status(500).json({
-      success: false,
-      message: "PLAN_ACTIVATE_ERROR",
-      error: error.message ?? String(error),
-      name: error.name ?? "Error",
-      stack: error.stack ?? null,
-      body: req.body || null,
-      reqUser: req.user || null,
-    });
-  }
+  success: false,
+  message: error.message || "UNKNOWN_ERROR",
+});
+}
 };
 
 // Cancelar plano (não mexe nos créditos já atribuídos)
@@ -115,7 +131,7 @@ exports.cancelPlan = async (req, res) => {
     const user = await User.findByIdAndUpdate(
       userId,
       {
-        planStatus: "cancelled",
+        planStatus: "canceled",
       },
       { new: true }
     );
