@@ -91,6 +91,10 @@ exports.activatePlan = async (req, res) => {
     }
   } catch (err) {
     const error = err || {};
+    console.log("VALIDATION ERROR:", error?.errors || null);
+    if (error?.errors) {
+      console.log("VALIDATION ERROR FIELDS:", Object.keys(error.errors));
+    }
     return res.status(500).json({
       success: false,
       message: "PLAN_ACTIVATE_ERROR",
