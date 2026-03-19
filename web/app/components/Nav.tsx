@@ -67,7 +67,6 @@ export default function Nav() {
       if (stored && storedEmail && sessionEmail && storedEmail !== sessionEmail) {
         try {
           localStorage.removeItem("fitlife-user");
-          localStorage.removeItem("token");
         } catch {
           // ignore
         }
