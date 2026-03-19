@@ -2,12 +2,20 @@ export async function apiFetch<T = unknown>(
   path: string,
   init?: RequestInit
 ): Promise<T> {
-  const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
-  if (!base) throw new Error("NEXT_PUBLIC_API_URL is missing");
-  if (/localhost|127\.0\.0\.1/i.test(base)) {
+  const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
+  const isProd = process.env.NODE_ENV === "production";
+  // If base is set, always use it. If not set, allow relative URLs (dev/local).
+  if (isProd && !base) {
+    throw new Error("NEXT_PUBLIC_API_URL is missing");
+  }
+  if (isProd && /localhost|127\.0\.0\.1/i.test(base)) {
     throw new Error("NEXT_PUBLIC_API_URL must not point to localhost in production");
   }
-  const url = `${base}${path.startsWith("/") ? path : `/${path}`}`;
+  const url = base
+    ? `${base}${path.startsWith("/") ? path : `/${path}`}`
+    : path.startsWith("/")
+      ? path
+      : `/${path}`;
 
   const res = await fetch(url, {
     cache: "no-store",

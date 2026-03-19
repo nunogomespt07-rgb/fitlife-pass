@@ -32,6 +32,7 @@ import type { MockReservation } from "@/lib/mockReservations";
 import type { RestaurantReservation } from "@/lib/mockRestaurantReservations";
 import { useCreditActivity } from "@/app/context/CreditActivityContext";
 import { setStoredUser } from "@/lib/storedUser";
+import { apiFetch } from "@/lib/api";
 
 type AddReservationInput = Omit<MockReservation, "id" | "status">;
 type AddRestaurantReservationInput = Omit<RestaurantReservation, "id" | "status">;
@@ -116,15 +117,12 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
     (async () => {
       try {
         console.log("[credits][auth] hydrate start", { canonicalEmail: effectiveUserId });
-        const res = await fetch("/api/user", { cache: "no-store" });
-        if (!res.ok) {
-          console.warn("[credits][auth] hydrate failed", { status: res.status });
-          setCreditsReady(true);
-          return;
-        }
-        const data = (await res.json().catch(() => null)) as
-          | { credits?: number; planId?: string | null; planName?: string | null }
-          | null;
+        const data = await apiFetch<
+          { credits?: number; planId?: string | null; planName?: string | null } | null
+        >("/api/user", { cache: "no-store" }).catch((e) => {
+          console.warn("[credits][auth] hydrate failed", e);
+          return null;
+        });
         if (!data || cancelled) return;
         const next = typeof data.credits === "number" && Number.isFinite(data.credits)
           ? Math.max(0, Math.floor(data.credits))
@@ -209,9 +207,8 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
         creditActivity.showToast("Reserva confirmada", `-${input.creditsRequired} créditos usados`);
       }
       if (isAuthenticated) {
-        fetch("/api/customer/reservations", {
+        apiFetch("/api/customer/reservations", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             id,
             partnerId: input.partnerId,
@@ -273,9 +270,8 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
         creditActivity.showToast("Reserva confirmada", `-${input.creditsRequired} créditos usados`);
       }
       if (isAuthenticated) {
-        fetch("/api/customer/reservations", {
+        apiFetch("/api/customer/reservations", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             id,
             partnerId: input.partnerId,
@@ -342,9 +338,8 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
         creditActivity.showToast("Reserva confirmada", `-${creditsToUse} créditos usados`);
       }
       if (isAuthenticated && creditsToUse >= 0) {
-        fetch("/api/customer/reservations", {
+        apiFetch("/api/customer/reservations", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             id,
             partnerId: input.restaurantId,
@@ -451,13 +446,11 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
     if (isAuthenticated) {
       // Authenticated: backend-only grant (atomic + idempotent). Do NOT update credits locally.
       const eventId = typeof crypto !== "undefined" && "randomUUID" in crypto ? (crypto as Crypto).randomUUID() : `grant-${Date.now()}-${Math.random()}`;
-      fetch("/api/customer/state", {
+      apiFetch("/api/customer/state", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ incCredits: n, eventId }),
       })
-        .then(() => fetch("/api/user", { cache: "no-store" }))
-        .then((r) => (r.ok ? r.json() : null))
+        .then(() => apiFetch<{ credits?: number } | null>("/api/user", { cache: "no-store" }).catch(() => null))
         .then((data) => {
           const next = data && typeof data.credits === "number" && Number.isFinite(data.credits)
             ? Math.max(0, Math.floor(data.credits))

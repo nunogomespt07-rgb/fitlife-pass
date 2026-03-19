@@ -6,6 +6,7 @@ import PrimaryButton from "../../components/ui/PrimaryButton";
 import { useMockReservations } from "@/app/context/MockReservationsContext";
 import { useCreditActivity } from "@/app/context/CreditActivityContext";
 import { getStoredUser, setStoredUser } from "@/lib/storedUser";
+import { apiFetch } from "@/lib/api";
 import {
   MOCK_CREDIT_PACKS,
   SUBSCRIPTION_PLANS,
@@ -150,9 +151,8 @@ export default function DashboardPagamentosPage() {
       pendingPlanName: null,
     });
     // Best-effort: persist plan to server store for session users (cross-device demo).
-    fetch("/api/customer/state", {
+    apiFetch("/api/customer/state", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ subscriptionPlanId: plan.id, subscriptionPlanName: plan.planName }),
     }).catch(() => {});
     addPurchasedCredits(plan.creditsIncluded, `Plano ${plan.planName} ativado`);
