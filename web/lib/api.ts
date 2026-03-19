@@ -24,22 +24,13 @@ export async function apiFetch<T = unknown>(
           localStorage.getItem("accessToken"))
       : null;
 
-  // Support Headers | [][]
-  const headers = new Headers(init?.headers);
-  const existingAuth = headers.get("authorization");
-  const hasValidAuthHeader =
-    typeof existingAuth === "string" &&
-    existingAuth.trim().length > 0 &&
-    existingAuth.trim().toLowerCase() !== "undefined" &&
-    existingAuth.trim().toLowerCase() !== "null";
-
-  if (token && !hasValidAuthHeader) {
+  // Build headers once, then never overwrite them.
+  // Supports init.headers as Headers | [][]
+  const headers = new Headers(init?.headers || {});
+  if (token) {
     headers.set("Authorization", `Bearer ${token}`);
   }
-  // Default JSON header, but do not clobber existing content-type
-  if (!headers.has("content-type")) {
-    headers.set("Content-Type", "application/json");
-  }
+  headers.set("Content-Type", "application/json");
 
   // Temporary safe debug log (never prints token)
   if (typeof window !== "undefined") {
