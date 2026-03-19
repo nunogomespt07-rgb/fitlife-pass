@@ -249,6 +249,10 @@ export async function login(
     throw new Error("Login sem token (token/jwt/accessToken ausente)");
   }
 
+  if (typeof window !== "undefined") {
+    localStorage.setItem("token", token);
+  }
+
   return { token, user };
 }
 
