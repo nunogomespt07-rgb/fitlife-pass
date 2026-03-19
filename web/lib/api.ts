@@ -17,35 +17,26 @@ export async function apiFetch<T = unknown>(
       ? path
       : `/${path}`;
 
-  const token =
-    typeof window !== "undefined"
-      ? (localStorage.getItem("token") ||
-          localStorage.getItem("jwt") ||
-          localStorage.getItem("accessToken"))
-      : null;
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-  // Build headers once, then never overwrite them.
-  // Supports init.headers as Headers | [][]
   const headers = new Headers(init?.headers || {});
   if (token) {
     headers.set("Authorization", `Bearer ${token}`);
   }
-  headers.set("Content-Type", "application/json");
+  if (!headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
 
-  // Temporary safe debug log (never prints token)
   if (typeof window !== "undefined") {
-    console.log("[apiFetch]", {
+    console.log("AUTH DEBUG", {
       tokenExists: Boolean(token),
-      hasAuthHeader: headers.has("authorization"),
+      tokenPrefix: token ? token.slice(0, 12) : null,
+      hasAuthHeader: headers.has("Authorization"),
       finalUrl: url,
     });
   }
 
-  const res = await fetch(url, {
-    cache: "no-store",
-    ...init,
-    headers,
-  });
+  const res = await fetch(url, { cache: "no-store", ...init, headers });
 
   const text = await res.text().catch(() => "");
   let data: unknown = text;
