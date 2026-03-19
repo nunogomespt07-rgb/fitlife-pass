@@ -17,20 +17,33 @@ export async function apiFetch<T = unknown>(
       ? path
       : `/${path}`;
 
-  const existingHeaders = (init?.headers ?? {}) as Record<string, string>;
-  const hasAuthHeader =
-    Object.keys(existingHeaders).some((k) => k.toLowerCase() === "authorization");
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+  // Support Headers | [][]
+  const headers = new Headers(init?.headers);
+  const hasAuthHeader = headers.has("authorization");
+  if (token && !hasAuthHeader) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+  // Default JSON header, but do not clobber existing content-type
+  if (!headers.has("content-type")) {
+    headers.set("Content-Type", "application/json");
+  }
+
+  // Temporary safe debug log (never prints token)
+  if (typeof window !== "undefined" && process.env.NODE_ENV !== "production") {
+    console.log("[apiFetch]", {
+      tokenExists: Boolean(token),
+      hasAuthHeader: headers.has("authorization"),
+      finalUrl: url,
+    });
+  }
 
   const res = await fetch(url, {
     cache: "no-store",
     ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token && !hasAuthHeader ? { Authorization: `Bearer ${token}` } : {}),
-      ...(init?.headers || {}),
-    },
+    headers,
   });
 
   const text = await res.text().catch(() => "");
