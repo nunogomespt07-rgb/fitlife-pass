@@ -17,10 +17,11 @@ import {
 } from "@/lib/mockPayments";
 
 export default function DashboardPagamentosPage() {
-  const { addPurchasedCredits } = useMockReservations();
+  const { addPurchasedCredits, refetchUserState } = useMockReservations();
   const creditActivity = useCreditActivity();
   const [activePlanId, setActivePlanId] = useState<string | null>(null);
   const [purchaseSuccess, setPurchaseSuccess] = useState<string | null>(null);
+  const [purchaseError, setPurchaseError] = useState<string | null>(null);
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
   const [methodModalOpen, setMethodModalOpen] = useState(false);
   const [methodStep, setMethodStep] = useState<"type" | "details">("type");
@@ -43,7 +44,7 @@ export default function DashboardPagamentosPage() {
 
   useEffect(() => {
     const u = getStoredUser();
-    setActivePlanId(u?.subscriptionPlanId ?? null);
+    setActivePlanId(u?.subscriptionPlanId ? String(u.subscriptionPlanId).toUpperCase() : null);
   }, [purchaseSuccess]);
 
   const primaryMethod =
@@ -156,18 +157,56 @@ export default function DashboardPagamentosPage() {
   }
 
   async function handleSubscribe(plan: SubscriptionPlan) {
-    const amount = Math.max(0, Math.floor(plan.creditsIncluded));
     const hasToken =
       typeof window !== "undefined" && Boolean(localStorage.getItem("token"));
-    console.log("CLICK BUY PLAN", { kind: "subscription", planId: plan.id, amount });
+    setPurchaseError(null);
+
+    const amount = Math.max(0, Math.floor(plan.creditsIncluded));
+    console.log("CLICK BUY PLAN", { kind: "subscription", planId: plan.id, amount, hasToken });
+
     if (hasToken) {
-      await apiFetch<{ success?: boolean; credits?: number }>("/credits/add", {
-        method: "POST",
-        body: JSON.stringify({ amount }),
-      });
-    } else {
-      addPurchasedCredits(amount, `Plano ${plan.planName} ativado`);
+      try {
+        console.log("[BUY PLAN] request", {
+          endpoint: "/subscriptions/activate",
+          body: { plan: plan.id },
+        });
+
+        const resp = await apiFetch<{ user?: unknown; message?: string }>("/subscriptions/activate", {
+          method: "POST",
+          body: JSON.stringify({ plan: plan.id }),
+        });
+        console.log("[BUY PLAN] response", resp);
+
+        await refetchUserState();
+
+        // Mantém apenas o estado de UI no localStorage; as compras/créditos vêm do backend.
+        setStoredUser({
+          subscriptionPlanId: plan.id,
+          subscriptionPlanName: plan.planName,
+          pendingPlanId: null,
+          pendingPlanName: null,
+        });
+
+        creditActivity?.showToast("Plano ativado", `+${amount} créditos adicionados`);
+        setPurchaseSuccess(`Subscrição ${plan.planName} ativada.`);
+        setTimeout(() => setPurchaseSuccess(null), 5000);
+
+        setSubscribeModalPlan(null);
+        setActivePlanId(plan.id);
+      } catch (e) {
+        console.error("BUY PLAN ERROR", e);
+        const err = e as any;
+        const msg =
+          err?.data?.message ??
+          err?.data?.error ??
+          err?.message ??
+          "Falha ao ativar o plano.";
+        setPurchaseError(msg);
+      }
+      return;
     }
+
+    // Demo/local: simula a ativação apenas no estado local (não chama /credits/add)
     setStoredUser({
       subscriptionPlanId: plan.id,
       subscriptionPlanName: plan.planName,
@@ -175,9 +214,7 @@ export default function DashboardPagamentosPage() {
       pendingPlanName: null,
     });
     creditActivity?.showToast("Plano ativado", `+${amount} créditos adicionados`);
-    setPurchaseSuccess(
-      `Subscrição ${plan.planName} ativada. ${amount} créditos adicionados.`
-    );
+    setPurchaseSuccess(`Subscrição ${plan.planName} ativada.`);
     setTimeout(() => setPurchaseSuccess(null), 5000);
     setSubscribeModalPlan(null);
     setActivePlanId(plan.id);
@@ -560,6 +597,9 @@ export default function DashboardPagamentosPage() {
             <p className="mt-3 text-sm text-white/80">
               Vais subscrever <span className="font-semibold text-white">{subscribeModalPlan.planName}</span> por {subscribeModalPlan.monthlyPrice}{subscribeModalPlan.currency}/mês e receber {subscribeModalPlan.creditsIncluded} créditos. Em modo demo o pagamento é simulado.
             </p>
+            {purchaseError && (
+              <p className="mt-3 text-sm text-red-200">{purchaseError}</p>
+            )}
             <div className="mt-6 flex flex-wrap justify-end gap-3">
               <button
                 type="button"

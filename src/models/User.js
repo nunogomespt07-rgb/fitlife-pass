@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema(
     // Subscrição simples: um plano por utilizador
     plan: {
       type: String,
-      enum: ["basic", "premium", null],
+      enum: ["START", "CORE", "PRO", null],
       default: null,
     },
     planStatus: {

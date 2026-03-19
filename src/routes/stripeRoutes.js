@@ -147,7 +147,7 @@ async function handleSubscriptionActivated(appUserId, stripeCustomerId, stripeSu
 
     user.stripeCustomerId = stripeCustomerId;
     user.stripeSubscriptionId = stripeSubscriptionId;
-    user.plan = "premium";
+    user.plan = "PRO";
     user.planStatus = "active";
     user.planRenewAt = end;
     user.credits = (user.credits || 0) + PLAN_CREDITS;
@@ -157,7 +157,7 @@ async function handleSubscriptionActivated(appUserId, stripeCustomerId, stripeSu
       { user: user._id },
       {
         user: user._id,
-        plan: "premium",
+        plan: "PRO",
         status: "active",
         creditsPerPeriod: PLAN_CREDITS,
         currentPeriodStart: now,
@@ -175,7 +175,7 @@ async function handleSubscriptionActivated(appUserId, stripeCustomerId, stripeSu
           type: "subscription",
           amount: PLAN_CREDITS,
           balanceAfter: user.credits,
-          description: "Ativação plano premium via Stripe",
+          description: "Ativação plano PRO via Stripe",
           meta: { source: "stripe", stripeSubscriptionId, stripeCustomerId },
         },
       ],
@@ -229,7 +229,7 @@ async function handleInvoicePaid(stripeSubscriptionId) {
           type: "subscription",
           amount: PLAN_CREDITS,
           balanceAfter: user.credits,
-          description: "Renovação plano premium via Stripe",
+          description: "Renovação plano PRO via Stripe",
           meta: { source: "stripe", stripeSubscriptionId },
         },
       ],

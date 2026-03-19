@@ -39,9 +39,9 @@ export default function OnboardingPlanPage() {
       if (!raw) return;
       const parsed = JSON.parse(raw) as Partial<StoredUser>;
       if (parsed.subscriptionPlanId) {
-        setSelectedId(parsed.subscriptionPlanId);
+          setSelectedId(String(parsed.subscriptionPlanId).toUpperCase());
       } else if (parsed.pendingPlanId) {
-        setSelectedId(parsed.pendingPlanId);
+          setSelectedId(String(parsed.pendingPlanId).toUpperCase());
       }
     } catch {
       // ignore
@@ -122,7 +122,7 @@ export default function OnboardingPlanPage() {
                 </ul>
                 <PrimaryButton
                   type="button"
-                  variant={plan.id === "pro" ? "primary" : "secondary"}
+                  variant={plan.id === "PRO" ? "primary" : "secondary"}
                   className="mt-5 w-full rounded-xl py-3 text-sm font-semibold"
                   onClick={() => {
                     handleSelect(plan);

@@ -76,7 +76,7 @@ export type SubscriptionPlan = {
 
 export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   {
-    id: "start",
+    id: "START",
     planName: "FitLife Start",
     monthlyPrice: 59,
     creditsIncluded: 50,
@@ -88,7 +88,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     ],
   },
   {
-    id: "core",
+    id: "CORE",
     planName: "FitLife Core",
     monthlyPrice: 89,
     creditsIncluded: 100,
@@ -101,7 +101,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     ],
   },
   {
-    id: "pro",
+    id: "PRO",
     planName: "FitLife Pro",
     monthlyPrice: 129,
     creditsIncluded: 110,
@@ -116,7 +116,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
 ];
 
 /** Demo only — do NOT use as current user state. Use getStoredUser() for real plan/credits. */
-export const CURRENT_PLAN_ID = "pro";
+export const CURRENT_PLAN_ID = "PRO";
 
 /** Demo only — do NOT use for real user subscription. Use getStoredUser() for active plan. */
 export const MOCK_SUBSCRIPTION: UserSubscription = {

@@ -47,8 +47,9 @@ export default function DashboardCreditosPage() {
   const creditActivity = useCreditActivity();
   const stored = getStoredUser();
   const hasPlan = Boolean(stored?.subscriptionPlanId);
-  const planId = stored?.subscriptionPlanId ?? null;
-  const planName = stored?.subscriptionPlanName ?? null;
+  const planId = stored?.subscriptionPlanId
+    ? String(stored.subscriptionPlanId).toUpperCase()
+    : null;
   const plan = planId ? SUBSCRIPTION_PLANS.find((p) => p.id === planId) : null;
 
   const transactions = creditActivity?.transactions ?? [];
@@ -90,7 +91,7 @@ export default function DashboardCreditosPage() {
                 Plano atual
               </p>
               <p className="mt-2 text-xl font-semibold text-white">
-                {planName ?? plan.planName}
+                {plan.planName}
               </p>
               <p className="mt-1 text-lg font-medium text-white/90">
                 {plan.monthlyPrice}

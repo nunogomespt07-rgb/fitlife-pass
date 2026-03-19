@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../middlewares/authMiddleware");
 const User = require("../models/User");
+const creditLedgerService = require("../services/creditLedgerService");
 
 function normalizeUserResponse(user) {
   return {
@@ -66,6 +67,18 @@ async function updateCurrentUser(req, res) {
     for (const field of profileFields) {
       if (field in body) {
         const value = body[field];
+        if (field === "plan") {
+          if (value == null) {
+            set[field] = null;
+            continue;
+          }
+          const normalizedPlan = creditLedgerService.normalizePlan(value);
+          if (!normalizedPlan) {
+            return res.status(400).json({ message: "Plano inválido" });
+          }
+          set[field] = normalizedPlan;
+          continue;
+        }
         set[field] = value == null ? null : String(value).trim();
       }
     }

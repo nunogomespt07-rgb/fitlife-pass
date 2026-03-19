@@ -55,6 +55,8 @@ type MockReservationsContextValue = {
   completeReservation: (id: string) => void;
   clearHistory: () => void;
   addPurchasedCredits: (amount: number, reason?: string) => void;
+  /** Refetch /api/user from backend and re-hydrate current credits/plan for this session. */
+  refetchUserState: () => Promise<void>;
   countReservationsForActivity: (partnerId: string, activityId: string) => number;
   addRestaurantReservation: (input: AddRestaurantReservationInput) => { success: boolean; error?: string };
   cancelRestaurantReservation: (id: string) => { success: boolean; error?: string };
@@ -121,7 +123,13 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
       try {
         console.log("[credits][auth] hydrate start", { canonicalEmail: effectiveUserId });
         const data = await apiFetch<
-          { credits?: number; planId?: string | null; planName?: string | null } | null
+          | {
+              credits?: number;
+              subscriptionPlanId?: string | null;
+              subscriptionPlanName?: string | null;
+              plan?: string | null;
+            }
+          | null
         >("/api/user", { cache: "no-store" }).catch((e) => {
           console.warn("[credits][auth] hydrate failed", e);
           return null;
@@ -133,11 +141,14 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
         console.log("[credits][auth] hydrate success", { canonicalEmail: effectiveUserId, credits: next });
         setPurchasedCredits(next);
         setCreditsReady(true);
-        if (data.planId != null || data.planName != null) {
+        // /api/user response uses subscriptionPlanId/subscriptionPlanName (userController.normalizeUserResponse)
+        const subPlanId = data.subscriptionPlanId ?? data.plan ?? null;
+        const subPlanName = data.subscriptionPlanName ?? null;
+        if (subPlanId != null || subPlanName != null) {
           try {
             setStoredUser({
-              subscriptionPlanId: data.planId ?? null,
-              subscriptionPlanName: data.planName ?? null,
+              subscriptionPlanId: subPlanId == null ? null : String(subPlanId).toUpperCase(),
+              subscriptionPlanName: subPlanName == null ? null : String(subPlanName).toUpperCase(),
             });
           } catch {}
         }
@@ -147,6 +158,45 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
     })();
     return () => { cancelled = true; };
   }, [isAuthenticated, effectiveUserId]);
+
+  const refetchUserState = useCallback(async () => {
+    if (!isAuthenticated) {
+      setCreditsReady(true);
+      return;
+    }
+    try {
+      const data = await apiFetch<
+        | {
+            credits?: number;
+            subscriptionPlanId?: string | null;
+            subscriptionPlanName?: string | null;
+            plan?: string | null;
+          }
+        | null
+      >("/api/user", { cache: "no-store" }).catch((e) => {
+        console.warn("[credits][auth] refetch failed", e);
+        return null;
+      });
+      if (!data) return;
+
+      const next = typeof data.credits === "number" && Number.isFinite(data.credits)
+        ? Math.max(0, Math.floor(data.credits))
+        : 0;
+      setPurchasedCredits(next);
+      setCreditsReady(true);
+
+      const subPlanId = data.subscriptionPlanId ?? data.plan ?? null;
+      const subPlanName = data.subscriptionPlanName ?? null;
+      if (subPlanId != null || subPlanName != null) {
+        setStoredUser({
+          subscriptionPlanId: subPlanId == null ? null : String(subPlanId).toUpperCase(),
+          subscriptionPlanName: subPlanName == null ? null : String(subPlanName).toUpperCase(),
+        });
+      }
+    } catch {
+      setCreditsReady(true);
+    }
+  }, [isAuthenticated]);
 
   // Persist credits to storage only when NOT authenticated. STRICT: never call getStoredPurchasedCredits when authenticated.
   useEffect(() => {
@@ -498,6 +548,7 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
       completeReservation,
       clearHistory,
       addPurchasedCredits,
+      refetchUserState,
       countReservationsForActivity,
       addRestaurantReservation,
       cancelRestaurantReservation,
@@ -514,6 +565,7 @@ export function MockReservationsProvider({ children }: { children: React.ReactNo
       completeReservation,
       clearHistory,
       addPurchasedCredits,
+      refetchUserState,
       countReservationsForActivity,
       addRestaurantReservation,
       cancelRestaurantReservation,

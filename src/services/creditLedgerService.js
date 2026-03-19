@@ -3,9 +3,9 @@ const User = require("../models/User");
 const CreditTransaction = require("../models/CreditTransaction");
 
 const PLAN_CREDITS = {
-  start: 50,
-  core: 100,
-  pro: 110,
+  START: 50,
+  CORE: 100,
+  PRO: 110,
 };
 
 const CREDIT_EXPIRY_DAYS = 30;
@@ -18,7 +18,12 @@ function addDays(date, days) {
 
 function normalizePlan(raw) {
   const v = String(raw || "").trim().toLowerCase();
-  return v === "start" || v === "core" || v === "pro" ? v : null;
+  // Accept legacy equivalents ONLY to normalize existing stored users.
+  // The final persisted values are always START|CORE|PRO.
+  if (v === "start" || v === "basic") return "START";
+  if (v === "core" || v === "premium") return "CORE";
+  if (v === "pro") return "PRO";
+  return null;
 }
 
 async function ensureUser(userId, session) {
@@ -26,6 +31,16 @@ async function ensureUser(userId, session) {
   if (session) query.session(session);
   const user = await query;
   if (!user) throw new Error("USER_NOT_FOUND");
+
+  // Sanitise enum fields before any subsequent user.save() calls.
+  // This prevents Mongoose ValidationError when legacy values exist in the DB.
+  const normalizedPlan = normalizePlan(user.plan);
+  user.plan = normalizedPlan;
+
+  if (user.planStatus !== "active" && user.planStatus !== "cancelled") {
+    user.planStatus = null;
+  }
+
   return user;
 }
 
