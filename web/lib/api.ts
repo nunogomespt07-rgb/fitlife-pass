@@ -131,7 +131,7 @@ export async function getApiActivities(): Promise<ApiActivity[]> {
 
 export async function getApiActivityById(id: string): Promise<ApiActivity | null> {
   try {
-    const data = await apiFetch<ApiActivity | null>(`/api/activities/${id}`);
+    const data = await apiFetch<ApiActivity | null>(`/activities/${id}`);
     return data;
   } catch (e) {
     const status: number | undefined =

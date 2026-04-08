@@ -8,7 +8,7 @@ export async function GET(_req: NextRequest) {
     if (!BACKEND_API_URL) {
       return Response.json({ message: "BACKEND_API_URL não configurada." }, { status: 503 });
     }
-    const upstream = await fetch(`${BACKEND_API_URL}/api/activities`, {
+    const upstream = await fetch(`${BACKEND_API_URL}/activities`, {
       method: "GET",
       cache: "no-store",
     });

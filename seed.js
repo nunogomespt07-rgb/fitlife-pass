@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 // 2. Usar apenas a variável do backend
 const MONGODB_URI = process.env.MONGODB_URI;
 
-const Activity = require('./src/models/Activity'); // 4. Usar o model real
+const Activity = require('./src/models/Activity');
 
 const activities = [
   {
@@ -107,12 +107,11 @@ async function seed() {
   }
   await mongoose.connect(MONGODB_URI.trim()); // 2. Usar exatamente a mesma ligação
   console.log('Mongo connected');
-  await Activity.deleteMany({}); // 5. Limpar coleção
-  await Activity.insertMany(activities); // 5. Inserir seed
+  await Activity.deleteMany({});
+  const inserted = await Activity.insertMany(activities);
+  console.log('Inserted activities:', inserted.length);
   const count = await Activity.countDocuments();
   console.log('Activity count after seed:', count);
-  const sample = await Activity.findOne().lean();
-  console.log('Sample activity:', sample);
   console.log('Seed done');
   process.exit(0);
 }

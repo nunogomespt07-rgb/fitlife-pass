@@ -11,10 +11,7 @@ export async function GET(
       return Response.json({ message: "BACKEND_API_URL não configurada." }, { status: 503 });
     }
     const { id } = await ctx.params;
-    const upstream = await fetch(
-      `${BACKEND_API_URL}/api/activities/${encodeURIComponent(id)}`,
-      { method: "GET", cache: "no-store" }
-    );
+    const upstream = await fetch(`${BACKEND_API_URL}/activities/${encodeURIComponent(id)}`, { method: "GET", cache: "no-store" });
     const text = await upstream.text();
     let data: unknown;
     try {
