@@ -10,7 +10,7 @@ const sportBookingSchema = new mongoose.Schema(
     },
     activity: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "SportActivity",
+      ref: "Activity",
       required: true,
       index: true,
     },

@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const SportActivity = require("../models/SportActivity");
+const Activity = require("../models/Activity");
 const SportBooking = require("../models/SportBooking");
 const User = require("../models/User");
 const monthlyCreditsService = require("../services/monthlyCreditsService");
@@ -53,7 +53,7 @@ function combineDateTime(dateISO, timeHM) {
 /**
  * Resolve ObjectId Mongo OU (modo integração) appStableKey + criação lazy com activitySnapshot.
  */
-async function resolveSportActivityId(body, session) {
+async function resolveActivityId(body, session) {
   const useIntegration = useExistingAppDataAsReal();
   const { activityId, activitySnapshot } = body || {};
   const idStr = String(activityId || "").trim();
@@ -63,7 +63,7 @@ async function resolveSportActivityId(body, session) {
   }
 
   if (mongoose.Types.ObjectId.isValid(idStr) && idStr.length === 24) {
-    const existing = await SportActivity.findById(idStr).session(session);
+    const existing = await Activity.findById(idStr).session(session);
     return existing ? idStr : null;
   }
 
@@ -72,7 +72,7 @@ async function resolveSportActivityId(body, session) {
   }
 
   const key = idStr;
-  let found = await SportActivity.findOne({ appStableKey: key }).session(session);
+  let found = await Activity.findOne({ appStableKey: key }).session(session);
   if (found) {
     return String(found._id);
   }
@@ -118,25 +118,28 @@ async function resolveSportActivityId(body, session) {
 
   const doc = {
     title: String(activitySnapshot.title || "Atividade").slice(0, 200),
-    sportType: String(activitySnapshot.sportType || "geral").slice(0, 200),
-    location: String(activitySnapshot.location || "").slice(0, 500),
-    date: scheduledDate,
-    maxParticipants,
+    type: String(activitySnapshot.sportType || "geral").slice(0, 200),
+    address: String(activitySnapshot.location || "").slice(0, 500),
+    city: String(activitySnapshot.city || "").slice(0, 100),
     creditsCost,
-    creator: creatorId,
-    participants: [],
+    partnerName: activitySnapshot.partnerName || null,
+    active: true,
     appStableKey: key,
     partnerClientSlug: activitySnapshot.partnerClientSlug
       ? String(activitySnapshot.partnerClientSlug).slice(0, 80)
       : null,
+    creator: creatorId,
+    participants: [],
+    scheduledAt: scheduledDate,
+    maxParticipants,
   };
 
   try {
-    const [created] = await SportActivity.create([doc], { session });
+    const [created] = await Activity.create([doc], { session });
     return String(created._id);
   } catch (e) {
     if (e && e.code === 11000) {
-      const again = await SportActivity.findOne({ appStableKey: key }).session(session);
+      const again = await Activity.findOne({ appStableKey: key }).session(session);
       return again ? String(again._id) : null;
     }
     throw e;
@@ -180,14 +183,14 @@ exports.createBooking = async (req, res) => {
        * 6) atualizar participantes na atividade
        */
       await session.withTransaction(async () => {
-        resolvedActivityId = await resolveSportActivityId(body, session);
+        resolvedActivityId = await resolveActivityId(body, session);
         if (!resolvedActivityId) {
           const err = new Error("ACTIVITY_NOT_FOUND");
           err.code = "ACTIVITY_NOT_FOUND";
           throw err;
         }
 
-        const activity = await SportActivity.findById(resolvedActivityId).session(session);
+        const activity = await Activity.findById(resolvedActivityId).session(session);
         if (!activity) {
           const err = new Error("ACTIVITY_NOT_FOUND");
           err.code = "ACTIVITY_NOT_FOUND";
@@ -435,7 +438,7 @@ exports.cancelBooking = async (req, res) => {
     const activity =
       rawAct && typeof rawAct === "object" && "date" in rawAct
         ? rawAct
-        : await SportActivity.findById(rawAct);
+        : await Activity.findById(rawAct);
 
     const now = new Date();
     const activityStart = activity && activity.date ? new Date(activity.date) : null;
@@ -490,7 +493,7 @@ exports.cancelBooking = async (req, res) => {
           throw err;
         }
 
-        const act = await SportActivity.findById(b.activity).session(session);
+        const act = await Activity.findById(b.activity).session(session);
         if (act && act.participants && act.participants.length > 0) {
           act.participants = act.participants.filter((p) => p.toString() !== userId.toString());
           await act.save({ session });
