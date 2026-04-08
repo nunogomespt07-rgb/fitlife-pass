@@ -28,7 +28,7 @@ export default function AdminPartnerEditPage() {
 
   useEffect(() => {
     if (!isNew) {
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/partners/${id}`)
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/partners/${id}`)
         .then((res) => res.json())
         .then((data) => setPartner(data))
         .finally(() => setLoading(false));
@@ -46,7 +46,7 @@ export default function AdminPartnerEditPage() {
   async function handleSave() {
     setSaving(true);
     const method = isNew ? "POST" : "PUT";
-    const url = isNew ? `${process.env.NEXT_PUBLIC_API_URL}/api/admin/partners` : `${process.env.NEXT_PUBLIC_API_URL}/api/admin/partners/${id}`;
+    const url = isNew ? `${process.env.NEXT_PUBLIC_API_URL}/admin/partners` : `${process.env.NEXT_PUBLIC_API_URL}/admin/partners/${id}`;
     const res = await fetch(url, {
       method,
       headers: { "Content-Type": "application/json" },

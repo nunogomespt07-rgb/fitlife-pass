@@ -138,7 +138,7 @@ export default function AdminClientesPage() {
       setMetricsLoading(true);
       setMetricsError(null);
       try {
-        const r = await fetch("/api/admin/customers/metrics", { credentials: "include" });
+        const r = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/customers/metrics`, { credentials: "include" });
         const raw = await r.json().catch(() => null);
         if (cancelled) return;
         if (!r.ok) {

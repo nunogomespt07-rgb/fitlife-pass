@@ -46,7 +46,7 @@ export default function AdminReservasPage() {
   const [sort, setSort] = useState("newest");
 
   useEffect(() => {
-    fetch("/api/admin/reservations/metrics")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/reservations/metrics`)
       .then((r) => (r.ok ? r.json() : null))
       .then(setMetrics)
       .catch(() => setMetrics(null));

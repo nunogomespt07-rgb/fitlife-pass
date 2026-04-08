@@ -185,7 +185,8 @@ export async function getStoredWeekSchedule(partnerId: string, weekStartISO: str
   const token = typeof window !== "undefined" ? window.localStorage.getItem("token") : null;
   if (token) {
     try {
-      const res = await fetch(`/api/backoffice/sessions?partnerId=${partnerId}&weekStartISO=${weekStartISO}`, {
+      const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
+      const res = await fetch(`${base}/backoffice/sessions?partnerId=${partnerId}&weekStartISO=${weekStartISO}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -204,7 +205,8 @@ export async function setStoredWeekSchedule(schedule: BackofficeWeekSchedule): P
   // Save to backend instead of localStorage
   const token = typeof window !== "undefined" ? window.localStorage.getItem("token") : null;
   if (!token) throw new Error("No auth token");
-  const res = await fetch("/api/backoffice/sessions", {
+  const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
+  const res = await fetch(`${base}/backoffice/sessions`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -301,7 +303,8 @@ export async function publishWeekAvailability(schedule: BackofficeWeekSchedule):
   const token = typeof window !== "undefined" ? window.localStorage.getItem("token") : null;
   if (token) {
     try {
-      await fetch("/api/backoffice/public-availability", {
+      const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
+      await fetch(`${base}/backoffice/public-availability`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -309,8 +312,8 @@ export async function publishWeekAvailability(schedule: BackofficeWeekSchedule):
         },
         body: JSON.stringify({ sessions }),
       });
-    } catch (e) {
-      console.error("Failed to save public availability:", e);
+    } catch {
+      // ignore
     }
   }
   // Optional cache

@@ -35,13 +35,13 @@ export default function AdminHomePage() {
   const [fin, setFin] = useState<FinanceMetrics>(null);
 
   useEffect(() => {
-    fetch("/api/admin/reservations/metrics")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/reservations/metrics`)
       .then((r) => r.ok ? r.json() : null)
       .then(setRes)
       .catch(() => setRes(null));
   }, []);
   useEffect(() => {
-    fetch("/api/admin/customers/metrics")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/customers/metrics`)
       .then((r) => (r.ok ? r.json() : null))
       .then((raw) => {
         if (!raw || typeof raw !== "object") return null;
@@ -55,7 +55,7 @@ export default function AdminHomePage() {
       .catch(() => setCust(null));
   }, []);
   useEffect(() => {
-    fetch("/api/admin/finance/metrics")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/finance/metrics`)
       .then((r) => r.ok ? r.json() : null)
       .then(setFin)
       .catch(() => setFin(null));

@@ -24,7 +24,7 @@ export default function BackofficeEstatisticasPage() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch("/api/backoffice/session", { method: "GET" });
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/backoffice/session`, { method: "GET" });
         if (!res.ok) return;
         const data = (await res.json().catch(() => ({}))) as { partnerId?: string };
         if (data.partnerId) setPartnerId(data.partnerId);

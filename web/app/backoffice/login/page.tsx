@@ -93,7 +93,7 @@ export default function BackofficeLoginPage() {
               setError(null);
               (async () => {
                 try {
-                  const res = await fetch("/api/backoffice/login", {
+                  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/backoffice/login`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ partnerId, pin }),

@@ -164,7 +164,8 @@ export type Partner = {
 };
 
 export async function getCategoryPartners(): Promise<Record<string, { label: string; partners: Partner[] }>> {
-  const res = await fetch("/api/partners");
+  const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
+  const res = await fetch(`${base}/partners`);
   if (!res.ok) throw new Error("Failed to fetch partners");
   const partners: Partner[] = await res.json();
 
@@ -1227,7 +1228,8 @@ export type PartnerWithCategory = Partner & {
 /** All partners with their category slug and label (for nearby discovery). */
 export async function getAllPartnersWithCategory(): Promise<PartnerWithCategory[]> {
   try {
-    const url = `${API_BASE}/api/partners`;
+    const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
+    const url = `${base}/partners`;
     console.log("fetching partners from", url);
     const res = await fetch(url, { cache: "no-store" });
     const data = await res.json();

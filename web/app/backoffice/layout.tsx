@@ -41,7 +41,7 @@ export default function BackofficeLayout({ children }: { children: ReactNode }) 
 
     (async () => {
       try {
-        const res = await fetch("/api/backoffice/session", { method: "GET" });
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/backoffice/session`, { method: "GET" });
         if (!res.ok) {
           window.location.assign("/backoffice/login");
           return;
@@ -91,7 +91,7 @@ export default function BackofficeLayout({ children }: { children: ReactNode }) 
             <button
               type="button"
               onClick={() => {
-                fetch("/api/backoffice/logout", { method: "POST" }).catch(() => {});
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/backoffice/logout`, { method: "POST" }).catch(() => {});
                 clearBackofficeSession();
                 clearCurrentBackofficePartner();
                 window.location.assign("/backoffice/login");

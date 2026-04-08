@@ -8,7 +8,7 @@ export default function AdminPartnersPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/partners`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/partners`)
       .then((res) => res.json())
       .then((data) => setPartners(data))
       .finally(() => setLoading(false));
@@ -57,7 +57,7 @@ export default function AdminPartnersPage() {
                     className="text-red-600 underline"
                     onClick={async () => {
                       if (!confirm("Remover este parceiro?")) return;
-                      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/partners/${p._id}`, { method: "DELETE" });
+                      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/partners/${p._id}`, { method: "DELETE" });
                       setPartners((prev) => prev.filter((x) => x._id !== p._id));
                     }}
                   >

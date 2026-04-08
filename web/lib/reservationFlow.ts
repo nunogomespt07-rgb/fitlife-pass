@@ -32,7 +32,7 @@ export async function createReservation(
     payload.token ??
     (typeof window !== "undefined" ? localStorage.getItem("token") : null);
 
-  const res = await fetch("/api/reservations", {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/reservations`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

@@ -27,7 +27,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     if (pathname?.startsWith("/admin/login")) return;
     (async () => {
       try {
-        const res = await fetch("/api/admin/session", { method: "GET" });
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/session`, { method: "GET" });
         setAuthed(res.ok);
         if (!res.ok) {
           const next = pathname;
@@ -80,7 +80,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <button
               type="button"
               onClick={() => {
-                fetch("/api/admin/logout", { method: "POST" }).catch(() => {});
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/logout`, { method: "POST" }).catch(() => {});
                 router.replace("/admin/login");
               }}
               className="admin-util-btn rounded-lg px-3 py-2 text-sm text-white/65 hover:bg-white/[0.06] hover:text-white/85"
