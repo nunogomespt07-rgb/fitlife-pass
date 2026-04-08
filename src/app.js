@@ -17,7 +17,7 @@ const bookingRoutes = require("./routes/bookingRoutes");
 const subscriptionRoutes = require("./routes/subscriptionRoutes");
 const stripeRoutes = require("./routes/stripeRoutes");
 const partnerRoutes = require("./routes/partnerRoutes");
-const sportActivityRoutes = require("./routes/sportActivityRoutes");
+// sportActivityRoutes removed
 const apiBookingRoutes = require("./routes/apiBookingRoutes");
 const backofficeRoutes = require("./routes/backofficeRoutes");
 const adminCustomersRoutes = require("./routes/adminCustomersRoutes");
@@ -79,7 +79,7 @@ app.use("/user", userRoutes);
 app.use("/auth", authRoutes);
 app.use("/credits", creditsRoutes);
 app.use("/activities", activityRoutes);
-app.use("/api/activities", sportActivityRoutes);
+// Only activityRoutes is used for activities
 
 app.use("/api/bookings", apiBookingRoutes);
 
