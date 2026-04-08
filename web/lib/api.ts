@@ -216,7 +216,7 @@ export async function patchCurrentUser(
   body: Record<string, unknown>
 ): Promise<Record<string, unknown>> {
   console.log("[API] patchCurrentUser called", body);
-  const data = await apiFetch<Record<string, unknown>>("/me", {
+  const data = await apiFetch<Record<string, unknown>>("/api/me", {
     method: "PATCH",
     cache: "no-store",
     body: JSON.stringify(body),
