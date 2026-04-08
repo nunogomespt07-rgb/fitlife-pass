@@ -112,7 +112,7 @@ export const CATEGORY_UI_DATA: Record<string, CategoryUI> = {
   },
 };
 // Função utilitária mínima para label de categoria
-const API_BASE = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:3002";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 export function getCategoryLabel(category: string): string {
   if (!category) return "";
   const map: Record<string, string> = {
@@ -164,7 +164,7 @@ export type Partner = {
 };
 
 export async function getCategoryPartners(): Promise<Record<string, { label: string; partners: Partner[] }>> {
-  const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
+  const base = process.env.NEXT_PUBLIC_API_URL;
   const res = await fetch(`${base}/partners`);
   if (!res.ok) throw new Error("Failed to fetch partners");
   const partners: Partner[] = await res.json();
@@ -1228,7 +1228,7 @@ export type PartnerWithCategory = Partner & {
 /** All partners with their category slug and label (for nearby discovery). */
 export async function getAllPartnersWithCategory(): Promise<PartnerWithCategory[]> {
   try {
-    const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
+    const base = process.env.NEXT_PUBLIC_API_URL;
     const url = `${base}/partners`;
     console.log("fetching partners from", url);
     const res = await fetch(url, { cache: "no-store" });

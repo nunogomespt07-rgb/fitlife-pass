@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "Token em falta" }, { status: 401 });
     }
 
-    const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+    const base = process.env.NEXT_PUBLIC_API_URL;
     if (!base) {
       return NextResponse.json({ message: "NEXT_PUBLIC_API_URL em falta" }, { status: 500 });
     }

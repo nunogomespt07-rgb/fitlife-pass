@@ -13,7 +13,7 @@ export async function apiFetch<T = unknown>(
   path: string,
   init?: RequestInit
 ): Promise<T> {
-  const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
+  const base = process.env.NEXT_PUBLIC_API_URL;
   const token =
   typeof window !== "undefined" ? localStorage.getItem("token") : null;
   const isProd = process.env.NODE_ENV === "production";
@@ -216,7 +216,7 @@ export async function patchCurrentUser(
   body: Record<string, unknown>
 ): Promise<Record<string, unknown>> {
   console.log("[API] patchCurrentUser called", body);
-  const data = await apiFetch<Record<string, unknown>>("/users/me", {
+  const data = await apiFetch<Record<string, unknown>>("/me", {
     method: "PATCH",
     cache: "no-store",
     body: JSON.stringify(body),

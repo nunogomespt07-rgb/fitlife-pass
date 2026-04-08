@@ -99,7 +99,7 @@ export async function getPublicSessionsForPartnerRange(params: {
 }): Promise<PublicSession[]> {
   try {
     const { partnerId, minISO, maxISO } = params;
-    const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
+    const base = process.env.NEXT_PUBLIC_API_URL;
     const res = await fetch(
       `${base}/backoffice/public-availability?partnerId=${encodeURIComponent(partnerId)}&minISO=${encodeURIComponent(minISO)}&maxISO=${encodeURIComponent(maxISO)}`
     );

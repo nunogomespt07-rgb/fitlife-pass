@@ -185,7 +185,7 @@ export async function getStoredWeekSchedule(partnerId: string, weekStartISO: str
   const token = typeof window !== "undefined" ? window.localStorage.getItem("token") : null;
   if (token) {
     try {
-      const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
+      const base = process.env.NEXT_PUBLIC_API_URL;
       const res = await fetch(`${base}/backoffice/sessions?partnerId=${partnerId}&weekStartISO=${weekStartISO}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -205,7 +205,7 @@ export async function setStoredWeekSchedule(schedule: BackofficeWeekSchedule): P
   // Save to backend instead of localStorage
   const token = typeof window !== "undefined" ? window.localStorage.getItem("token") : null;
   if (!token) throw new Error("No auth token");
-  const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
+  const base = process.env.NEXT_PUBLIC_API_URL;
   const res = await fetch(`${base}/backoffice/sessions`, {
     method: "POST",
     headers: {
@@ -303,7 +303,7 @@ export async function publishWeekAvailability(schedule: BackofficeWeekSchedule):
   const token = typeof window !== "undefined" ? window.localStorage.getItem("token") : null;
   if (token) {
     try {
-      const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
+      const base = process.env.NEXT_PUBLIC_API_URL;
       await fetch(`${base}/backoffice/public-availability`, {
         method: "POST",
         headers: {

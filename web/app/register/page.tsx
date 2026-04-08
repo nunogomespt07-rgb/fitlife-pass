@@ -57,12 +57,12 @@ export default function RegisterPage() {
       const birthDate = ""; // TODO: obter do input real
       const payload = {
         firstName,
-        lastName,
-        name: composedName,
-        email: email.trim().toLowerCase(),
-        password,
-        country: country.trim() || null,
-        phone: phone.trim() || null,
+        const base = process.env.NEXT_PUBLIC_API_URL;
+        if (!base) {
+          setError("Não foi possível criar a conta. NEXT_PUBLIC_API_URL em falta ou inválida.");
+          setLoading(false);
+          return;
+        }
         birthDate: birthDate.trim() || null,
       };
       console.log("[REGISTO] Payload enviado:", payload);

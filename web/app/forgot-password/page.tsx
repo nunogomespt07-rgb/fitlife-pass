@@ -19,11 +19,12 @@ export default function ForgotPasswordPage() {
     setLoading(true);
     try {
       const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
-      if (!base || /localhost|127\.0\.0\.1/i.test(base)) {
-        setError("Não foi possível processar. NEXT_PUBLIC_API_URL em falta ou inválida.");
-        setLoading(false);
-        return;
-      }
+        const base = process.env.NEXT_PUBLIC_API_URL;
+        if (!base) {
+          setError("Não foi possível processar. NEXT_PUBLIC_API_URL em falta ou inválida.");
+          setLoading(false);
+          return;
+        }
       const res = await fetch(`${base}/auth/forgot-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
