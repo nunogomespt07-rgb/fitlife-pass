@@ -5,8 +5,8 @@ import Link from "next/link";
 import GlassCard from "../../components/ui/GlassCard";
 import PrimaryButton from "../../components/ui/PrimaryButton";
 import { useMockReservations } from "@/app/context/MockReservationsContext";
-import { getStoredUser, setStoredUser, StoredUser } from "@/lib/storedUser";
-import { changePassword } from "@/lib/api";
+import { getStoredUser, setStoredUser, StoredUser, splitFullName } from "@/lib/storedUser";
+import { changePassword, fetchCurrentUserProfile, patchCurrentUser } from "@/lib/api";
 import { COUNTRIES } from "@/lib/countries";
 
 function renderValue(value: string | null | undefined): ReactNode {
@@ -26,7 +26,8 @@ function getCountryLabel(value: string | null | undefined): string {
   return found ? found.name : v;
 }
 
-/** Build profile display from stored user only — no fake or extra keys. */
+/** Após hidratação: dados vêm do GET /api/user (Mongo). LS é apenas cache espelho. */
+/** Build profile display from stored user — deriva nome/apelido do `name` se necessário. */
 function profileFromStoredUser(user: StoredUser | null): {
   firstName: string;
   lastName: string;
@@ -55,9 +56,16 @@ function profileFromStoredUser(user: StoredUser | null): {
       fitnessGoal: "",
     };
   }
+  let firstName = (user.firstName ?? "").trim();
+  let lastName = (user.lastName ?? "").trim();
+  if (!firstName && !lastName && user.name?.trim()) {
+    const d = splitFullName(user.name);
+    firstName = d.firstName;
+    lastName = d.lastName;
+  }
   return {
-    firstName: user.firstName ?? "",
-    lastName: user.lastName ?? "",
+    firstName,
+    lastName,
     email: user.email ?? "",
     phone: user.phone ?? "",
     address: user.address ?? "",
@@ -101,11 +109,87 @@ export default function DashboardPerfilPage() {
   const [passwordLoading, setPasswordLoading] = useState(false);
 
   useEffect(() => {
-    const user = getStoredUser();
-    const loaded = profileFromStoredUser(user);
-    setProfile(loaded);
-    setEditing(loaded);
-    setReady(true);
+    let cancelled = false;
+
+    function loadFromStorage() {
+      const user = getStoredUser();
+      if (typeof process !== "undefined" && process.env.NODE_ENV === "development") {
+        console.log("USER AFTER MERGE:", user);
+        console.log("CREDITS:", typeof window !== "undefined" ? localStorage.getItem("credits") : null);
+      }
+      const loaded = profileFromStoredUser(user);
+      setProfile(loaded);
+      setEditing(loaded);
+      setReady(true);
+    }
+
+    async function hydrateFromServer() {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      if (!token) {
+        loadFromStorage();
+        return;
+      }
+      try {
+        const data = await fetchCurrentUserProfile();
+        if (cancelled) return;
+        const id = String((data as { id?: string }).id ?? "").trim();
+        if (id) {
+          const credits = (data as { credits?: number }).credits;
+          setStoredUser({
+            id,
+            name: String((data as { name?: string }).name ?? ""),
+            email: String((data as { email?: string }).email ?? ""),
+            ...(typeof credits === "number" && Number.isFinite(credits)
+              ? { credits: Math.max(0, Math.floor(credits)) }
+              : {}),
+            firstName: (data as { firstName?: string | null }).firstName ?? undefined,
+            lastName: (data as { lastName?: string | null }).lastName ?? undefined,
+            phone: (data as { phone?: string | null }).phone ?? undefined,
+            address: (data as { address?: string | null }).address ?? undefined,
+            city: (data as { city?: string | null }).city ?? undefined,
+            postalCode: (data as { postalCode?: string | null }).postalCode ?? undefined,
+            country: (data as { country?: string | null }).country ?? undefined,
+            dateOfBirth: (data as { dateOfBirth?: string | null }).dateOfBirth ?? undefined,
+            nif: (data as { nif?: string | null }).nif ?? undefined,
+            fitnessGoal: (data as { fitnessGoal?: string | null }).fitnessGoal ?? undefined,
+            subscriptionPlanId:
+              (data as { subscriptionPlanId?: string | null }).subscriptionPlanId ??
+              (data as { plan?: string | null }).plan ??
+              null,
+            subscriptionPlanName:
+              (data as { subscriptionPlanName?: string | null }).subscriptionPlanName ??
+              (data as { plan?: string | null }).plan ??
+              null,
+            interests: Array.isArray((data as { interests?: unknown }).interests)
+              ? ((data as { interests: string[] }).interests as string[])
+              : undefined,
+            preferredActivities:
+              Array.isArray((data as { interests?: unknown }).interests) &&
+              (data as { interests: string[] }).interests.length > 0
+                ? ((data as { interests: string[] }).interests as string[])
+                : undefined,
+          });
+        }
+      } catch {
+        // Mantém cache local se a API falhar
+      }
+      loadFromStorage();
+    }
+
+    void hydrateFromServer();
+
+    const onUpdate = () => {
+      void hydrateFromServer();
+    };
+    window.addEventListener("fitlife-auth-changed", onUpdate);
+    window.addEventListener("fitlife-user-updated", onUpdate);
+    window.addEventListener("storage", onUpdate);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("fitlife-auth-changed", onUpdate);
+      window.removeEventListener("fitlife-user-updated", onUpdate);
+      window.removeEventListener("storage", onUpdate);
+    };
   }, []);
 
   function handleStartEdit() {
@@ -120,21 +204,8 @@ export default function DashboardPerfilPage() {
     setSavedMessage("");
   }
 
-  function handleSave() {
+  async function handleSave() {
     const combinedName = `${editing.firstName.trim()} ${editing.lastName.trim()}`.trim();
-    setStoredUser({
-      name: combinedName || undefined,
-      firstName: editing.firstName.trim() || null,
-      lastName: editing.lastName.trim() || null,
-      phone: editing.phone.trim() || null,
-      nif: editing.nif.trim() || null,
-      address: editing.address.trim() || null,
-      city: editing.city.trim() || null,
-      postalCode: editing.postalCode.trim() || null,
-      country: editing.country.trim() || null,
-      dateOfBirth: editing.dateOfBirth.trim() || null,
-      fitnessGoal: editing.fitnessGoal.trim() || null,
-    });
     const trimmed: ProfileData = {
       ...editing,
       firstName: editing.firstName.trim(),
@@ -148,11 +219,46 @@ export default function DashboardPerfilPage() {
       dateOfBirth: editing.dateOfBirth.trim(),
       fitnessGoal: editing.fitnessGoal.trim(),
     };
-    setProfile(trimmed);
-    setEditing(trimmed);
-    setIsEditing(false);
-    setSavedMessage("Perfil guardado com sucesso.");
-    setTimeout(() => setSavedMessage(""), 4000);
+    console.log("[PERFIL] handleSave called", { trimmed });
+    try {
+      const patchResult = await patchCurrentUser({
+        name: combinedName || undefined,
+        firstName: trimmed.firstName,
+        lastName: trimmed.lastName,
+        phone: trimmed.phone,
+        nif: trimmed.nif,
+        address: trimmed.address,
+        city: trimmed.city,
+        postalCode: trimmed.postalCode,
+        country: trimmed.country,
+        dateOfBirth: trimmed.dateOfBirth,
+        fitnessGoal: trimmed.fitnessGoal,
+      });
+      console.log("[PERFIL] patchCurrentUser result", patchResult);
+      setStoredUser({
+        name: combinedName || undefined,
+        firstName: trimmed.firstName,
+        lastName: trimmed.lastName,
+        phone: trimmed.phone,
+        nif: trimmed.nif,
+        address: trimmed.address,
+        city: trimmed.city,
+        postalCode: trimmed.postalCode,
+        country: trimmed.country,
+        dateOfBirth: trimmed.dateOfBirth,
+        fitnessGoal: trimmed.fitnessGoal,
+      });
+      setProfile(trimmed);
+      setEditing(trimmed);
+      setIsEditing(false);
+      setSavedMessage("Perfil guardado com sucesso.");
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("fitlife-user-updated"));
+      }
+    } catch (err) {
+      console.error("[PERFIL] Error in handleSave", err);
+      setSavedMessage("Erro ao guardar perfil. Tenta novamente.");
+    }
   }
 
   function updateEditing(field: keyof ProfileData, value: string) {
@@ -187,7 +293,6 @@ export default function DashboardPerfilPage() {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-      setTimeout(() => setPasswordSuccess(""), 4000);
     } catch (err) {
       const e = err as Error & { status?: number; data?: { message?: string } };
       const msg =
@@ -503,8 +608,15 @@ export default function DashboardPerfilPage() {
               </div>
             )}
             {passwordSuccess && (
-              <div className="rounded-xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
-                {passwordSuccess}
+              <div className="flex flex-wrap items-start justify-between gap-3 rounded-xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
+                <span>{passwordSuccess}</span>
+                <button
+                  type="button"
+                  onClick={() => setPasswordSuccess("")}
+                  className="shrink-0 text-xs font-medium text-emerald-200/90 underline-offset-2 hover:underline"
+                >
+                  Fechar
+                </button>
               </div>
             )}
             <PrimaryButton

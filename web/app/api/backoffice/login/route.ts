@@ -32,7 +32,8 @@ export async function POST(req: Request) {
     if (!partnerId) return NextResponse.json({ ok: false, error: "Seleciona um parceiro." }, { status: 400 });
     if (!pin) return NextResponse.json({ ok: false, error: "Introduz o PIN de acesso." }, { status: 400 });
 
-    const exists = getAllPartnersWithCategory().some((p) => p.id === partnerId);
+    const partners = await getAllPartnersWithCategory();
+    const exists = partners.some((p) => p.id === partnerId);
     if (!exists) return NextResponse.json({ ok: false, error: "Parceiro inválido." }, { status: 400 });
 
     const expected = getDemoPinForPartner(partnerId);

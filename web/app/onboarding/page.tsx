@@ -1,179 +1,386 @@
 "use client";
 
-import { Suspense, useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import GlassCard from "../components/ui/GlassCard";
-import PrimaryButton from "../components/ui/PrimaryButton";
-import SectionHeader from "../components/ui/SectionHeader";
-import { Dumbbell, Flower2, PersonStanding, Waves } from "lucide-react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import OnboardingCard from "@/app/components/OnboardingCard";
+import { setStoredUser } from "@/lib/storedUser";
+import {
+  ONBOARDING_TOTAL_STEPS,
+  ONBOARDING_GOAL_OPTIONS,
+  ONBOARDING_FREQUENCY_OPTIONS,
+  ONBOARDING_CATEGORY_INTEREST_OPTIONS,
+  ONBOARDING_EXPERIENCE_OPTIONS,
+  ONBOARDING_TIME_OPTIONS,
+  ONBOARDING_HEALTHY_FOOD_OPTIONS,
+} from "@/lib/onboardingConstants";
+import { patchCurrentUser } from "@/lib/api";
 
-const STEPS = [
-  {
-    title: "Encontre e reserve aulas desportivas",
-    subtitle: "Ginásio, yoga, running e muito mais num só lugar.",
-    icons: [
-      { label: "Ginásio", type: "gym" as const },
-      { label: "Yoga", type: "yoga" as const },
-      { label: "Running", type: "running" as const },
-      { label: "Natação", type: "swim" as const },
-    ],
-    cta: "Continuar",
-  },
-  {
-    title: "O teu dashboard",
-    subtitle: "Vê os teus créditos e reservas num só sítio.",
-    preview: "dashboard",
-    cta: "Continuar",
-  },
-  {
-    title: "Lista de atividades",
-    subtitle: "Escolhe a aula, reserva com um clique.",
-    preview: "activities",
-    cta: "Começar a explorar",
-  },
-];
+function readToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("token");
+}
 
-function OnboardingContent() {
-  const searchParams = useSearchParams();
+function parseStep(raw: string | null): number {
+  const n = parseInt(raw ?? "1", 10);
+  if (Number.isNaN(n) || n < 1) return 1;
+  if (n > ONBOARDING_TOTAL_STEPS) return ONBOARDING_TOTAL_STEPS;
+  return n;
+}
+
+const optionCardBase =
+  "w-full rounded-2xl border px-4 py-4 text-left text-[15px] font-medium transition-all duration-200 active:scale-[0.99]";
+const optionInactive =
+  "border-white/[0.12] bg-white/[0.05] text-white/90 hover:border-white/25 hover:bg-white/[0.09]";
+const optionActive =
+  "border-blue-400/55 bg-blue-500/20 text-white shadow-[0_0_0_1px_rgba(96,165,250,0.35)]";
+
+function OnboardingFlow() {
   const router = useRouter();
-  const stepParam = searchParams.get("step");
-  const [step, setStep] = useState(1);
+  const searchParams = useSearchParams();
+  const step = useMemo(() => parseStep(searchParams.get("step")), [searchParams]);
+
+  const [goal, setGoal] = useState<string | null>(null);
+  const [weeklyFrequency, setWeeklyFrequency] = useState<string | null>(null);
+  const [interests, setInterests] = useState<string[]>([]);
+  const [experienceLevel, setExperienceLevel] = useState<string | null>(null);
+  const [preferredTimes, setPreferredTimes] = useState<string[]>([]);
+  const [healthyFoodInterest, setHealthyFoodInterest] = useState<string | null>(null);
+  const [finishing, setFinishing] = useState(false);
+  const [checkedAuth, setCheckedAuth] = useState(false);
 
   useEffect(() => {
-    const n = stepParam ? parseInt(stepParam, 10) : 1;
-    if (n >= 1 && n <= 3) setStep(n);
-  }, [stepParam]);
-
-  const current = STEPS[step - 1];
-  const isLast = step === 3;
-
-  function handleNext() {
-    if (isLast) {
-      router.push("/");
+    if (typeof window === "undefined") return;
+    const token = readToken();
+    if (!token) {
+      router.replace("/auth/email");
+      setCheckedAuth(true);
       return;
     }
-    setStep((s) => Math.min(3, s + 1));
-    router.replace(`/onboarding?step=${step + 1}`, { scroll: false });
+    try {
+      const raw = localStorage.getItem("fitlife-user");
+      if (raw) {
+        const parsed = JSON.parse(raw) as {
+          onboardingCompleted?: boolean;
+          primaryGoal?: string;
+          trainingFrequency?: string;
+          preferredActivities?: string[];
+          experienceLevel?: string;
+          preferredTrainingTimes?: string[];
+          healthyFoodInterest?: string;
+        };
+        if (parsed.onboardingCompleted === true) {
+          router.replace("/dashboard");
+          setCheckedAuth(true);
+          return;
+        }
+        if (parsed.onboardingCompleted !== false) {
+          router.replace("/dashboard");
+          setCheckedAuth(true);
+          return;
+        }
+        if (parsed.primaryGoal) setGoal(parsed.primaryGoal);
+        if (parsed.trainingFrequency) setWeeklyFrequency(parsed.trainingFrequency);
+        if (Array.isArray(parsed.preferredActivities)) setInterests(parsed.preferredActivities);
+        if (parsed.experienceLevel) setExperienceLevel(parsed.experienceLevel);
+        if (Array.isArray(parsed.preferredTrainingTimes)) setPreferredTimes(parsed.preferredTrainingTimes);
+        if (parsed.healthyFoodInterest) setHealthyFoodInterest(parsed.healthyFoodInterest);
+      }
+    } catch {
+      // ignore
+    }
+    setCheckedAuth(true);
+  }, [router]);
+
+  const setStep = useCallback(
+    (n: number) => {
+      const next = Math.min(ONBOARDING_TOTAL_STEPS, Math.max(1, n));
+      router.replace(`/onboarding?step=${next}`, { scroll: false });
+    },
+    [router]
+  );
+
+  const toggleMulti = useCallback((id: string, list: string[], setList: (v: string[]) => void) => {
+    setList(list.includes(id) ? list.filter((x) => x !== id) : [...list, id]);
+  }, []);
+
+  const canContinue = useCallback(() => {
+    switch (step) {
+      case 1:
+        return Boolean(goal);
+      case 2:
+        return Boolean(weeklyFrequency);
+      case 3:
+        return preferredTimes.length > 0;
+      case 4:
+        return Boolean(experienceLevel);
+      case 5:
+        return interests.length > 0;
+      case 6:
+        return Boolean(healthyFoodInterest);
+      default:
+        return false;
+    }
+  }, [step, goal, weeklyFrequency, experienceLevel, healthyFoodInterest, preferredTimes, interests]);
+
+  const handleContinue = useCallback(async () => {
+    if (!canContinue()) return;
+    if (step < ONBOARDING_TOTAL_STEPS) {
+      setStep(step + 1);
+      return;
+    }
+    setFinishing(true);
+    try {
+      setStoredUser({
+        primaryGoal: goal ?? undefined,
+        trainingFrequency: weeklyFrequency ?? null,
+        preferredActivities: interests.length > 0 ? interests : undefined,
+        interests: interests.length > 0 ? interests : undefined,
+        experienceLevel: experienceLevel ?? null,
+        preferredTrainingTimes: preferredTimes.length > 0 ? preferredTimes : undefined,
+        healthyFoodInterest: healthyFoodInterest ?? null,
+        onboardingCompleted: true,
+      });
+      const token = readToken();
+      if (token) {
+        try {
+          await patchCurrentUser({ interests });
+        } catch {
+          // Perfil local já foi guardado
+        }
+      }
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("fitlife-user-updated"));
+      }
+      router.push("/dashboard");
+    } finally {
+      setFinishing(false);
+    }
+  }, [
+    canContinue,
+    step,
+    setStep,
+    goal,
+    weeklyFrequency,
+    interests,
+    experienceLevel,
+    preferredTimes,
+    healthyFoodInterest,
+    router,
+  ]);
+
+  const handleBack = useCallback(() => {
+    if (step <= 1) return;
+    setStep(step - 1);
+  }, [step, setStep]);
+
+  if (!checkedAuth) {
+    return (
+      <div className="mx-auto max-w-lg px-4 py-24 text-center text-sm text-white/55">
+        A carregar…
+      </div>
+    );
   }
 
+  const continueLabel = step === ONBOARDING_TOTAL_STEPS ? "Entrar na app" : "Continuar";
+
   return (
-    <div className="mx-auto max-w-md px-5 pb-14 pt-24 sm:px-6">
-      <div className="mb-10 flex gap-2">
-        {[1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className={`h-1.5 flex-1 rounded-full transition ${
-              i <= step ? "bg-white/70" : "bg-white/15"
-            }`}
-          />
-        ))}
-      </div>
-
-      <div className="min-h-[50vh]">
-        {step === 1 && (
-          <div className="animate-in">
-            <SectionHeader title={current.title} subtitle={current.subtitle} />
-            <div className="mt-10 grid gap-4 sm:grid-cols-2">
-              {current.icons?.map(({ label, type }) => {
-                let IconComp: React.ElementType = Dumbbell;
-                if (type === "yoga") IconComp = Flower2;
-                else if (type === "running") IconComp = PersonStanding;
-                else if (type === "swim") IconComp = Waves;
-                return (
-                  <GlassCard
-                    key={label}
-                    variant="dark"
-                    padding="lg"
-                    hover
-                    className="flex flex-col items-center justify-center text-center"
-                  >
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white">
-                      <IconComp className="h-7 w-7" strokeWidth={1.7} />
-                    </div>
-                    <p className="mt-3 text-sm font-medium text-white">{label}</p>
-                  </GlassCard>
-                );
-              })}
-            </div>
+    <div className="page-bg min-h-screen text-white font-sans">
+      {step === 1 && (
+        <OnboardingCard
+          step={step}
+          totalSteps={ONBOARDING_TOTAL_STEPS}
+          title="Qual é o teu principal objetivo?"
+          description="Escolhe a opção que melhor descreve o que queres alcançar."
+          onContinue={handleContinue}
+          onBack={handleBack}
+          showBack={false}
+          continueDisabled={!goal}
+          continueLoading={finishing}
+          continueLabel={continueLabel}
+        >
+          <div className="space-y-3">
+            {ONBOARDING_GOAL_OPTIONS.map((opt) => (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => setGoal(opt.id)}
+                className={`${optionCardBase} ${goal === opt.id ? optionActive : optionInactive}`}
+              >
+                {opt.label}
+              </button>
+            ))}
           </div>
-        )}
+        </OnboardingCard>
+      )}
 
-        {step === 2 && (
-          <div className="animate-in">
-            <SectionHeader title={current.title} subtitle={current.subtitle} />
-            <div className="mt-10">
-              <GlassCard variant="dark" padding="lg">
-                <div className="space-y-5">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-white/50">Olá, Utilizador</span>
-                    <span className="font-semibold text-white">Créditos e reservas</span>
-                  </div>
-                  <div className="rounded-[22px] border border-white/[0.1] bg-white/[0.05] p-4">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-white/50">
-                      Minhas reservas
-                    </p>
-                    <p className="mt-2 text-sm text-white/75">
-                      Yoga Flow — 15 Mar · 2 créditos
-                    </p>
-                  </div>
-                </div>
-              </GlassCard>
-            </div>
+      {step === 2 && (
+        <OnboardingCard
+          step={step}
+          totalSteps={ONBOARDING_TOTAL_STEPS}
+          title="Quantas vezes por semana queres treinar?"
+          description="Isto ajuda-nos a sugerir planos e rotinas adequadas."
+          onContinue={handleContinue}
+          onBack={handleBack}
+          continueDisabled={!weeklyFrequency}
+          continueLoading={finishing}
+          continueLabel={continueLabel}
+        >
+          <div className="space-y-3">
+            {ONBOARDING_FREQUENCY_OPTIONS.map((opt) => (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => setWeeklyFrequency(opt.id)}
+                className={`${optionCardBase} ${
+                  weeklyFrequency === opt.id ? optionActive : optionInactive
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
           </div>
-        )}
+        </OnboardingCard>
+      )}
 
-        {step === 3 && (
-          <div className="animate-in">
-            <SectionHeader title={current.title} subtitle={current.subtitle} />
-            <div className="mt-10 space-y-4">
-              {[
-                { title: "Yoga Flow", location: "Lisboa", credits: 2 },
-                { title: "HIIT", location: "Porto", credits: 3 },
-              ].map((a) => (
-                <GlassCard key={a.title} variant="dark" padding="md" hover>
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex flex-col gap-1">
-                      <p className="font-semibold text-white">{a.title}</p>
-                      <p className="text-xs text-white/60">{a.location}</p>
-                    </div>
-                    <span className="rounded-full bg-white/[0.12] px-3 py-1 text-xs text-white">
-                      {a.credits} créditos
-                    </span>
-                  </div>
-                </GlassCard>
-              ))}
-            </div>
+      {step === 3 && (
+        <OnboardingCard
+          step={step}
+          totalSteps={ONBOARDING_TOTAL_STEPS}
+          title="Quando preferes treinar?"
+          description="Seleciona todas as opções que se aplicam."
+          onContinue={handleContinue}
+          onBack={handleBack}
+          continueDisabled={preferredTimes.length === 0}
+          continueLoading={finishing}
+          continueLabel={continueLabel}
+        >
+          <div className="flex flex-wrap gap-2.5">
+            {ONBOARDING_TIME_OPTIONS.map((opt) => {
+              const on = preferredTimes.includes(opt.id);
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => toggleMulti(opt.id, preferredTimes, setPreferredTimes)}
+                  className={`rounded-full px-4 py-2.5 text-sm font-medium transition ${
+                    on
+                      ? "bg-blue-500/85 text-white ring-2 ring-blue-400/50"
+                      : "bg-white/10 text-white/88 hover:bg-white/16"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
           </div>
-        )}
-      </div>
+        </OnboardingCard>
+      )}
 
-      <div className="mt-12">
-        <PrimaryButton onClick={handleNext} className="w-full py-4">
-          {current.cta}
-        </PrimaryButton>
-        {step > 1 && (
-          <button
-            type="button"
-            onClick={() => {
-              setStep(step - 1);
-              router.replace(`/onboarding?step=${step - 1}`, { scroll: false });
-            }}
-            className="mt-5 w-full text-center text-sm font-medium text-white/60 hover:text-white"
-          >
-            Voltar
-          </button>
-        )}
-      </div>
+      {step === 4 && (
+        <OnboardingCard
+          step={step}
+          totalSteps={ONBOARDING_TOTAL_STEPS}
+          title="Qual é o teu nível?"
+          description="Sem julgamentos — só para personalizar sugestões."
+          onContinue={handleContinue}
+          onBack={handleBack}
+          continueDisabled={!experienceLevel}
+          continueLoading={finishing}
+          continueLabel={continueLabel}
+        >
+          <div className="space-y-3">
+            {ONBOARDING_EXPERIENCE_OPTIONS.map((opt) => (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => setExperienceLevel(opt.id)}
+                className={`${optionCardBase} ${
+                  experienceLevel === opt.id ? optionActive : optionInactive
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </OnboardingCard>
+      )}
+
+      {step === 5 && (
+        <OnboardingCard
+          step={step}
+          totalSteps={ONBOARDING_TOTAL_STEPS}
+          title="Que tipo de atividades te interessam?"
+          description="Escolhe todas as categorias que queres explorar no FitLife Pass."
+          onContinue={handleContinue}
+          onBack={handleBack}
+          continueDisabled={interests.length === 0}
+          continueLoading={finishing}
+          continueLabel={continueLabel}
+        >
+          <div className="grid max-h-[min(52vh,520px)] gap-2.5 overflow-y-auto overflow-x-hidden pr-1 [scrollbar-gutter:stable] sm:grid-cols-2">
+            {ONBOARDING_CATEGORY_INTEREST_OPTIONS.map((opt) => {
+              const on = interests.includes(opt.id);
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => toggleMulti(opt.id, interests, setInterests)}
+                  className={`rounded-2xl border px-4 py-3.5 text-left text-[14px] font-medium leading-snug transition ${
+                    on
+                      ? "border-blue-400/55 bg-blue-500/20 text-white shadow-[0_0_0_1px_rgba(96,165,250,0.35)]"
+                      : "border-white/[0.12] bg-white/[0.05] text-white/90 hover:border-white/25 hover:bg-white/[0.09]"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+        </OnboardingCard>
+      )}
+
+      {step === 6 && (
+        <OnboardingCard
+          step={step}
+          totalSteps={ONBOARDING_TOTAL_STEPS}
+          title="Tens interesse em opções de alimentação saudável?"
+          description="Healthy food e parceiros no FitLife Pass."
+          onContinue={handleContinue}
+          onBack={handleBack}
+          continueDisabled={!healthyFoodInterest}
+          continueLoading={finishing}
+          continueLabel={continueLabel}
+        >
+          <div className="space-y-3">
+            {ONBOARDING_HEALTHY_FOOD_OPTIONS.map((opt) => (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => setHealthyFoodInterest(opt.id)}
+                className={`${optionCardBase} ${
+                  healthyFoodInterest === opt.id ? optionActive : optionInactive
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </OnboardingCard>
+      )}
     </div>
   );
 }
 
 export default function OnboardingPage() {
   return (
-    <div className="page-bg text-white font-sans">
-      <Suspense fallback={<div className="mx-auto max-w-md px-4 py-16 text-center text-white/60">A carregar…</div>}>
-        <OnboardingContent />
-      </Suspense>
-    </div>
+    <Suspense
+      fallback={
+        <div className="page-bg min-h-screen px-4 py-24 text-center text-sm text-white/55">
+          A carregar…
+        </div>
+      }
+    >
+      <OnboardingFlow />
+    </Suspense>
   );
 }

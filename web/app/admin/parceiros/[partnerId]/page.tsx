@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import GlassCard from "@/app/components/ui/GlassCard";
 import PrimaryButton from "@/app/components/ui/PrimaryButton";
-import { CATEGORY_PARTNERS, getAllPartnersWithCategory, type PartnerType } from "@/lib/activitiesData";
+import { getAllPartnersWithCategory, type PartnerType } from "@/lib/activitiesData";
 import { defaultPeakWindows, getServiceCreditConfig, setServiceCreditConfig } from "@/lib/creditConfig";
 import { deleteAdminPartner, normalizePartnerDraft, upsertAdminPartner } from "@/lib/adminPartners";
 
@@ -12,9 +12,20 @@ export default function AdminPartnerDetailPage() {
   const params = useParams() as { partnerId?: string | string[] };
   const partnerId = Array.isArray(params.partnerId) ? params.partnerId[0] : (params.partnerId ?? "");
 
-  const partner = useMemo(() => getAllPartnersWithCategory().find((p) => p.id === partnerId) ?? null, [partnerId]);
+  const [partner, setPartner] = useState<import("@/lib/activitiesData").PartnerWithCategory | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    getAllPartnersWithCategory().then((partners) => {
+      if (alive) setPartner(partners.find((p) => p.id === partnerId) ?? null);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [partnerId]);
+
   const serviceKey = useMemo(() => (partner ? (partner.categorySlug + ":" + partner.id) : ""), [partner]);
-  const categories = useMemo(() => Object.entries(CATEGORY_PARTNERS).map(([slug, data]) => ({ slug, label: data.label })), []);
+  const categories: { slug: string; label: string }[] = [];
 
   const initial = useMemo(() => {
     const off = partner?.minCredits ?? 8;

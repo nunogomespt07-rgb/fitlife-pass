@@ -120,6 +120,16 @@ export function getCustomersCollection() {
   return getDb().then((db) => db.collection<CustomerDocument>("customers"));
 }
 
+/** Coleção Mongoose `users` — fonte de verdade dos clientes registados na API Express. */
+export function getUsersCollection() {
+  return getDb().then((db) => db.collection("users"));
+}
+
+/** Reservas `SportBooking` na API Express (nome plural Mongoose). */
+export function getSportBookingsCollection() {
+  return getDb().then((db) => db.collection("sportbookings"));
+}
+
 /** DB document shape for customers collection */
 export type CustomerDocument = {
   _id?: unknown;

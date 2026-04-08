@@ -40,20 +40,18 @@ export type UnifiedReservation = {
 
 const STORAGE_KEY_PREFIX = "fitlife-unified-reservations";
 const STORAGE_KEY_PURCHASED_PREFIX = "fitlife-purchased-credits";
-const STORAGE_KEY = "fitlife-unified-reservations";
-const STORAGE_KEY_PURCHASED_CREDITS = "fitlife-purchased-credits";
-const OLD_KEY_ACTIVITY = "fitlife-reservations";
-const OLD_KEY_ACTIVITY_HISTORY = "fitlife-history";
-const OLD_KEY_RESTAURANT = "fitlife-restaurant-reservations";
-const OLD_KEY_RESTAURANT_HISTORY = "fitlife-restaurant-history";
-const DEFAULT_CREDITS = 0;
-const CANCELLATION_REFUND_HOURS = 12;
+/** Base neutra para cálculos locais (nunca confundir com saldo real da API). */
+const UNIFIED_LOCAL_CREDIT_BASELINE = 0;
 /** Gym QR / access valid for 8 hours from creation. */
 export const GYM_ACCESS_VALID_HOURS = 8;
-/** Minimum hours before scheduled start to allow cancellation. */
-export const CANCELLATION_MIN_HOURS_BEFORE = 6;
-/** Max cancellations per user per calendar month. */
+/** Minimum hours before scheduled start to allow cancellation (unless grace window applies). */
+export const CANCELLATION_MIN_HOURS_BEFORE = 12;
+/** Cancel allowed within this many minutes after booking, regardless of start time. */
+export const CANCELLATION_GRACE_MINUTES_AFTER_BOOK = 5;
+/** Max cancellations per user per calendar month (enforced). */
 export const MONTHLY_CANCELLATION_LIMIT = 3;
+/** Max confirmed reservations per calendar day per user (enforced). */
+export const MAX_RESERVATIONS_PER_DAY = 2;
 
 const CANCELLATION_COUNT_KEY_PREFIX = "fitlife-cancellation-count";
 
@@ -153,13 +151,13 @@ export function getScheduledDateTime(reservation: Pick<UnifiedReservation, "date
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
+/**
+ * Refund credits only if cancellation is allowed and credits were used (activity/gym/restaurant credits mode).
+ */
 export function canRefundOnCancellation(reservation: UnifiedReservation, now: Date = new Date()): boolean {
-  if (reservation.type !== "activity") return false;
   if (reservation.creditsUsed <= 0) return false;
-  const scheduled = getScheduledDateTime(reservation);
-  if (!scheduled) return false;
-  const diffMs = scheduled.getTime() - now.getTime();
-  return diffMs >= CANCELLATION_REFUND_HOURS * 60 * 60 * 1000;
+  if (reservation.type === "restaurant" && reservation.bookingMode === "discount") return false;
+  return canCancelReservation(reservation, now);
 }
 
 /** True if gym reservation is past 8h from createdAt (QR no longer valid). */
@@ -213,132 +211,67 @@ export function getReservationStatus(
   return "confirmed";
 }
 
-/** True if user can cancel (at least CANCELLATION_MIN_HOURS_BEFORE before start). */
+function withinGraceAfterBooking(reservation: UnifiedReservation, now: Date): boolean {
+  const created = new Date(reservation.createdAt);
+  if (Number.isNaN(created.getTime())) return false;
+  const graceMs = CANCELLATION_GRACE_MINUTES_AFTER_BOOK * 60 * 1000;
+  return now.getTime() - created.getTime() <= graceMs;
+}
+
+/** True if user can cancel: ≥12h before start OR within 5 min of booking. */
 export function canCancelReservation(reservation: UnifiedReservation, now: Date = new Date()): boolean {
   if (reservation.status !== "confirmed") return false;
-  if (reservation.type === "gym") return !isGymQrExpired(reservation, now);
+
+  if (withinGraceAfterBooking(reservation, now)) return true;
+
+  if (reservation.type === "gym") {
+    const scheduled = getScheduledDateTime(reservation);
+    if (!scheduled) return !isGymQrExpired(reservation, now);
+    const diffMs = scheduled.getTime() - now.getTime();
+    return diffMs >= CANCELLATION_MIN_HOURS_BEFORE * 60 * 60 * 1000;
+  }
+
   const scheduled = getScheduledDateTime(reservation);
   if (!scheduled) return true;
   const diffMs = scheduled.getTime() - now.getTime();
   return diffMs >= CANCELLATION_MIN_HOURS_BEFORE * 60 * 60 * 1000;
 }
 
-/** Migrate from legacy separate stores into unified list. */
-function migrateFromLegacy(): UnifiedReservation[] {
-  const activityRaw = safeParse<Array<{ id: string; partnerId: string; partnerName: string; date: string; time: string; creditsRequired?: number; activityId?: string; activityTitle?: string; categorySlug?: string; location?: string; participantCount?: number }>>(OLD_KEY_ACTIVITY, []);
-  const activityHistoryRaw = safeParse<Array<{ id: string; partnerId: string; partnerName: string; date: string; time: string; creditsRequired?: number; activityId?: string; activityTitle?: string; categorySlug?: string; location?: string; participantCount?: number; status: string }>>(OLD_KEY_ACTIVITY_HISTORY, []);
-  const restaurantRaw = safeParse<Array<{ id: string; restaurantId: string; restaurantName: string; date: string; time: string; userName?: string; discountLabel?: string; partySize?: number }>>(OLD_KEY_RESTAURANT, []);
-  const restaurantHistoryRaw = safeParse<Array<{ id: string; restaurantId: string; restaurantName: string; date: string; time: string; userName?: string; discountLabel?: string; partySize?: number; status: string }>>(OLD_KEY_RESTAURANT_HISTORY, []);
-
-  const list: UnifiedReservation[] = [];
-  const now = new Date().toISOString();
-
-  activityRaw.forEach((r) => {
-    list.push({
-      id: r.id,
-      partnerId: r.partnerId,
-      partnerName: r.partnerName,
-      type: "activity",
-      date: r.date,
-      time: r.time,
-      people: (r as { participantCount?: number }).participantCount ?? 1,
-      peopleLabel: (r as { participantCount?: number }).participantCount != null ? "jogadores" : "pessoas",
-      creditsUsed: r.creditsRequired ?? 0,
-      status: "confirmed",
-      createdAt: now,
-      activityId: r.activityId,
-      activityTitle: r.activityTitle,
-      categorySlug: r.categorySlug,
-      location: r.location,
-    });
-  });
-
-  activityHistoryRaw.forEach((r) => {
-    const status: ReservationStatus =
-      r.status === "concluída" ? "completed" : r.status === "cancelada" ? "cancelled" : "completed";
-    list.push({
-      id: `${r.id}-hist-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
-      partnerId: r.partnerId,
-      partnerName: r.partnerName,
-      type: "activity",
-      date: r.date,
-      time: r.time,
-      people: (r as { participantCount?: number }).participantCount ?? 1,
-      peopleLabel: (r as { participantCount?: number }).participantCount != null ? "jogadores" : "pessoas",
-      creditsUsed: r.creditsRequired ?? 0,
-      creditsRefunded: r.status === "cancelada" ? true : false,
-      status,
-      createdAt: now,
-      activityId: r.activityId,
-      activityTitle: r.activityTitle,
-      categorySlug: r.categorySlug,
-      location: r.location,
-    });
-  });
-
-  restaurantRaw.forEach((r) => {
-    list.push({
-      id: r.id,
-      partnerId: r.restaurantId,
-      partnerName: r.restaurantName,
-      type: "restaurant",
-      date: r.date,
-      time: r.time,
-      people: r.partySize ?? 1,
-      peopleLabel: "pessoas",
-      creditsUsed: 0,
-      bookingMode: "discount",
-      status: "confirmed",
-      createdAt: now,
-      discountLabel: r.discountLabel,
-      restaurantId: r.restaurantId,
-      userName: r.userName,
-    });
-  });
-
-  restaurantHistoryRaw.forEach((r) => {
-    const status: ReservationStatus = r.status === "cancelada" ? "cancelled" : "completed";
-    list.push({
-      id: `${r.id}-hist-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
-      partnerId: r.restaurantId,
-      partnerName: r.restaurantName,
-      type: "restaurant",
-      date: r.date,
-      time: r.time,
-      people: r.partySize ?? 1,
-      peopleLabel: "pessoas",
-      creditsUsed: 0,
-      bookingMode: "discount",
-      status,
-      createdAt: now,
-      discountLabel: r.discountLabel,
-      restaurantId: r.restaurantId,
-      userName: r.userName,
-    });
-  });
-
-  return list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+/** Normalize reservation `date` to YYYY-MM-DD for counting. */
+export function normalizeReservationDateYMD(r: Pick<UnifiedReservation, "date">): string {
+  const d = r.date.trim();
+  if (d.includes("/")) {
+    const parts = d.split("/");
+    if (parts.length >= 3) {
+      const [dd, mm, yy] = parts;
+      return `${yy}-${String(mm).padStart(2, "0")}-${String(dd).padStart(2, "0")}`;
+    }
+  }
+  return d.slice(0, 10);
 }
 
+/** Confirmed reservations on a given calendar day (YYYY-MM-DD). */
+export function countConfirmedReservationsOnCalendarDay(
+  reservations: UnifiedReservation[],
+  calendarDayYMD: string
+): number {
+  const target = calendarDayYMD.slice(0, 10);
+  return reservations.filter((r) => {
+    if (r.status !== "confirmed") return false;
+    return normalizeReservationDateYMD(r) === target;
+  }).length;
+}
+
+/**
+ * Lista unificada em localStorage (apenas visitante / sem JWT).
+ * Sem migração de chaves globais nem merge com dados de servidor — evita reservas demo em contas reais.
+ */
 export function getStoredUnifiedReservations(userId: string | null): UnifiedReservation[] {
   const key = getReservationsKey(userId);
   if (key == null) return [];
   const raw = safeParse<UnifiedReservation[] | null>(key, null);
   if (raw != null && Array.isArray(raw)) {
     return raw;
-  }
-  // One-time migration (legacy): if this user has no data but global key has data, migrate to user key (first user on device).
-  // IMPORTANT: do NOT auto-migrate into authenticated (email-based) users — it can contaminate accounts across logins/devices.
-  if (typeof userId === "string" && userId.includes("@")) {
-    return [];
-  }
-  const globalRaw = safeParse<UnifiedReservation[] | null>(STORAGE_KEY, null);
-  if (globalRaw != null && Array.isArray(globalRaw) && globalRaw.length > 0) {
-    safeSet(key, globalRaw);
-    try {
-      if (typeof window !== "undefined") window.localStorage.removeItem(STORAGE_KEY);
-    } catch {}
-    return globalRaw;
   }
   return [];
 }
@@ -379,22 +312,17 @@ export function getActiveReservationCount(reservations: UnifiedReservation[]): n
   }).length;
 }
 
-/** Single source of truth for credit balance: purchased - used (activity/gym, excluding refunded). No double debit; no refund for no_show. */
+/**
+ * Saldo disponível = valor em carteira (`credits` em localStorage), já debitado em cada reserva.
+ * `reservations` mantém-se para histórico / reembolsos; não subtrair de novo aqui (evita dupla dedução).
+ */
 export function getCreditsFromUnified(
-  reservations: UnifiedReservation[],
+  _reservations: UnifiedReservation[],
   purchasedCredits: number
 ): number {
-  const used = reservations
-    .filter(
-      (r) =>
-        (r.type === "activity" || r.type === "gym") &&
-        r.creditsUsed > 0 &&
-        r.creditsRefunded !== true
-    )
-    .reduce((sum, r) => sum + r.creditsUsed, 0);
-  return Math.max(0, purchasedCredits - used);
+  return Math.max(0, Math.floor(purchasedCredits));
 }
 
 export function getDefaultCredits(): number {
-  return DEFAULT_CREDITS;
+  return UNIFIED_LOCAL_CREDIT_BASELINE;
 }

@@ -1,8 +1,9 @@
 import type { MockActivity } from "@/lib/activitiesData";
-import { activityDateToISO } from "@/lib/activitiesData";
 
 export type PublicSession = {
   id: string;
+  _id?: string;
+  activityId?: string;
   partnerId: string;
   /** Public-facing title (class name / session name). */
   name: string;
@@ -90,46 +91,38 @@ export function addDays(ymd: string, days: number): string {
   return isoYMD(d);
 }
 
-/**
- * Customer app integration: get public sessions for this partner
- * within [minISO, maxISO] inclusive (by week buckets).
- */
-export function getPublicSessionsForPartnerRange(params: {
+/** Get public sessions for partner range from backend. */
+export async function getPublicSessionsForPartnerRange(params: {
   partnerId: string;
   minISO: string;
   maxISO: string;
-}): PublicSession[] {
-  const { partnerId, minISO, maxISO } = params;
-  const minWeek = isoYMD(startOfWeekMonday(new Date(minISO + "T12:00:00")));
-  const maxWeek = isoYMD(startOfWeekMonday(new Date(maxISO + "T12:00:00")));
-  const weeks: string[] = [];
-  let w = minWeek;
-  while (w <= maxWeek) {
-    weeks.push(w);
-    w = addDays(w, 7);
+}): Promise<PublicSession[]> {
+  try {
+    const { partnerId, minISO, maxISO } = params;
+    const res = await fetch(
+      `/api/backoffice/public-availability?partnerId=${encodeURIComponent(partnerId)}&minISO=${encodeURIComponent(minISO)}&maxISO=${encodeURIComponent(maxISO)}`
+    );
+    if (!res.ok) return [];
+    return await res.json();
+  } catch {
+    return [];
   }
-
-  const out: PublicSession[] = [];
-  for (const weekStartISO of weeks) {
-    const av = getStoredPublicWeekAvailability(partnerId, weekStartISO);
-    if (!av) continue;
-    for (const s of av.sessions) {
-      if (s.dateISO >= minISO && s.dateISO <= maxISO) out.push(s);
-    }
-  }
-  return out.sort((a, b) => (a.dateISO + a.time).localeCompare(b.dateISO + b.time));
 }
 
 /** Convert public sessions to MockActivity for existing UI/booking flows. */
 export function publicSessionsToMockActivities(sessions: PublicSession[]): MockActivity[] {
-  return sessions.map((s, idx) => {
+  return sessions.map((s) => {
+    const uiId = String(s.id).trim();
+    const backendActivityId = s.activityId ? String(s.activityId).trim() : undefined;
     const dateDMY = (() => {
       // Convert ISO to DD/MM/YYYY for existing display (MockActivity.date)
       const [y, m, d] = s.dateISO.split("-");
       return `${d}/${m}/${y}`;
     })();
     const act: MockActivity = {
-      id: s.id || `pub-${idx}-${Date.now()}`,
+      id: uiId,
+      _id: s._id ?? null,
+      activityId: backendActivityId,
       title: s.name,
       date: dateDMY,
       time: s.time,
@@ -152,6 +145,7 @@ export function publicSessionsToMockActivities(sessions: PublicSession[]): MockA
             }
           : undefined,
     };
+    console.log("CREATED ACT", act.id, act._id);
     return act;
   });
 }

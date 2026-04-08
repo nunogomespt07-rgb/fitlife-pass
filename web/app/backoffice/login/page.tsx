@@ -8,10 +8,23 @@ import { getAllPartnersWithCategory } from "@/lib/activitiesData";
 
 export default function BackofficeLoginPage() {
   const router = useRouter();
-  const partners = useMemo(() => getAllPartnersWithCategory(), []);
-  const [partnerId, setPartnerId] = useState<string>(partners[0]?.id ?? "");
+  const [partners, setPartners] = useState<import("@/lib/activitiesData").PartnerWithCategory[]>([]);
+  const [partnerId, setPartnerId] = useState<string>("");
   const [pin, setPin] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    getAllPartnersWithCategory().then((p) => {
+      if (alive) {
+        setPartners(p);
+        if (!partnerId && p[0]?.id) setPartnerId(p[0].id);
+      }
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!partnerId && partners[0]?.id) setPartnerId(partners[0].id);

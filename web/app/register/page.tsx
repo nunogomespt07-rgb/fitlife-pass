@@ -6,7 +6,13 @@ import Link from "next/link";
 import { signIn } from "next-auth/react";
 import GlassCard from "../components/ui/GlassCard";
 import PrimaryButton from "../components/ui/PrimaryButton";
-import { setStoredUser } from "@/lib/storedUser";
+import { replaceStoredUser, splitFullName } from "@/lib/storedUser";
+import { clearFitlifeLocalDemoCaches } from "@/lib/clearClientSession";
+import {
+  clearWalletCreditsLocalStorage,
+  mirrorWalletCreditsAfterAuth,
+  writeWalletCreditsToLocalStorage,
+} from "@/lib/walletCredits";
 import { COUNTRIES } from "@/lib/countries";
 
 export default function RegisterPage() {
@@ -42,18 +48,31 @@ export default function RegisterPage() {
         setLoading(false);
         return;
       }
+      // Extrair firstName e lastName do campo name
+      const full = name.trim();
+      const { firstName, lastName } = splitFullName(full);
+      const composedName = `${firstName} ${lastName}`.trim() || full;
+      // Adicionar birthDate (exemplo: YYYY-MM-DD, pode ser ajustado conforme input real)
+      // NOTA: birthDate precisa ser adicionado ao formulário real se não existir
+      const birthDate = ""; // TODO: obter do input real
+      const payload = {
+        firstName,
+        lastName,
+        name: composedName,
+        email: email.trim().toLowerCase(),
+        password,
+        country: country.trim() || null,
+        phone: phone.trim() || null,
+        birthDate: birthDate.trim() || null,
+      };
+      console.log("[REGISTO] Payload enviado:", payload);
       const res = await fetch(`${base}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: name.trim(),
-          email: email.trim().toLowerCase(),
-          password,
-          country: country.trim() || null,
-          phone: phone.trim() || null,
-        }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json().catch(() => ({} as Record<string, unknown>));
+      console.log("[REGISTO] Resposta da API:", data);
 
       if (!res.ok) {
         const msg = data && typeof data === "object" && typeof (data as { message?: string }).message === "string"
@@ -73,33 +92,70 @@ export default function RegisterPage() {
         return;
       }
 
-      // Auto-login via NextAuth Credentials (preferred)
       const emailVal = email.trim().toLowerCase();
-      const loginResult = await signIn("credentials", {
+      const regUser = data as {
+        token?: string;
+        user?: { id?: string; name?: string; email?: string; credits?: number };
+      };
+      const token =
+        typeof regUser.token === "string" && regUser.token.trim() ? regUser.token.trim() : "";
+      const mongoId =
+        regUser.user?.id != null ? String(regUser.user.id).trim() : "";
+      if (!token) {
+        setError("Conta criada mas resposta sem token. Entra com o teu email.");
+        return;
+      }
+      if (!mongoId) {
+        setError("Conta criada mas resposta sem id de utilizador. Entra com o teu email.");
+        return;
+      }
+
+      const credits = mirrorWalletCreditsAfterAuth(regUser.user?.credits);
+      clearFitlifeLocalDemoCaches();
+      clearWalletCreditsLocalStorage();
+      writeWalletCreditsToLocalStorage(credits);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("token", token);
+      }
+
+      const full = name.trim();
+      const { firstName, lastName } = splitFullName(full);
+      const composedName = `${firstName} ${lastName}`.trim() || full;
+      replaceStoredUser({
+        id: mongoId,
+        name: composedName,
+        email: emailVal,
+        firstName: firstName || null,
+        lastName: lastName || null,
+        phone: phone.trim() || null,
+        country: country.trim() || null,
+        credits,
+        acceptedTerms: true,
+        subscriptionPlanId: null,
+        subscriptionPlanName: null,
+        pendingPlanId: null,
+        pendingPlanName: null,
+        onboardingCompleted: false,
+      });
+
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("fitlife-auth-changed"));
+        window.dispatchEvent(new Event("fitlife-user-updated"));
+      }
+
+      try {
+        (document.activeElement as HTMLElement | null)?.blur?.();
+      } catch {}
+
+      // NextAuth credentials (opcional); JWT já está em localStorage.
+      await signIn("credentials", {
         email: emailVal,
         password,
         redirect: false,
       });
-      if (loginResult?.ok) {
-        // iOS Safari: avoid "stuck zoom" by blurring focused inputs before navigation.
-        try {
-          (document.activeElement as HTMLElement | null)?.blur?.();
-        } catch {}
-        // Persist optional profile fields entered during registration so Profile can show them.
-        try {
-          setStoredUser({
-            id: "",
-            name: name.trim(),
-            email: emailVal,
-            country: country.trim() || null,
-            phone: phone.trim() || null,
-          });
-        } catch {}
-        router.push("/dashboard");
-        return;
-      }
 
-      setError("Conta criada, mas não foi possível iniciar sessão automaticamente. Entra com o teu email.");
+      router.push("/dashboard");
+      return;
     } catch (e) {
       const msg = e instanceof Error ? e.message : "";
       const isNetwork =

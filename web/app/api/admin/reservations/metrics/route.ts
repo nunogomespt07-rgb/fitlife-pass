@@ -1,10 +1,29 @@
 import { NextRequest } from "next/server";
 import { requireAdmin } from "@/lib/adminApiAuth";
 import { readReservations } from "@/lib/adminDataServer";
+import {
+  fetchAdminBackend,
+  resolveAdminBackendBase,
+} from "@/lib/adminBackendProxy";
 
 export async function GET(req: NextRequest) {
   const unauth = requireAdmin(req);
   if (unauth) return unauth;
+
+  const base = resolveAdminBackendBase();
+  const secret = process.env.ADMIN_API_SECRET?.trim() ?? "";
+  if (base && secret) {
+    try {
+      const upstream = await fetchAdminBackend(`/admin/reservations/metrics${req.nextUrl.search}`);
+      const text = await upstream.text();
+      return new Response(text, {
+        status: upstream.status,
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (e) {
+      console.error("[api/admin/reservations/metrics] proxy", e);
+    }
+  }
 
   const reservations = await readReservations();
   const now = new Date();

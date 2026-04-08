@@ -1,50 +1,77 @@
 import { NextRequest } from "next/server";
 import { requireAdmin } from "@/lib/adminApiAuth";
-import { readCustomerState } from "@/lib/adminDataServer";
+import {
+  fetchAdminBackend,
+  resolveAdminBackendBase,
+} from "@/lib/adminBackendProxy";
 
-export async function GET(req: NextRequest) {
-  const unauth = requireAdmin(req);
+const EMPTY_METRICS = {
+  success: false as const,
+  metrics: {
+    totalUsers: 0,
+    newToday: 0,
+    newWeek: 0,
+    newMonth: 0,
+    withPlan: 0,
+    withoutPlan: 0,
+    activeUsers: 0,
+  },
+  totalUsers: 0,
+  newToday: 0,
+  newWeek: 0,
+  newMonth: 0,
+  withPlan: 0,
+  withoutPlan: 0,
+  activeUsers: 0,
+};
+
+/**
+ * GET /api/admin/customers/metrics → Express GET /admin/customers/metrics
+ */
+export async function GET(_req: NextRequest) {
+  const unauth = requireAdmin(_req);
   if (unauth) return unauth;
 
-  const store = await readCustomerState();
-  const keys = Object.keys(store).filter((k) => k.startsWith("u:"));
-  const totalUsers = keys.length;
+  const base = resolveAdminBackendBase();
+  const secret = process.env.ADMIN_API_SECRET?.trim() ?? "";
 
-  const now = new Date();
-  const todayStart = now.toISOString().slice(0, 10);
-  const weekStart = new Date(now);
-  weekStart.setDate(now.getDate() - now.getDay());
-  const weekStartStr = weekStart.toISOString().slice(0, 10);
-  const monthStart = now.toISOString().slice(0, 7);
-
-  let newToday = 0;
-  let newWeek = 0;
-  let newMonth = 0;
-  let withPlan = 0;
-  let withoutPlan = 0;
-
-  for (const key of keys) {
-    const state = store[key];
-    const createdAt = (state as { createdAt?: string })?.createdAt;
-    if (createdAt) {
-      const d = createdAt.slice(0, 10);
-      if (d >= todayStart) newToday++;
-      if (d >= weekStartStr) newWeek++;
-      if (d.slice(0, 7) >= monthStart) newMonth++;
-    } else {
-      newMonth++;
-    }
-    if (state?.subscriptionPlanId || state?.subscriptionPlanName) withPlan++;
-    else withoutPlan++;
+  if (!base) {
+    return Response.json(
+      {
+        ...EMPTY_METRICS,
+        message:
+          "Define BACKEND_API_URL no servidor Next para proxy admin → Express.",
+      },
+      { status: 503 }
+    );
   }
 
-  return Response.json({
-    totalUsers,
-    newToday,
-    newWeek,
-    newMonth,
-    withPlan,
-    withoutPlan,
-    activeUsers: totalUsers,
-  });
+  if (!secret) {
+    return Response.json(
+      {
+        ...EMPTY_METRICS,
+        message:
+          "Define ADMIN_API_SECRET no Next (igual ao Express). O proxy envia o header x-admin-secret.",
+      },
+      { status: 503 }
+    );
+  }
+
+  try {
+    const upstream = await fetchAdminBackend("/admin/customers/metrics");
+    const text = await upstream.text();
+    return new Response(text, {
+      status: upstream.status,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (e) {
+    console.error("[admin/customers/metrics] proxy", e);
+    return Response.json(
+      {
+        ...EMPTY_METRICS,
+        message: e instanceof Error ? e.message : "Proxy falhou",
+      },
+      { status: 502 }
+    );
+  }
 }

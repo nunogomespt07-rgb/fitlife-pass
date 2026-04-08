@@ -16,12 +16,15 @@ function internalErrorPayload(message, err) {
 // ✅ REGISTER — create user, then create session (JWT) and return success
 exports.register = async (req, res) => {
   try {
-    const name = (req.body.name || "").trim();
+    // Extrair e validar campos obrigatórios
+    const firstName = (req.body.firstName || "").trim();
+    const lastName = (req.body.lastName || "").trim();
     const email = (req.body.email || "").trim().toLowerCase();
     const password = (req.body.password || "").trim();
+    const birthDate = (req.body.birthDate || "").trim();
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: "Faltam dados (name, email, password)." });
+    if (!firstName || !lastName || !email || !password || !birthDate) {
+      return res.status(400).json({ message: "Faltam dados obrigatórios (firstName, lastName, email, password, birthDate)." });
     }
 
     const exists = await User.findOne({ email });
@@ -29,12 +32,42 @@ exports.register = async (req, res) => {
       return res.status(409).json({ message: "Este email já está em utilização." });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Extrair opcionais
+    const phoneCountryCode = req.body.phoneCountryCode || null;
+    const phone = req.body.phone || null;
+    const country = req.body.country || null;
+    const address = req.body.address || null;
+    const city = req.body.city || null;
+    const postalCode = req.body.postalCode || null;
+    const documentId = req.body.documentId || null;
+    const gender = req.body.gender || null;
+    const fitnessGoal = req.body.fitnessGoal || null;
+
+    // Derivar name
+    const name = `${firstName} ${lastName}`.trim();
 
     const user = await User.create({
+      firstName,
+      lastName,
       name,
       email,
-      password: hashedPassword,
+      password,
+      birthDate,
+      phoneCountryCode,
+      phone,
+      country,
+      address,
+      city,
+      postalCode,
+      documentId,
+      gender,
+      fitnessGoal,
+      credits: 0,
+      plan: null,
+      planStatus: null,
+      planRenewAt: null,
+      creditsPeriodKey: null,
+      interests: [],
     });
 
     if (!process.env.JWT_SECRET) {
@@ -45,10 +78,30 @@ exports.register = async (req, res) => {
       expiresIn: "7d",
     });
 
+    const u = await User.findById(user._id).select("-password");
     return res.status(201).json({
       success: true,
       token,
-      user: { id: user._id, name: user.name, email: user.email },
+      user: {
+        id: String(u._id),
+        firstName: u.firstName,
+        lastName: u.lastName,
+        name: u.name,
+        email: u.email,
+        birthDate: u.birthDate,
+        phoneCountryCode: u.phoneCountryCode,
+        phone: u.phone,
+        country: u.country,
+        address: u.address,
+        city: u.city,
+        postalCode: u.postalCode,
+        documentId: u.documentId,
+        gender: u.gender,
+        fitnessGoal: u.fitnessGoal,
+        credits: typeof u.credits === "number" ? Math.max(0, Math.floor(u.credits)) : 0,
+        plan: u.plan ?? null,
+        reservations: [],
+      },
     });
   } catch (err) {
     return res.status(500).json(internalErrorPayload("Erro no registo", err));
@@ -86,7 +139,14 @@ exports.login = async (req, res) => {
     return res.json({
       message: "Login OK",
       token,
-      user: { id: user._id, name: user.name, email: user.email },
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        credits: Math.max(0, Math.floor(user.credits != null ? user.credits : 0)),
+        plan: user.plan ?? null,
+        planStatus: user.planStatus ?? null,
+      },
     });
   } catch (err) {
     return res.status(500).json(internalErrorPayload("Erro no login", err));
@@ -122,18 +182,27 @@ exports.googleOAuth = async (req, res) => {
     }
 
     // cria ou atualiza utilizador pelo email
+    const displayName = (typeof name === "string" && name.trim()) ? name.trim() : "Utilizador";
+
     const user = await User.findOneAndUpdate(
       { email },
       {
         $set: {
-          name: name || email.split("@")[0],
+          name: displayName,
           email,
           image: image || null,
           provider: "google",
         },
+        $setOnInsert: {
+          credits: 0,
+          plan: null,
+          planStatus: null,
+          planRenewAt: null,
+          creditsPeriodKey: null,
+        },
       },
       { new: true, upsert: true }
-    );
+    ).select("-password");
 
     if (!process.env.JWT_SECRET) {
       return res.status(500).json({ ok: false, message: "JWT_SECRET não definido no .env" });
@@ -143,7 +212,17 @@ exports.googleOAuth = async (req, res) => {
       expiresIn: "7d",
     });
 
-    return res.json({ ok: true, token, user });
+    return res.json({
+      ok: true,
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        credits: typeof user.credits === "number" ? user.credits : 0,
+        plan: user.plan ?? null,
+      },
+    });
   } catch (err) {
     console.error("googleOAuth error:", err);
     return res.status(500).json({ ok: false, message: "Erro no servidor" });

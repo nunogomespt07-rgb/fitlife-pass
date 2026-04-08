@@ -3,10 +3,29 @@ import { requireAdmin } from "@/lib/adminApiAuth";
 import { getAllPartnersWithCategory } from "@/lib/activitiesData";
 import { readReservations } from "@/lib/adminDataServer";
 import { partnerPayoutFromTotal, revenueFromCredits } from "@/lib/adminFinanceConfig";
+import {
+  fetchAdminBackend,
+  resolveAdminBackendBase,
+} from "@/lib/adminBackendProxy";
 
 export async function GET(req: NextRequest) {
   const unauth = requireAdmin(req);
   if (unauth) return unauth;
+
+  const base = resolveAdminBackendBase();
+  const secret = process.env.ADMIN_API_SECRET?.trim() ?? "";
+  if (base && secret) {
+    try {
+      const upstream = await fetchAdminBackend(`/admin/partners${req.nextUrl.search}`);
+      const text = await upstream.text();
+      return new Response(text, {
+        status: upstream.status,
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (e) {
+      console.error("[api/admin/partners/list] proxy", e);
+    }
+  }
 
   const { searchParams } = req.nextUrl;
   const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10));
@@ -16,7 +35,7 @@ export async function GET(req: NextRequest) {
   const category = searchParams.get("category") ?? "";
   const sort = searchParams.get("sort") ?? "name";
 
-  const partners = getAllPartnersWithCategory();
+  const partners = await getAllPartnersWithCategory();
   const reservations = await readReservations();
 
   const resCountByPartner: Record<string, number> = {};

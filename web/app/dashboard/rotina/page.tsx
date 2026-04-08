@@ -209,10 +209,11 @@ export default function DashboardRotinaPage() {
         continue;
       }
       if (s.kind === "gym") {
-        const result = addGymReservation({
+        const result = await addGymReservation({
           partnerId: s.partnerId,
           partnerName: s.partnerName,
           creditsRequired: s.credits,
+          activityId: String(s.activityId ?? "").trim(),
         });
         execResults.push({
           sessionId: sid,
@@ -220,8 +221,8 @@ export default function DashboardRotinaPage() {
           error: result.success ? undefined : result.error ?? "Erro ao reservar.",
         });
       } else {
-        const result = addReservation({
-          activityId: s.activityId ?? "",
+        const result = await addReservation({
+          activityId: String(s.activityId ?? "").trim(),
           activityTitle: s.activityTitle,
           partnerId: s.partnerId,
           partnerName: s.partnerName,
@@ -230,6 +231,7 @@ export default function DashboardRotinaPage() {
           time: s.time,
           creditsRequired: s.credits,
           location: s.location,
+          activitySpots: s.activitySpots,
         });
         execResults.push({
           sessionId: sid,

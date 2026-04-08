@@ -44,7 +44,7 @@ function sessionId(partnerId: string, base: string): string {
   return `${partnerId}-${base}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
-function buildDefaultSchedule(partner: PartnerWithCategory, weekStartISO: string): BackofficeWeekSchedule {
+async function buildDefaultSchedule(partner: PartnerWithCategory, weekStartISO: string): Promise<BackofficeWeekSchedule> {
   const nowISO = new Date().toISOString();
   const sessions: BackofficeSession[] = [];
 
@@ -73,7 +73,7 @@ function buildDefaultSchedule(partner: PartnerWithCategory, weekStartISO: string
     return { partnerId: partner.id, weekStartISO, sessions, updatedAt: nowISO };
   }
 
-  const acts = getMockActivitiesForPartner(partner.id);
+  const acts = await getMockActivitiesForPartner(partner.id);
   // Use first occurrence of each weekday+time+title within next 7 days to seed schedule.
   const seen = new Set<string>();
   for (const act of acts) {
@@ -142,7 +142,7 @@ function buildDefaultSchedule(partner: PartnerWithCategory, weekStartISO: string
 }
 
 export default function BackofficeAgendaPage() {
-  const allPartners = useMemo(() => getAllPartnersWithCategory(), []);
+  const [allPartners, setAllPartners] = useState<PartnerWithCategory[]>([]);
   const [partnerId, setPartnerId] = useState<string | null>(null);
   const [weekStartISO, setWeekStartISO] = useState(() => {
     const d = startOfWeekMonday(new Date());
@@ -152,6 +152,16 @@ export default function BackofficeAgendaPage() {
   const [schedule, setSchedule] = useState<BackofficeWeekSchedule | null>(null);
   const [dirty, setDirty] = useState(false);
   const [savedMsg, setSavedMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    getAllPartnersWithCategory().then((p) => {
+      if (alive) setAllPartners(p);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const partner = useMemo(
     () => (partnerId ? allPartners.find((p) => p.id === partnerId) ?? null : null),
@@ -173,18 +183,20 @@ export default function BackofficeAgendaPage() {
 
   useEffect(() => {
     if (!partnerId) return;
-    const existing = getStoredWeekSchedule(partnerId, weekStartISO);
-    if (existing) {
-      setSchedule(existing);
+    (async () => {
+      const existing = await getStoredWeekSchedule(partnerId, weekStartISO);
+      if (existing) {
+        setSchedule(existing);
+        setDirty(false);
+        return;
+      }
+      const p = allPartners.find((x) => x.id === partnerId);
+      if (!p) return;
+      const seeded = await buildDefaultSchedule(p, weekStartISO);
+      setStoredWeekSchedule(seeded);
+      setSchedule(seeded);
       setDirty(false);
-      return;
-    }
-    const p = allPartners.find((x) => x.id === partnerId);
-    if (!p) return;
-    const seeded = buildDefaultSchedule(p, weekStartISO);
-    setStoredWeekSchedule(seeded);
-    setSchedule(seeded);
-    setDirty(false);
+    })();
   }, [partnerId, weekStartISO, allPartners]);
 
   const daySessions = useMemo(() => {

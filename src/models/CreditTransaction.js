@@ -28,6 +28,7 @@ const creditTransactionSchema = new mongoose.Schema(
         "BOOKING_DEBIT",
         "BOOKING_REFUND",
         "EXPIRATION",
+        "CREDIT_RESET",
       ],
       required: true,
     },
@@ -36,9 +37,19 @@ const creditTransactionSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    balanceBefore: {
+      type: Number,
+      default: null,
+    },
     balanceAfter: {
       type: Number,
       required: true,
+    },
+    booking: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SportBooking",
+      default: null,
+      index: true,
     },
     // For grant-like movements, tracks how many credits are still available in this lot.
     remaining: {

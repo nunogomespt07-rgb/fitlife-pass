@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { CATEGORY_PARTNERS } from "../../../../lib/activitiesData";
+import { useEffect, useState } from "react";
 import GlassCard from "../../../components/ui/GlassCard";
 import PrimaryButton from "../../../components/ui/PrimaryButton";
 import FavoriteButton from "../../../components/ui/FavoriteButton";
@@ -15,24 +15,41 @@ export default function ActivityCategoryPage() {
   const rawSlug = params.slug;
   const slug = Array.isArray(rawSlug) ? rawSlug[0] : rawSlug ?? "";
 
-  const category = CATEGORY_PARTNERS[slug];
-
   const { toggleActivityPartner, isActivityPartnerFavorite } = useFavorites();
+  const [partners, setPartners] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  if (!category) {
+  useEffect(() => {
+    setLoading(true);
+    setError("");
+    fetch(`/api/partners`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Erro ao carregar parceiros");
+        return res.json();
+      })
+      .then((data) => {
+        const filtered = Array.isArray(data)
+          ? data.filter((p) => p.categorySlug === slug)
+          : [];
+        setPartners(filtered);
+      })
+      .catch(() => setError("Erro ao carregar parceiros."))
+      .finally(() => setLoading(false));
+  }, [slug]);
+
+  if (loading) {
     return (
-      <div className="page-bg text-white font-sans min-h-screen">
-        <div className="mx-auto max-w-4xl px-4 pb-24 pt-24 sm:px-6 lg:px-10">
-          <GlassCard variant="app" padding="lg">
-            <p className="text-sm font-medium text-white">Categoria não encontrada.</p>
-            <Link
-              href="/activities"
-              className="mt-4 inline-flex text-sm font-medium text-white/80 underline-offset-2 hover:underline"
-            >
-              ← Voltar às atividades
-            </Link>
-          </GlassCard>
-        </div>
+      <div className="text-white font-sans min-h-screen flex items-center justify-center">
+        <span>A carregar parceiros…</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-white font-sans min-h-screen flex items-center justify-center">
+        <span>{error}</span>
       </div>
     );
   }
@@ -50,7 +67,7 @@ export default function ActivityCategoryPage() {
         <div className="mt-8">
           <SectionHeader
             variant="app"
-            title={category.label}
+            title={slug.charAt(0).toUpperCase() + slug.slice(1)}
             subtitle={slug === "personal-training"
               ? "Escolhe um personal trainer para ver sessões e disponibilidade."
               : "Escolhe um parceiro para ver as atividades disponíveis."}
@@ -58,76 +75,59 @@ export default function ActivityCategoryPage() {
         </div>
 
         <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {category.partners.map((partner) => (
-            <GlassCard
-              key={partner.id}
-              variant="app"
-              padding="none"
-              hover
-              activityStyle
-              className="flex flex-col overflow-hidden transition duration-[180ms] hover:translate-y-[-2px]"
-            >
-              <div className="relative h-40 w-full overflow-hidden">
-                <Image
-                  src={partner.imageSrc}
-                  alt={partner.name}
-                  fill
-                  className="object-cover object-center"
-                  sizes="(max-width: 1024px) 100vw, 33vw"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#020617]/80 via-transparent to-transparent" />
-                <div className="absolute right-3 top-3">
-                  <FavoriteButton
-                    isFavorite={isActivityPartnerFavorite(slug, partner.id)}
-                    onToggle={() => toggleActivityPartner(slug, partner.id, category.label, partner.name)}
+          {partners.map((partner) => (
+            partner._id ? (
+              <GlassCard
+                key={partner._id}
+                variant="app"
+                padding="none"
+                hover
+                activityStyle
+                className="flex flex-col overflow-hidden transition duration-[180ms] hover:translate-y-[-2px]"
+              >
+                <div className="relative h-40 w-full overflow-hidden">
+                  <Image
+                    src={partner.imageSrc || partner.image}
+                    alt={partner.name}
+                    fill
+                    className="object-cover object-center"
+                    sizes="(max-width: 1024px) 100vw, 33vw"
                   />
-                </div>
-              </div>
-              <div className="flex flex-1 flex-col p-6">
-                <h3 className="app-card-title text-white">
-                  {partner.name}
-                </h3>
-                {slug === "personal-training" && partner.provider?.type === "trainer" && (
-                  <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/55">
-                    Personal Trainer
-                  </p>
-                )}
-                <p className="mt-1 text-[15px] font-medium text-white/70">
-                  {partner.location}
-                </p>
-                <p className="mt-3 flex-1 text-[13px] text-white/75">
-                  {partner.description}
-                </p>
-                {slug === "personal-training" && partner.provider?.type === "trainer" && partner.provider.specialties.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {partner.provider.specialties.slice(0, 3).map((s) => (
-                      <span
-                        key={s}
-                        className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-medium text-white/80"
-                      >
-                        {s}
-                      </span>
-                    ))}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#020617]/80 via-transparent to-transparent" />
+                  <div className="absolute right-3 top-3">
+                    <FavoriteButton
+                      isFavorite={isActivityPartnerFavorite(slug, partner._id)}
+                      onToggle={() => toggleActivityPartner(slug, partner._id, partner.categoryLabel || slug, partner.name)}
+                    />
                   </div>
-                )}
-                <div className="mt-4 flex flex-wrap items-center gap-3 text-[13px] text-white/80">
-                  <span>{partner.activitiesCount} atividades</span>
-                  <span className="text-white/50">·</span>
-                  <span>Desde {partner.minCredits} crédito{partner.minCredits !== 1 ? "s" : ""}</span>
                 </div>
-                <Link
-                  href={`/activities/categorias/${slug}/parceiros/${partner.id}`}
-                  className="mt-5 block"
-                >
-                  <PrimaryButton
-                    variant="appSecondary"
-                    className="w-full justify-center"
+                <div className="flex flex-1 flex-col p-6">
+                  <h3 className="app-card-title text-white">
+                    {partner.name}
+                  </h3>
+                  <p className="mt-1 text-[15px] font-medium text-white/70">
+                    {partner.city || partner.location}
+                  </p>
+                  <p className="mt-3 flex-1 text-[13px] text-white/75">
+                    {partner.description}
+                  </p>
+                  <div className="mt-4 flex flex-wrap items-center gap-3 text-[13px] text-white/80">
+                    {partner.activitiesCount && <span>{partner.activitiesCount} atividades</span>}
+                  </div>
+                  <Link
+                    href={`/activities/categorias/${slug}/parceiros/${partner._id}`}
+                    className="mt-5 block"
                   >
-                    Ver atividades
-                  </PrimaryButton>
-                </Link>
-              </div>
-            </GlassCard>
+                    <PrimaryButton
+                      variant="appSecondary"
+                      className="w-full justify-center"
+                    >
+                      Ver atividades
+                    </PrimaryButton>
+                  </Link>
+                </div>
+              </GlassCard>
+            ) : null
           ))}
         </div>
       </div>

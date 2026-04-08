@@ -1,8 +1,16 @@
+
+
 const express = require("express");
 const router = express.Router();
 const auth = require("../middlewares/authMiddleware");
 const User = require("../models/User");
 const creditLedgerService = require("../services/creditLedgerService");
+const monthlyCreditsService = require("../services/monthlyCreditsService");
+
+// Public test route for connectivity/debugging (must be after router is initialized)
+router.get("/user/public", (req, res) => {
+  res.json({ ok: true, message: "API /api/user/public está acessível (sem auth)" });
+});
 
 function normalizeUserResponse(user) {
   return {
@@ -17,14 +25,17 @@ function normalizeUserResponse(user) {
     subscriptionPlanName: user.plan ?? null,
     firstName: user.firstName ?? null,
     lastName: user.lastName ?? null,
-    country: user.country ?? null,
-    city: user.city ?? null,
+    birthDate: user.birthDate ?? null,
+    phoneCountryCode: user.phoneCountryCode ?? null,
     phone: user.phone ?? null,
+    country: user.country ?? null,
     address: user.address ?? null,
+    city: user.city ?? null,
     postalCode: user.postalCode ?? null,
-    dateOfBirth: user.dateOfBirth ?? null,
-    nif: user.nif ?? null,
+    documentId: user.documentId ?? null,
+    gender: user.gender ?? null,
     fitnessGoal: user.fitnessGoal ?? null,
+    interests: Array.isArray(user.interests) ? user.interests : [],
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
   };
@@ -32,6 +43,7 @@ function normalizeUserResponse(user) {
 
 async function getCurrentUser(req, res) {
   try {
+    await monthlyCreditsService.applyMonthlyCreditsResetIfNeeded(req.userId);
     const user = await User.findById(req.userId).select("-password");
 
     if (!user) {
@@ -46,27 +58,34 @@ async function getCurrentUser(req, res) {
 
 async function updateCurrentUser(req, res) {
   try {
+    console.log("[PATCH /users/me] req.body:", req.body);
+    console.log("[PATCH /users/me] req.user:", req.user);
     const body = req.body && typeof req.body === "object" ? req.body : {};
     const set = {};
 
+    // Lista completa de campos de perfil aceites
     const profileFields = [
+      "name",
       "firstName",
       "lastName",
-      "country",
-      "city",
+      "birthDate",
+      "phoneCountryCode",
       "phone",
+      "country",
       "address",
+      "city",
       "postalCode",
-      "dateOfBirth",
-      "nif",
+      "documentId",
+      "gender",
       "fitnessGoal",
       "plan",
       "planStatus",
+      "interests"
     ];
 
     for (const field of profileFields) {
       if (field in body) {
-        const value = body[field];
+        let value = body[field];
         if (field === "plan") {
           if (value == null) {
             set[field] = null;
@@ -96,21 +115,28 @@ async function updateCurrentUser(req, res) {
           set[field] = null;
           continue;
         }
+        if (field === "interests") {
+          if (value == null) {
+            set.interests = [];
+          } else if (Array.isArray(value)) {
+            set.interests = value
+              .map((x) => (x == null ? "" : String(x).trim()))
+              .filter(Boolean);
+          } else {
+            return res.status(400).json({ message: "interests deve ser um array" });
+          }
+          continue;
+        }
         set[field] = value == null ? null : String(value).trim();
       }
     }
 
-    if ("name" in body) {
-      const name = body.name == null ? "" : String(body.name).trim();
-      if (!name) {
-        return res.status(400).json({ message: "name inválido" });
-      }
-      set.name = name;
-    } else {
+    // Garantir que o campo name é sempre preenchido
+    if (!set.name) {
       const first = "firstName" in set ? (set.firstName || "") : "";
       const last = "lastName" in set ? (set.lastName || "") : "";
       const combined = `${first} ${last}`.trim();
-      if (combined) set.name = combined;
+      set.name = combined || undefined;
     }
 
     if (Object.keys(set).length === 0) {
@@ -119,19 +145,25 @@ async function updateCurrentUser(req, res) {
       return res.json(normalizeUserResponse(existing));
     }
 
-    const updated = await User.findByIdAndUpdate(
-      req.userId,
-      { $set: set },
-      { new: true, runValidators: true }
-    ).select("-password");
-
+    let updated = null;
+    try {
+      updated = await User.findByIdAndUpdate(
+        req.userId,
+        { $set: set },
+        { new: true, runValidators: false }
+      ).select("-password");
+    } catch (errUpdate) {
+      console.error("[PATCH /users/me] Mongoose update error:", errUpdate);
+      return res.status(500).json({ message: "Erro ao atualizar utilizador (update)", error: errUpdate?.message || String(errUpdate) });
+    }
     if (!updated) {
+      console.error("[PATCH /users/me] Utilizador não encontrado após update", req.userId);
       return res.status(404).json({ message: "Utilizador não encontrado." });
     }
-
     return res.json(normalizeUserResponse(updated));
   } catch (err) {
-    return res.status(500).json({ message: "Erro ao atualizar utilizador." });
+    console.error("[PATCH /users/me] Erro geral:", err);
+    return res.status(500).json({ message: "Erro ao atualizar utilizador.", error: err?.message || String(err) });
   }
 }
 
@@ -139,6 +171,8 @@ async function updateCurrentUser(req, res) {
 router.get("/me", auth, getCurrentUser);
 // Alias: GET /api/user (mounted in app.js at /api)
 router.get("/user", auth, getCurrentUser);
+// GET /user/current (mounted in app.js at /user)
+router.get("/current", auth, getCurrentUser);
 // PATCH /users/me
 router.patch("/me", auth, updateCurrentUser);
 // Alias: PATCH /api/user

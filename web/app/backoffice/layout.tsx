@@ -22,8 +22,18 @@ export default function BackofficeLayout({ children }: { children: ReactNode }) 
   const isActive = (href: string) =>
     href === "/backoffice" ? pathname === href : pathname.startsWith(href);
 
-  const partners = useMemo(() => getAllPartnersWithCategory(), []);
+  const [partners, setPartners] = useState<PartnerWithCategory[]>([]);
   const [partner, setPartner] = useState<PartnerWithCategory | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    getAllPartnersWithCategory().then((p) => {
+      if (alive) setPartners(p);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   useEffect(() => {
     // Allow login route without redirect loop

@@ -42,7 +42,15 @@ export default function AdminHomePage() {
   }, []);
   useEffect(() => {
     fetch("/api/admin/customers/metrics")
-      .then((r) => r.ok ? r.json() : null)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((raw) => {
+        if (!raw || typeof raw !== "object") return null;
+        const m =
+          "metrics" in raw && raw.metrics && typeof raw.metrics === "object"
+            ? raw.metrics
+            : raw;
+        return m as CustMetrics;
+      })
       .then(setCust)
       .catch(() => setCust(null));
   }, []);

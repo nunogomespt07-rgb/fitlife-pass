@@ -6,16 +6,18 @@ const authMiddleware = require("../middlewares/authMiddleware");
 const User = require("../models/User");
 const CreditTransaction = require("../models/CreditTransaction");
 const creditLedgerService = require("../services/creditLedgerService");
+const monthlyCreditsService = require("../services/monthlyCreditsService");
 
 // GET /credits/balance
 router.get("/balance", authMiddleware, async (req, res) => {
   try {
+    await monthlyCreditsService.applyMonthlyCreditsResetIfNeeded(req.userId);
     const user = await User.findById(req.userId).select("credits name email");
     if (!user) return res.status(404).json({ message: "Utilizador não encontrado" });
 
     res.json({
       user: { id: user._id, name: user.name, email: user.email },
-      credits: user.credits,
+      credits: typeof user.credits === "number" ? user.credits : 0,
     });
   } catch (err) {
     res.status(500).json({ message: "Erro ao buscar créditos" });

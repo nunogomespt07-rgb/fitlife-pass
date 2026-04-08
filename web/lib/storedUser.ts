@@ -22,6 +22,15 @@ export type StoredUser = {
   objective?: string | null;
   /** Objetivo fitness */
   fitnessGoal?: string | null;
+  /** Objetivo principal (onboarding pós-registo) */
+  primaryGoal?: string | null;
+  experienceLevel?: string | null;
+  preferredTrainingTimes?: string[];
+  healthyFoodInterest?: string | null;
+  /** Concluído o onboarding de preferências após primeiro registo */
+  onboardingCompleted?: boolean;
+  /** Interesses de categorias (ids alinhados com onboarding / Mongo `interests`). */
+  interests?: string[];
   /** Active only after payment success. */
   subscriptionPlanId?: string | null;
   subscriptionPlanName?: string | null;
@@ -43,17 +52,37 @@ export type StoredUser = {
 
 const STORAGE_KEY = "fitlife-user";
 
-function splitFullName(fullName: string): { firstName: string; lastName: string } {
+/** Usado no perfil e no parse de `name` legado. */
+export function splitFullName(fullName: string): { firstName: string; lastName: string } {
   const parts = fullName.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return { firstName: "", lastName: "" };
   if (parts.length === 1) return { firstName: parts[0], lastName: "" };
   return { firstName: parts[0], lastName: parts.slice(1).join(" ") };
 }
 
-function joinName(firstName?: string | null, lastName?: string | null): string {
+export function joinName(firstName?: string | null, lastName?: string | null): string {
   const f = (firstName ?? "").trim();
   const l = (lastName ?? "").trim();
   return [f, l].filter(Boolean).join(" ");
+}
+
+/**
+ * Merge seguro: nunca sobrescreve com null ou undefined (dados esparsos da API/sessão).
+ * Strings vazias "" aplicam-se (ex.: limpar telefone no perfil). Quem não deve apagar nome
+ * vazio (ex. Nav OAuth) não deve passar a chave `name` ou usar string vazia.
+ * `0` e `false` são aplicados (créditos / flags).
+ */
+export function safeMerge<T extends Record<string, unknown>>(oldUser: T, newData: Partial<T>): T {
+  return {
+    ...oldUser,
+    ...Object.fromEntries(
+      Object.entries(newData as Record<string, unknown>).filter(([_, v]) => {
+        if (v === null || v === undefined) return false;
+        if (typeof v === "number" && Number.isNaN(v)) return false;
+        return true;
+      })
+    ),
+  } as T;
 }
 
 export function getStoredUser(): StoredUser | null {
@@ -62,7 +91,7 @@ export function getStoredUser(): StoredUser | null {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as Record<string, unknown>;
-    if (!parsed || typeof parsed.id !== "string") return null;
+    if (!parsed || typeof parsed.id !== "string" || !String(parsed.id).trim()) return null;
     const rawName = typeof parsed.name === "string" ? parsed.name : "";
     const parsedFirstName = parsed.firstName == null ? null : String(parsed.firstName);
     const parsedLastName = parsed.lastName == null ? null : String(parsed.lastName);
@@ -85,9 +114,25 @@ export function getStoredUser(): StoredUser | null {
       preferredActivities: Array.isArray(parsed.preferredActivities)
         ? (parsed.preferredActivities.map(String) as string[])
         : undefined,
+      interests: Array.isArray(parsed.interests)
+        ? (parsed.interests.map(String) as string[])
+        : undefined,
       trainingFrequency: parsed.trainingFrequency == null ? null : String(parsed.trainingFrequency),
       objective: parsed.objective == null ? null : String(parsed.objective),
       fitnessGoal: parsed.fitnessGoal == null ? null : String(parsed.fitnessGoal),
+      primaryGoal: parsed.primaryGoal == null ? null : String(parsed.primaryGoal),
+      experienceLevel: parsed.experienceLevel == null ? null : String(parsed.experienceLevel),
+      preferredTrainingTimes: Array.isArray(parsed.preferredTrainingTimes)
+        ? (parsed.preferredTrainingTimes.map(String) as string[])
+        : undefined,
+      healthyFoodInterest:
+        parsed.healthyFoodInterest == null ? null : String(parsed.healthyFoodInterest),
+      onboardingCompleted:
+        parsed.onboardingCompleted === true
+          ? true
+          : parsed.onboardingCompleted === false
+          ? false
+          : undefined,
       subscriptionPlanId: parsed.subscriptionPlanId == null ? null : String(parsed.subscriptionPlanId),
       subscriptionPlanName: parsed.subscriptionPlanName == null ? null : String(parsed.subscriptionPlanName),
       pendingPlanId: parsed.pendingPlanId == null ? null : String(parsed.pendingPlanId),
@@ -107,56 +152,75 @@ export function getStoredUser(): StoredUser | null {
   }
 }
 
-export function setStoredUser(user: Partial<StoredUser>): void {
+/**
+ * Substitui o objeto em `fitlife-user` sem fundir com o anterior.
+ * Usar após login/registo quando a fonte de verdade é a resposta da API (evita créditos/reservas “fantasma”).
+ */
+export function replaceStoredUser(user: StoredUser): void {
   if (typeof window === "undefined") return;
   try {
-    const current = getStoredUser();
-    const nextFirstName =
-      user.firstName !== undefined ? user.firstName : current?.firstName ?? null;
-    const nextLastName =
-      user.lastName !== undefined ? user.lastName : current?.lastName ?? null;
-    const merged: StoredUser = {
-      id: user.id ?? current?.id ?? "",
-      name:
-        user.name ?? current?.name ?? joinName(nextFirstName, nextLastName),
-      email: user.email ?? current?.email ?? "",
-      firstName: nextFirstName,
-      lastName: nextLastName,
-      city: user.city !== undefined ? user.city : current?.city ?? null,
-      phone: user.phone !== undefined ? user.phone : current?.phone ?? null,
-      address: user.address !== undefined ? user.address : current?.address ?? null,
-      postalCode: user.postalCode !== undefined ? user.postalCode : current?.postalCode ?? null,
-      country: user.country !== undefined ? user.country : current?.country ?? null,
-      preferredActivities:
-        user.preferredActivities !== undefined ? user.preferredActivities : current?.preferredActivities,
-      trainingFrequency:
-        user.trainingFrequency !== undefined ? user.trainingFrequency : current?.trainingFrequency ?? null,
-      objective: user.objective !== undefined ? user.objective : current?.objective ?? null,
-      fitnessGoal: user.fitnessGoal !== undefined ? user.fitnessGoal : current?.fitnessGoal ?? null,
-      subscriptionPlanId: user.subscriptionPlanId !== undefined ? user.subscriptionPlanId : current?.subscriptionPlanId ?? null,
-      subscriptionPlanName: user.subscriptionPlanName !== undefined ? user.subscriptionPlanName : current?.subscriptionPlanName ?? null,
-      pendingPlanId: user.pendingPlanId !== undefined ? user.pendingPlanId : current?.pendingPlanId ?? null,
-      pendingPlanName: user.pendingPlanName !== undefined ? user.pendingPlanName : current?.pendingPlanName ?? null,
-      credits: user.credits !== undefined ? user.credits : current?.credits,
-      profileCompleted: user.profileCompleted !== undefined ? user.profileCompleted : current?.profileCompleted,
-      dateOfBirth: user.dateOfBirth !== undefined ? user.dateOfBirth : current?.dateOfBirth ?? null,
-      nif: user.nif !== undefined ? user.nif : current?.nif ?? null,
-      isForeign: user.isForeign !== undefined ? user.isForeign : current?.isForeign,
-      acceptedTerms: user.acceptedTerms !== undefined ? user.acceptedTerms : current?.acceptedTerms,
-      acceptedTermsAt: user.acceptedTermsAt !== undefined ? user.acceptedTermsAt : current?.acceptedTermsAt ?? null,
-      acceptedPrivacy: user.acceptedPrivacy !== undefined ? user.acceptedPrivacy : current?.acceptedPrivacy,
-      acceptedAgeConfirmation: user.acceptedAgeConfirmation !== undefined ? user.acceptedAgeConfirmation : current?.acceptedAgeConfirmation,
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
   } catch {
     // ignore
   }
 }
 
+export function setStoredUser(user: Partial<StoredUser>): void {
+  if (typeof window === "undefined") return;
+  try {
+    const current = getStoredUser();
+    const base = (current ?? {}) as StoredUser;
+    const merged = safeMerge(base as unknown as Record<string, unknown>, user as Record<string, unknown>) as StoredUser;
+
+    const nextId =
+      user.id !== undefined && String(user.id).trim() !== ""
+        ? String(user.id).trim()
+        : merged.id?.trim() || current?.id?.trim() || "";
+
+    const nextEmail =
+      user.email !== undefined && String(user.email).trim() !== ""
+        ? String(user.email).trim()
+        : merged.email?.trim() || current?.email?.trim() || "";
+
+    let nextName = merged.name?.trim() || "";
+    const fn = merged.firstName?.trim() || "";
+    const ln = merged.lastName?.trim() || "";
+    if (!nextName && (fn || ln)) {
+      nextName = joinName(merged.firstName, merged.lastName);
+    }
+    if (!nextName && nextEmail) {
+      nextName = nextEmail.split("@")[0] || "";
+    }
+
+    const final: StoredUser = {
+      ...merged,
+      id: nextId,
+      email: nextEmail,
+      name: nextName,
+      firstName: merged.firstName ?? null,
+      lastName: merged.lastName ?? null,
+    };
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(final));
+
+    if (typeof process !== "undefined" && process.env.NODE_ENV === "development") {
+      console.log("USER AFTER MERGE:", getStoredUser());
+      console.log("CREDITS:", typeof window !== "undefined" ? localStorage.getItem("credits") : null);
+    }
+  } catch {
+    // ignore
+  }
+}
+
+/**
+ * Nome legível (sem usar email). Para navbar/avatar usar `@/lib/navbarUserDisplay`.
+ */
 export function getStoredUserDisplayName(): string {
   const u = getStoredUser();
-  const firstName = u?.firstName?.trim();
-  if (firstName) return firstName;
-  const first = u?.name?.trim().split(/\s+/)[0];
-  return first || "";
+  if (!u) return "";
+  return (
+    u.name?.trim() ||
+    `${(u.firstName ?? "").trim()} ${(u.lastName ?? "").trim()}`.trim() ||
+    ""
+  );
 }

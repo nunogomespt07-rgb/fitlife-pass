@@ -13,6 +13,8 @@ export type MockReservation = {
   time: string;
   creditsRequired: number;
   location?: string;
+  /** Capacidade do slot (vagas) — usado no backend para maxParticipants em modo integração. */
+  activitySpots?: number;
   /** For padel/court_booking: number of players (1–4). */
   participantCount?: number;
   status: "active";
@@ -29,12 +31,12 @@ const STORAGE_KEY_RESERVATIONS = "fitlife-reservations";
 const STORAGE_KEY_HISTORY = "fitlife-history";
 const STORAGE_KEY_CREDITS = "fitlife-credits";
 const STORAGE_KEY_PURCHASED_CREDITS = "fitlife-purchased-credits";
-const DEFAULT_CREDITS = 0;
+const MOCK_LOCAL_CREDIT_BASELINE = 0;
 
 /** Credits are derived from reservations so they stay in sync: initial - sum(reservation.creditsRequired) */
 export function getCreditsFromReservations(reservations: MockReservation[]): number {
   const used = reservations.reduce((sum, r) => sum + r.creditsRequired, 0);
-  return Math.max(0, DEFAULT_CREDITS - used);
+  return Math.max(0, MOCK_LOCAL_CREDIT_BASELINE - used);
 }
 
 function safeParse<T>(key: string, fallback: T): T {

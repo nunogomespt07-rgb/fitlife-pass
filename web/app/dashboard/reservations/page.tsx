@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import {
   getMe,
-  getApiBookings,
+  getMyReservations,
   type MeUser,
   type ApiBooking,
 } from "@/lib/api";
@@ -78,7 +78,7 @@ export default function ReservationsHistoryPage() {
         setError("");
         const [userData, bookingsData] = await Promise.all([
           getMe(token),
-          getApiBookings(token),
+          getMyReservations(token),
         ]);
         if (!alive) return;
         setUser(userData);

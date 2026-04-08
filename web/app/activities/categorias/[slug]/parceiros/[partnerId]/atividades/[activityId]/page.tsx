@@ -1,16 +1,54 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
   activityDateToISO,
   getMockActivity,
   getPartnerBySlugAndId,
+  type MockActivity,
+  type Partner,
 } from "@/lib/activitiesData";
+import { getApiActivityById, type ApiActivity } from "@/lib/api";
+import { createReservation, reservationErrorMessage } from "@/lib/reservationFlow";
+import { normalizeBookingPayload } from "@/lib/normalize";
 import { useMockReservations } from "@/app/context/MockReservationsContext";
 import GlassCard from "@/app/components/ui/GlassCard";
 import PrimaryButton from "@/app/components/ui/PrimaryButton";
+
+function mapApiActivityToMock(a: ApiActivity, id: string): MockActivity {
+  const d = a.date ? new Date(a.date) : new Date();
+  const participants = Array.isArray(a.participants) ? a.participants.length : 0;
+  const max = a.maxParticipants ?? 0;
+  const spots = Math.max(0, max - participants);
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  return {
+    id,
+    title: a.title,
+    date: `${day}/${month}/${year}`,
+    time: `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`,
+    durationMinutes: 60,
+    credits: a.creditsCost ?? 1,
+    spots,
+    location: a.location,
+  };
+}
+
+function syntheticPartnerFromApi(a: ApiActivity, pid: string): Partner {
+  return {
+    id: pid,
+    name: a.sportType ?? "Atividade",
+    imageSrc: "/images/fitness-hero.jpg",
+    location: a.location ?? "",
+    description: "",
+    activitiesCount: 1,
+    minCredits: a.creditsCost ?? 1,
+    partnerType: "class_booking",
+  };
+}
 
 export default function ActivityDetailPage() {
   const params = useParams() as {
@@ -26,45 +64,143 @@ export default function ActivityDetailPage() {
     ? params.activityId[0]
     : params.activityId ?? "";
 
-  const resolved = getPartnerBySlugAndId(slug, partnerId);
-  const activity = getMockActivity(partnerId, activityId);
-  const { addReservation, countReservationsForActivity } = useMockReservations();
+  const isMongoActivityId = /^[a-f0-9]{24}$/i.test(activityId.trim());
+  const [apiActivity, setApiActivity] = useState<ApiActivity | null>(null);
+  const [apiLoading, setApiLoading] = useState(isMongoActivityId);
+  const [resolvedMock, setResolvedMock] = useState<{ categoryLabel: string; partner: Partner } | null>(null);
+
+  useEffect(() => {
+    if (!isMongoActivityId) return;
+    let alive = true;
+    setApiLoading(true);
+    getApiActivityById(activityId.trim())
+      .then((a) => {
+        if (alive) setApiActivity(a);
+      })
+      .finally(() => {
+        if (alive) setApiLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [activityId, isMongoActivityId]);
+
+  useEffect(() => {
+    let alive = true;
+    getPartnerBySlugAndId(slug, partnerId).then((r) => {
+      if (alive) setResolvedMock(r);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [slug, partnerId]);
+  const mockActivity = getMockActivity(partnerId, activityId);
+
+  const resolved =
+    resolvedMock ??
+    (apiActivity
+      ? {
+          categoryLabel: "Atividades",
+          partner: syntheticPartnerFromApi(apiActivity, partnerId),
+        }
+      : null);
+
+  const activity: MockActivity | null = isMongoActivityId
+    ? apiActivity
+      ? mapApiActivityToMock(apiActivity, activityId)
+      : null
+    : mockActivity;
+
+  const { refetchUserState, countReservationsForActivity } = useMockReservations();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const reservedCount = resolved && activity ? countReservationsForActivity(partnerId, activityId) : 0;
   const availableSpots = activity ? Math.max(0, activity.spots - reservedCount) : 0;
 
-  const handleReservar = useCallback(() => {
-    if (!activity || !resolved || availableSpots <= 0) return;
+  const handleReservar = useCallback(async () => {
+    console.log("CLICK RESERVAR", activity?.id ?? activityId);
+    if (!activity || !resolved) {
+      console.error("ERRO RESERVA", new Error("Dados em falta"));
+      return;
+    }
     const { partner } = resolved;
-    const isPadel = partner.partnerType === "court_booking";
+    /** Padel x2 só no catálogo mock; no Mongo o custo vem só do documento SportActivity. */
+    const isPadel = partner.partnerType === "court_booking" && !isMongoActivityId;
     const perPersonCredits = isPadel ? 10 : activity.credits;
-    // Detalhe não tem seletor de pessoas – assumimos 2 jogadores por omissão em padel
     const effectivePeople = isPadel ? 2 : 1;
     const totalCredits = perPersonCredits * effectivePeople;
     setErrorMessage(null);
-    const result = addReservation({
-      activityId,
-      activityTitle: activity.title,
-      partnerId,
-      partnerName: partner.name,
-      categorySlug: slug,
-      date: activityDateToISO(activity.date),
-      time: activity.time,
-      creditsRequired: totalCredits,
-      location: activity.location,
-    });
-    if (result.success) {
+    const mongoId = /^[a-f0-9]{24}$/i.test(activityId.trim());
+    const token =
+      typeof window !== "undefined" ? window.localStorage.getItem("token") : null;
+    if (!token) {
+      setErrorMessage("Inicia sessão para reservar.");
+      setTimeout(() => setErrorMessage(null), 5000);
+      return;
+    }
+    try {
+      await createReservation({
+        activityId: activityId.trim(),
+        token,
+        activitySnapshot: mongoId
+          ? undefined
+          : normalizeBookingPayload({
+              activityId,
+              partnerId,
+              categorySlug: slug,
+              activityTitle: activity.title,
+              date: activityDateToISO(activity.date),
+              time: activity.time,
+              creditsRequired: totalCredits,
+              location: activity.location,
+              activitySpots: activity.spots,
+            }),
+      });
+      console.log("RESERVA OK");
+      await refetchUserState();
       setSuccessMessage(
         `Reserva confirmada para "${activity.title}". ${totalCredits} crédito${totalCredits !== 1 ? "s" : ""} utilizados. Aparece em Conta → Reservas ativas.`
       );
       setTimeout(() => setSuccessMessage(null), 5000);
-    } else {
-      setErrorMessage(result.error ?? "Erro ao reservar.");
+    } catch (err) {
+      console.error("ERRO RESERVA", err);
+      setErrorMessage(reservationErrorMessage(err));
       setTimeout(() => setErrorMessage(null), 5000);
     }
-  }, [activity, resolved, slug, partnerId, activityId, availableSpots, addReservation]);
+  }, [activity, resolved, slug, partnerId, activityId, isMongoActivityId, refetchUserState]);
+
+  if (!isMongoActivityId && (!resolvedMock || !mockActivity)) {
+    return (
+      <div className="page-bg min-h-screen font-sans text-white">
+        <div className="mx-auto max-w-4xl px-4 pb-24 pt-24 sm:px-6 lg:px-10">
+          <GlassCard variant="dark" padding="lg">
+            <p className="text-sm font-medium text-white">
+              Atividade não encontrada.
+            </p>
+            <Link
+              href="/activities"
+              className="mt-4 inline-flex text-sm font-medium text-white/80 underline-offset-2 hover:underline"
+            >
+              ← Voltar às atividades
+            </Link>
+          </GlassCard>
+        </div>
+      </div>
+    );
+  }
+
+  if (isMongoActivityId && apiLoading) {
+    return (
+      <div className="page-bg min-h-screen font-sans text-white">
+        <div className="mx-auto max-w-4xl px-4 pb-24 pt-24 sm:px-6 lg:px-10">
+          <GlassCard variant="dark" padding="lg">
+            <p className="text-sm font-medium text-white">A carregar atividade…</p>
+          </GlassCard>
+        </div>
+      </div>
+    );
+  }
 
   if (!resolved || !activity) {
     return (
@@ -244,7 +380,7 @@ export default function ActivityDetailPage() {
             <PrimaryButton
               variant="primary"
               onClick={handleReservar}
-              disabled={availableSpots <= 0}
+              disabled={false}
               className="min-w-[160px]"
             >
               {availableSpots <= 0 ? "Esgotado" : "Reservar"}

@@ -18,7 +18,7 @@ export const PARTNER_SHARE = 1 - PLATFORM_SHARE;
 /** Credit packs for display / average price. */
 export const CREDIT_PACKS = [
   { id: "pack-10", credits: 10, price: 10 },
-  { id: "pack-20", credits: 20, price: 18 },
+  { id: "pack-16", credits: 16, price: 17 },
   { id: "pack-50", credits: 50, price: 40 },
 ] as const;
 

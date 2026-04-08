@@ -4,7 +4,12 @@ const Activity = require("../models/Activity");
 // GET /activities
 exports.getActivities = async (req, res) => {
   try {
-    const activities = await Activity.find().sort({ createdAt: -1 });
+    const totalCount = await Activity.countDocuments();
+    const query = {};
+    const activities = await Activity.find(query).sort({ createdAt: -1 });
+    console.log('[DEBUG] Total activities in collection:', totalCount);
+    console.log('[DEBUG] Query used:', query);
+    console.log('[DEBUG] Activities returned:', activities.length);
     return res.json(activities);
   } catch (e) {
     console.error("getActivities error:", e);

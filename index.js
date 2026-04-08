@@ -2,6 +2,8 @@ require("dotenv").config();
 
 const mongoose = require("mongoose");
 const app = require("./src/app");
+// Garante que o model Partner está carregado antes de iniciar o app
+require("./src/models/Partner");
 
 const PORT = process.env.PORT || 3002;
 const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI || process.env.DATABASE_URL || "";

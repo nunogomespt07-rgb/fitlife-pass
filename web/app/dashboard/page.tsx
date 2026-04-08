@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { getMe, type MeUser } from "@/lib/api";
-import { getStoredUser, getStoredUserDisplayName } from "@/lib/storedUser";
+import { getStoredUser } from "@/lib/storedUser";
+import { getSafeNavbarName } from "@/lib/navbarUserDisplay";
 import { useMockReservations } from "@/app/context/MockReservationsContext";
 import GlassCard from "@/app/components/ui/GlassCard";
 import DashboardCard from "@/app/components/ui/DashboardCard";
@@ -24,12 +25,14 @@ export default function DashboardPage() {
   const {
     reservations,
     activeReservationCount,
-    credits,
+    walletBalance,
+    creditsReady,
     cancelReservation,
     completeReservation,
     clearHistory,
   } = useMockReservations();
   const [successMessage, setSuccessMessage] = useState("");
+  const [cancelError, setCancelError] = useState("");
   const [cancelLoadingId, setCancelLoadingId] = useState<string | null>(null);
   const [qrModalReservation, setQrModalReservation] = useState<UnifiedReservation | null>(null);
   const [showClearHistoryConfirm, setShowClearHistoryConfirm] = useState(false);
@@ -65,6 +68,20 @@ export default function DashboardPage() {
       document.body.style.overflow = "";
     };
   }, [showClearHistoryConfirm]);
+
+  /** Rules of Hooks: todos os hooks antes de qualquer return condicional. */
+  const greetingFirstName = useMemo(() => {
+    const stored = getStoredUser();
+    const userLike =
+      stored ??
+      (user?.name?.trim()
+        ? { name: user.name }
+        : session?.user?.name?.trim()
+          ? { name: session.user.name }
+          : null);
+    const nav = getSafeNavbarName(userLike);
+    return nav === "Conta" ? "tu" : nav;
+  }, [session?.user?.name, user]);
 
   useEffect(() => {
     let alive = true;
@@ -120,19 +137,28 @@ export default function DashboardPage() {
     return () => { alive = false; };
   }, [session]);
 
-  function handleCancelReservation(id: string) {
+  /** Não é hook — pode derivar-se aqui desde que fique antes do return condicional. */
+  const hasPlan = Boolean(getStoredUser()?.subscriptionPlanId);
+
+  async function handleCancelReservation(id: string) {
     const r = reservations.find((x) => x.id === id);
     if (!r) return;
     setCancelLoadingId(id);
     setSuccessMessage("");
-    cancelReservation(id);
-    const refundMsg =
-      r.type === "activity" && r.creditsUsed > 0
-        ? ` ${r.creditsUsed} crédito(s) devolvido(s).`
-        : "";
-    setSuccessMessage(`Reserva cancelada com sucesso.${refundMsg}`);
-    setTimeout(() => setSuccessMessage(""), 5000);
+    setCancelError("");
+    const result = await cancelReservation(id);
     setCancelLoadingId(null);
+    if (result.success) {
+      const refundMsg =
+        r.type === "activity" && r.creditsUsed > 0
+          ? ` ${r.creditsUsed} crédito(s) devolvido(s).`
+          : "";
+      setSuccessMessage(`Reserva cancelada com sucesso.${refundMsg}`);
+      setTimeout(() => setSuccessMessage(""), 5000);
+    } else {
+      setCancelError(result.error ?? "Não foi possível cancelar.");
+      setTimeout(() => setCancelError(""), 5000);
+    }
   }
 
   if (loading) {
@@ -150,14 +176,6 @@ export default function DashboardPage() {
     );
   }
 
-  const displayName =
-    (session?.user?.name?.trim().split(/\s+/)[0] || "") ||
-    getStoredUserDisplayName() ||
-    user?.name?.trim().split(/\s+/)[0] ||
-    "";
-  const firstName = displayName || "tu";
-  const hasPlan = Boolean(getStoredUser()?.subscriptionPlanId);
-
   return (
     <div className="mx-auto max-w-4xl px-4 pb-24 pt-8 sm:px-6 sm:pt-10 lg:px-10">
       <header className="mb-8 sm:mb-10">
@@ -165,7 +183,7 @@ export default function DashboardPage() {
           FitLife Pass · Área pessoal
         </p>
         <h1 className="app-hero-title mt-4 text-white sm:mt-5">
-          Olá, {firstName} 👋
+          Olá, {greetingFirstName} 👋
         </h1>
         <p className="mt-3 text-base leading-relaxed text-white/65">
           Acede rapidamente às tuas reservas, créditos e histórico na tua conta FitLife Pass.
@@ -199,12 +217,12 @@ export default function DashboardPage() {
             className="relative overflow-hidden"
           >
             <p className="relative text-[48px] font-bold tracking-tight text-white tabular-nums sm:text-[56px]">
-              {credits}
+              {!creditsReady || walletBalance === null ? "…" : walletBalance}
             </p>
             <p className="relative mt-1 text-[11px] font-semibold uppercase tracking-[0.26em] text-white/90">
-              CRÉDITOS DISPONÍVEIS
+              SALDO DA CONTA
             </p>
-            {credits === 0 && (
+            {creditsReady && walletBalance === 0 && (
               <p className="relative mt-3 text-base text-white/90">
                 Sem plano ativo. Escolhe um plano para começar a usar créditos.
               </p>
@@ -250,6 +268,11 @@ export default function DashboardPage() {
         {successMessage && (
           <div className="mt-6 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-5 py-3.5 text-base text-emerald-100">
             {successMessage}
+          </div>
+        )}
+        {cancelError && (
+          <div className="mt-6 rounded-2xl border border-red-400/30 bg-red-500/10 px-5 py-3.5 text-base text-red-100">
+            {cancelError}
           </div>
         )}
 

@@ -180,36 +180,48 @@ export function getWeekdayForDateISO(dateISO: string): Weekday {
   return "sabado";
 }
 
-export function getStoredWeekSchedule(partnerId: string, weekStartISO: string): BackofficeWeekSchedule | null {
-  const raw = safeParse<BackofficeWeekSchedule | null>(keyFor(partnerId, weekStartISO), null);
-  if (!raw || typeof raw !== "object") return null;
-  if (raw.partnerId !== partnerId) return null;
-  if (raw.weekStartISO !== weekStartISO) return null;
-  if (!Array.isArray(raw.sessions)) return null;
-  // Normalize demo data for correctness (especially professional 1:1 slots)
-  const normalizedSessions = raw.sessions.map((s) => {
-    if (!s || typeof s !== "object") return s;
-    const sess = s as BackofficeSession;
-    if (sess.type !== "professional") {
-      const cap = Math.max(1, Math.floor(Number(sess.capacity ?? 1)));
-      const slots = Math.max(0, Math.min(cap, Math.floor(Number(sess.fitlifeSlots ?? 0))));
-      return { ...sess, capacity: cap, fitlifeSlots: slots };
+export async function getStoredWeekSchedule(partnerId: string, weekStartISO: string): Promise<BackofficeWeekSchedule | null> {
+  // Try backend first
+  const token = typeof window !== "undefined" ? window.localStorage.getItem("token") : null;
+  if (token) {
+    try {
+      const res = await fetch(`/api/backoffice/sessions?partnerId=${partnerId}&weekStartISO=${weekStartISO}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const sessions = await res.json();
+        return { partnerId, weekStartISO, sessions, updatedAt: new Date().toISOString() };
+      }
+    } catch {
+      // ignore, fall back to localStorage
     }
-    return {
-      ...sess,
-      capacity: 1,
-      fitlifeSlots: Math.min(1, Math.max(0, Math.floor(Number(sess.fitlifeSlots ?? 1)))),
-    };
-  });
-  return { ...raw, sessions: normalizedSessions };
+  }
+  // Fallback to localStorage
+  return safeParse<BackofficeWeekSchedule | null>(keyFor(partnerId, weekStartISO), null);
 }
 
-export function setStoredWeekSchedule(schedule: BackofficeWeekSchedule): void {
+export async function setStoredWeekSchedule(schedule: BackofficeWeekSchedule): Promise<void> {
+  // Save to backend instead of localStorage
+  const token = typeof window !== "undefined" ? window.localStorage.getItem("token") : null;
+  if (!token) throw new Error("No auth token");
+  const res = await fetch("/api/backoffice/sessions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(schedule),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Failed to save schedule: ${text}`);
+  }
+  // Optional: still cache in localStorage
   safeSet(keyFor(schedule.partnerId, schedule.weekStartISO), schedule);
 }
 
 /** Write public, customer-facing availability derived from partner schedule. */
-export function publishWeekAvailability(schedule: BackofficeWeekSchedule): void {
+export async function publishWeekAvailability(schedule: BackofficeWeekSchedule): Promise<void> {
   function minutesBetween(startHHMM: string, endHHMM: string): number | null {
     const [sh, sm] = startHHMM.split(":").map((x) => parseInt(x, 10));
     const [eh, em] = endHHMM.split(":").map((x) => parseInt(x, 10));
@@ -249,9 +261,11 @@ export function publishWeekAvailability(schedule: BackofficeWeekSchedule): void 
       fallbackOffPeakCredits: fallbackOffPeak,
       fallbackPeakCredits: fallbackPeak,
     });
-
+    
     return {
-      id: s.id,
+     id: String(s.id).trim(),
+     _id: s.activityId && /^[a-f0-9]{24}$/i.test(s.activityId.trim()) ? s.activityId.trim() : null,
+     activityId: s.activityId ? String(s.activityId).trim() : String(s.id).trim(),
       partnerId: schedule.partnerId,
       name:
         s.type === "group_class"
@@ -283,10 +297,27 @@ export function publishWeekAvailability(schedule: BackofficeWeekSchedule): void 
     sessions,
     updatedAt: new Date().toISOString(),
   };
+  // Save to backend
+  const token = typeof window !== "undefined" ? window.localStorage.getItem("token") : null;
+  if (token) {
+    try {
+      await fetch("/api/backoffice/public-availability", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ sessions }),
+      });
+    } catch (e) {
+      console.error("Failed to save public availability:", e);
+    }
+  }
+  // Optional cache
   setStoredPublicWeekAvailability(pub);
 }
 
-export function duplicateScheduleToNextWeek(partnerId: string, weekStartISO: string): BackofficeWeekSchedule | null {
+export async function duplicateScheduleToNextWeek(partnerId: string, weekStartISO: string): Promise<BackofficeWeekSchedule | null> {
   const current = getStoredWeekSchedule(partnerId, weekStartISO);
   if (!current) return null;
   const nextWeekStart = addDays(weekStartISO, 7);
@@ -299,8 +330,8 @@ export function duplicateScheduleToNextWeek(partnerId: string, weekStartISO: str
     })),
     updatedAt: new Date().toISOString(),
   };
-  setStoredWeekSchedule(next);
-  publishWeekAvailability(next);
+  await setStoredWeekSchedule(next);
+  await publishWeekAvailability(next);
   return next;
 }
 

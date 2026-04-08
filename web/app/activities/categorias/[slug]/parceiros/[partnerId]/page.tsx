@@ -1,368 +1,318 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import {
-  activityDateToISO,
-  getMockActivitiesForPartner,
-  getPartnerBySlugAndId,
-} from "@/lib/activitiesData";
-import type { MockActivity } from "@/lib/activitiesData";
-import { useMockReservations } from "@/app/context/MockReservationsContext";
-import type { UnifiedReservation } from "@/lib/unifiedReservations";
-import { useFavorites } from "@/app/context/FavoritesContext";
+import { apiFetch } from "@/lib/api";
 import GlassCard from "@/app/components/ui/GlassCard";
 import PrimaryButton from "@/app/components/ui/PrimaryButton";
-import FavoriteButton from "@/app/components/ui/FavoriteButton";
-import GymEntryQRModal from "@/app/components/ui/GymEntryQRModal";
+import SectionHeader from "@/app/components/ui/SectionHeader";
+import HeroBackground from "@/app/components/ui/HeroBackground";
 
-export default function PartnerActivitiesPage() {
-  const params = useParams() as {
-    slug?: string | string[];
-    partnerId?: string | string[];
-  };
-  const rawSlug = params.slug;
-  const rawPartnerId = params.partnerId;
-  const slug = Array.isArray(rawSlug) ? rawSlug[0] : rawSlug ?? "";
-  const partnerId = Array.isArray(rawPartnerId)
-    ? rawPartnerId[0]
-    : rawPartnerId ?? "";
+type Partner = {
+  _id: string;
+  name: string;
+  description?: string;
+  city?: string;
+  address?: string;
+  location?: string;
+  image?: string;
+  coverImage?: string;
+  category?: string;
+  categories?: string[];
+};
 
-  const resolved = getPartnerBySlugAndId(slug, partnerId);
-  const initialActivities = useMemo(
-    () => getMockActivitiesForPartner(partnerId),
-    [partnerId]
-  );
-  const { addReservation, addGymReservation, countReservationsForActivity } = useMockReservations();
-  const { toggleActivityPartner, isActivityPartnerFavorite } = useFavorites();
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [gymReservation, setGymReservation] = useState<UnifiedReservation | null>(null);
-  const [padelReservarActivity, setPadelReservarActivity] = useState<MockActivity | null>(null);
-  const [padelPlayerCount, setPadelPlayerCount] = useState(2);
+type Activity = {
+  _id: string;
+  title?: string;
+  name?: string;
+  partnerId?: string;
+  partner?: { _id?: string };
+  startDate?: string;
+  startTime?: string;
+  date?: string;
+  durationMinutes?: number;
+  duration?: number;
+  creditsCost?: number;
+  credits?: number;
+  availableSpots?: number;
+  capacity?: number;
+  description?: string;
+  tags?: string[];
+  active?: boolean;
+};
 
-  const isPadelPartner = resolved?.partner.partnerType === "court_booking";
+function formatDate(value?: string) {
+  if (!value) return "Data a confirmar";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("pt-PT", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(date);
+}
 
-  const handleReservar = useCallback(
-    (act: MockActivity, participantCount?: number) => {
-      if (!resolved) return;
-      const { partner } = resolved;
-      const reservedCount = countReservationsForActivity(partnerId, act.id);
-      const availableSpots = Math.max(0, act.spots - reservedCount);
-      if (availableSpots <= 0) return;
-      setErrorMessage(null);
-      setPadelReservarActivity(null);
-      const isPadel = partner.partnerType === "court_booking";
-      const perPersonCredits = isPadel ? 10 : act.credits;
-      const effectivePeople = isPadel ? (participantCount ?? 1) : 1;
-      const totalCredits = perPersonCredits * effectivePeople;
-      const result = addReservation({
-        activityId: act.id,
-        activityTitle: act.title,
-        partnerId,
-        partnerName: partner.name,
-        categorySlug: slug,
-        date: activityDateToISO(act.date),
-        time: act.time,
-        creditsRequired: totalCredits,
-        location: act.location,
-        participantCount,
+function formatTime(activity: Activity) {
+  if (activity.startTime) return activity.startTime;
+  if (activity.startDate) {
+    const date = new Date(activity.startDate);
+    if (!Number.isNaN(date.getTime())) {
+      return new Intl.DateTimeFormat("pt-PT", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(date);
+    }
+  }
+  return "Hora a confirmar";
+}
+
+export default function PartnerPage() {
+  const params = useParams<{ slug: string; partnerId: string }>();
+  const slug = decodeURIComponent(params?.slug ?? "");
+  const partnerId = decodeURIComponent(params?.partnerId ?? "");
+
+  const [partner, setPartner] = useState<Partner | null>(null);
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [reservingId, setReservingId] = useState<string | null>(null);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  useEffect(() => {
+    let alive = true;
+
+    async function load() {
+      setLoading(true);
+      setError("");
+      setSuccess("");
+
+      try {
+        const [partnersData, activitiesData] = await Promise.all([
+          apiFetch<Partner[]>("/partners"),
+          apiFetch<Activity[]>("/activities"),
+        ]);
+
+        if (!alive) return;
+
+        const partners = Array.isArray(partnersData) ? partnersData : [];
+        const allActivities = Array.isArray(activitiesData) ? activitiesData : [];
+
+        const foundPartner = partners.find((p) => p._id === partnerId) || null;
+
+        setPartner(foundPartner);
+
+        if (!foundPartner) {
+          setActivities([]);
+          setError("Parceiro não encontrado.");
+          return;
+        }
+
+
+        // FILTRO FINAL: só igualdade direta por _id
+        const filteredActivities = allActivities.filter((activity) => {
+          return (
+            activity.partnerId === foundPartner._id ||
+            activity.partner?._id === foundPartner._id
+          );
+        });
+
+        setActivities(filteredActivities);
+      } catch (err) {
+        console.error("Erro ao carregar parceiro/atividades:", err);
+        if (!alive) return;
+        setError("Erro ao carregar dados do parceiro.");
+        setActivities([]);
+        setPartner(null);
+      } finally {
+        if (alive) setLoading(false);
+      }
+    }
+
+    if (partnerId) load();
+
+    return () => {
+      alive = false;
+    };
+  }, [partnerId, slug]);
+
+  const partnerHeadline = useMemo(() => {
+    if (!partner) return "Parceiro";
+    return partner.location || partner.city || partner.address || "Parceiro premium";
+  }, [partner]);
+
+  async function handleReserve(activityId: string) {
+    if (!activityId) return;
+
+    setReservingId(activityId);
+    setError("");
+    setSuccess("");
+
+    try {
+      await apiFetch("/reservations", {
+        method: "POST",
+        body: JSON.stringify({ activityId }),
       });
-      if (result.success) {
-        setSuccessMessage(
-          `Reserva confirmada para "${act.title}". ${totalCredits} crédito${totalCredits !== 1 ? "s" : ""} utilizados. Aparece em Conta → Reservas ativas.`
-        );
-        setTimeout(() => setSuccessMessage(null), 5000);
-      } else {
-        setErrorMessage(result.error ?? "Erro ao reservar.");
-        setTimeout(() => setErrorMessage(null), 5000);
-      }
-    },
-    [resolved, slug, partnerId, addReservation, countReservationsForActivity]
-  );
 
-  const handleReservarClick = useCallback(
-    (act: MockActivity) => {
-      if (!resolved) return;
-      const reservedCount = countReservationsForActivity(partnerId, act.id);
-      const availableSpots = Math.max(0, act.spots - reservedCount);
-      if (availableSpots <= 0) return;
-      setErrorMessage(null);
-      if (isPadelPartner) {
-        setPadelPlayerCount(2);
-        setPadelReservarActivity(act);
-        return;
-      }
-      handleReservar(act, undefined);
-    },
-    [resolved, partnerId, countReservationsForActivity, isPadelPartner, handleReservar]
-  );
-
-  if (!resolved) {
-    return (
-      <div className="page-bg min-h-screen font-sans text-white">
-        <div className="mx-auto max-w-4xl px-4 pb-24 pt-24 sm:px-6 lg:px-10">
-          <GlassCard variant="dark" padding="lg">
-            <p className="text-sm font-medium text-white">
-              Parceiro ou categoria não encontrados.
-            </p>
-            <Link
-              href="/activities"
-              className="mt-4 inline-flex text-sm font-medium text-white/80 underline-offset-2 hover:underline"
-            >
-              ← Voltar às atividades
-            </Link>
-          </GlassCard>
-        </div>
-      </div>
-    );
+      setSuccess("Reserva criada com sucesso.");
+    } catch (err) {
+      console.error("Erro ao reservar:", err);
+      setError("Não foi possível concluir a reserva.");
+    } finally {
+      setReservingId(null);
+    }
   }
 
-  const { categoryLabel, partner } = resolved;
-  const isGymAccess = partner.partnerType === "gym_access";
-  const isTrainerProfile = slug === "personal-training" && partner.provider?.type === "trainer";
-  const isIndividualServiceCategory =
-    slug === "personal-training" || slug === "nutricao" || slug === "massagem-desportiva";
-
   return (
-    <div className="page-bg min-h-screen font-sans text-white">
-      <div className="mx-auto max-w-4xl px-4 pb-24 pt-24 sm:px-6 lg:px-10">
-        <nav className="flex items-center gap-2 text-sm text-white/80">
-          <Link
-            href="/activities"
-            className="font-medium transition hover:text-white"
-          >
-            Atividades
-          </Link>
-          <span aria-hidden>/</span>
+    <div className="relative min-h-screen bg-gradient-to-b from-[#06101f] via-[#0a1f52] to-[#1037b7] pb-24">
+      <HeroBackground overlay="premium" height="activities" className="w-full rounded-b-3xl">
+        <div className="mx-auto flex h-full max-w-7xl flex-col justify-end px-4 pb-10 pt-16 sm:px-6 lg:px-8">
           <Link
             href={`/activities/categorias/${slug}`}
-            className="font-medium transition hover:text-white"
+            className="mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm text-white/85 backdrop-blur-md transition hover:bg-white/15"
           >
-            {categoryLabel}
+            ← Voltar aos parceiros
           </Link>
-          <span aria-hidden>/</span>
-          <span className="text-white">{partner.name}</span>
-        </nav>
 
-        <div className="mt-8 flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-white">
-              {partner.name}
-            </h1>
-            {isTrainerProfile && (
-              <p className="mt-1 text-xs font-semibold uppercase tracking-[0.22em] text-white/55">
-                Personal Trainer
-              </p>
-            )}
-            <p className="mt-1 text-sm text-white/75">{partner.location}</p>
-            <p className="mt-2 text-sm text-white/65">
-              {isTrainerProfile ? (partner.provider?.bio ?? partner.description) : partner.description}
+          <div className="max-w-3xl">
+            <p className="mb-2 text-sm font-medium uppercase tracking-[0.24em] text-white/60">
+              {slug || "Categoria"}
             </p>
-            {isTrainerProfile && partner.provider?.specialties && partner.provider.specialties.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {partner.provider.specialties.slice(0, 5).map((s) => (
-                  <span
-                    key={s}
-                    className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-medium text-white/80"
-                  >
-                    {s}
-                  </span>
-                ))}
-              </div>
-            )}
-            {isTrainerProfile && partner.provider?.certifications && partner.provider.certifications.length > 0 && (
-              <p className="mt-3 text-xs text-white/55">
-                Certificações: {partner.provider.certifications.join(", ")}
-              </p>
-            )}
-            {isTrainerProfile && partner.provider?.experienceYears != null && (
-              <p className="mt-1 text-xs text-white/55">
-                Experiência: {partner.provider.experienceYears} ano{partner.provider.experienceYears !== 1 ? "s" : ""}
-              </p>
-            )}
-            {partner.address && partner.city && (
-              <p className="mt-3 text-sm text-white/70">
-                {partner.address} · {partner.city}
-              </p>
-            )}
+            <h1 className="mb-3 text-4xl font-extrabold text-white drop-shadow-lg md:text-5xl">
+              {partner?.name ?? "Parceiro premium"}
+            </h1>
+            <p className="mb-3 text-lg text-white/80">{partnerHeadline}</p>
+            {partner?.description ? (
+              <p className="max-w-2xl text-sm leading-7 text-white/70">{partner.description}</p>
+            ) : null}
           </div>
-          <FavoriteButton
-            isFavorite={isActivityPartnerFavorite(slug, partner.id)}
-            onToggle={() => toggleActivityPartner(slug, partner.id, categoryLabel, partner.name)}
-          />
         </div>
+      </HeroBackground>
 
-        {isGymAccess ? (
-          <section className="mt-10">
-            <h2 className="mb-4 text-lg font-semibold text-white">
-              Acesso ao ginásio
-            </h2>
-            <GlassCard
-              variant="dark"
-              padding="lg"
-              className="rounded-2xl border-white/12 bg-white/5 backdrop-blur-xl"
-            >
-              {partner.openingHours && (
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-white/60">
-                    Horário de funcionamento
-                  </p>
-                  <p className="mt-1.5 font-medium text-white">
-                    {partner.openingHours}
-                  </p>
-                </div>
-              )}
-              {partner.fitlifePassHours && (
-                <div className={partner.openingHours ? "mt-5" : ""}>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-white/60">
-                    Horário FitLife Pass
-                  </p>
-                  <p className="mt-1.5 text-sm text-white/90">
-                    {partner.fitlifePassHours}
-                  </p>
-                  <p className="mt-1 text-xs text-white/60">
-                    Acesso FitLife Pass apenas nestes horários.
-                  </p>
-                </div>
-              )}
-              <div className={partner.openingHours || partner.fitlifePassHours ? "mt-5" : ""}>
-                <p className="text-xs font-semibold uppercase tracking-wider text-white/60">
-                  Créditos
-                </p>
-                <p className="mt-1.5 font-medium text-white">
-                  {(partner.creditsPerEntry ?? partner.minCredits ?? 1)} crédito
-                  {(partner.creditsPerEntry ?? partner.minCredits ?? 1) !== 1 ? "s" : ""} por entrada
-                </p>
-              </div>
-              <PrimaryButton
-                variant="primary"
-                className="mt-6 w-full sm:w-auto"
-                onClick={() => {
-                  setErrorMessage(null);
-                  const credits = partner.creditsPerEntry ?? partner.minCredits ?? 6;
-                  const result = addGymReservation({
-                    partnerId: partner.id,
-                    partnerName: partner.name,
-                    creditsRequired: credits,
-                  });
-                  if (result.success && result.reservation) {
-                    setGymReservation(result.reservation);
-                    setSuccessMessage(`Acesso reservado. ${credits} crédito${credits !== 1 ? "s" : ""} utilizados. QR válido por 8 horas.`);
-                    setTimeout(() => setSuccessMessage(null), 6000);
-                  } else {
-                    setErrorMessage(result.error ?? "Erro ao reservar acesso.");
-                    setTimeout(() => setErrorMessage(null), 5000);
-                  }
-                }}
-              >
-                Entrar agora
-              </PrimaryButton>
-            </GlassCard>
-          </section>
+      <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+        <SectionHeader
+          title="Atividades disponíveis"
+          subtitle="Escolhe a tua sessão e reserva com créditos reais."
+          variant="app"
+          className="mb-8"
+        />
+
+        {error ? (
+          <div className="mb-6 rounded-2xl border border-red-400/25 bg-red-500/10 px-5 py-4 text-sm text-red-100 backdrop-blur-md">
+            {error}
+          </div>
+        ) : null}
+
+        {success ? (
+          <div className="mb-6 rounded-2xl border border-emerald-400/25 bg-emerald-500/10 px-5 py-4 text-sm text-emerald-100 backdrop-blur-md">
+            {success}
+          </div>
+        ) : null}
+
+        {loading ? (
+          <GlassCard
+            variant="dark"
+            className="rounded-[28px] border border-white/10 bg-white/8 p-8 text-center text-white/75"
+          >
+            A carregar atividades...
+          </GlassCard>
+        ) : activities.length === 0 ? (
+          <GlassCard
+            variant="dark"
+            className="rounded-[28px] border border-white/10 bg-white/8 p-8 text-center text-white/75"
+          >
+            Nenhuma atividade disponível para este parceiro.
+          </GlassCard>
         ) : (
-        <section className="mt-10">
-          <h2 className="mb-6 text-lg font-semibold text-white">
-            Atividades disponíveis
-          </h2>
-          {successMessage && (
-            <GlassCard
-              variant="dark"
-              padding="md"
-              className="mb-6 border-emerald-400/30 bg-emerald-500/10"
-            >
-              <p className="text-sm text-emerald-100">{successMessage}</p>
-            </GlassCard>
-          )}
-          {errorMessage && (
-            <GlassCard
-              variant="dark"
-              padding="md"
-              className="mb-6 border-red-400/30 bg-red-500/10"
-            >
-              <p className="text-sm text-red-100">{errorMessage}</p>
-            </GlassCard>
-          )}
-          <div className="space-y-4">
-            {initialActivities.length === 0 ? (
-              <GlassCard variant="dark" padding="lg">
-                <p className="text-sm text-white/80">
-                  Não há atividades disponíveis para reserva neste momento.
-                </p>
-                <Link
-                  href={`/activities/categorias/${slug}`}
-                  className="mt-4 inline-flex text-sm font-medium text-white/80 underline-offset-2 hover:underline"
-                >
-                  ← Voltar aos parceiros
-                </Link>
-              </GlassCard>
-            ) : (
-              initialActivities.map((act) => {
-                const reservedCount = countReservationsForActivity(partnerId, act.id);
-                const availableSpots = isIndividualServiceCategory
-                  ? Math.min(1, Math.max(0, act.spots - reservedCount))
-                  : Math.max(0, act.spots - reservedCount);
-                const isPersonalTraining = slug === "personal-training" && !!act.trainer?.name;
-                return (
+          <div className="space-y-5">
+            {activities.map((activity) => {
+              const activityId = activity._id || activity.id || "";
+              const title = activity.title || activity.name || "Sessão";
+              const credits = activity.creditsCost ?? activity.credits ?? 0;
+              const duration = activity.durationMinutes ?? activity.duration;
+              const availableSpots = activity.availableSpots ?? activity.capacity;
+              const location =
+                activity.location || activity.address || activity.city || partner?.location || partner?.city;
+
+              return (
                 <GlassCard
-                  key={act.id}
+                  key={activityId}
                   variant="dark"
-                  padding="lg"
-                  className="rounded-2xl border-white/12 bg-white/5 backdrop-blur-xl"
+                  hover
+                  className="overflow-hidden rounded-[30px] border border-white/12 bg-white/10 p-0 shadow-[0_20px_60px_rgba(13,36,110,0.32)] backdrop-blur-2xl"
                 >
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="grid gap-6 p-6 md:grid-cols-[1fr_auto] md:items-center md:p-7">
                     <div>
-                      <h3 className="font-semibold text-white">
-                        {isPersonalTraining ? act.trainer!.name : act.title}
-                      </h3>
-                      {isPersonalTraining && (
-                        <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-white/60">
-                          Personal Trainer
-                        </p>
-                      )}
-                      <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/75">
-                        <li>{act.date}</li>
-                        <li>{act.time}</li>
-                        <li>{act.durationMinutes} min</li>
-                        <li>
-                          {isPadelPartner
-                            ? `${act.credits} crédito${act.credits !== 1 ? "s" : ""} por jogador`
-                            : `${act.credits} crédito${act.credits !== 1 ? "s" : ""}`}
-                        </li>
-                        <li>
-                          {availableSpots} vaga{availableSpots !== 1 ? "s" : ""} disponível
-                          {availableSpots !== 1 ? "is" : ""}
-                        </li>
-                        {act.location && (
-                          <li className="text-white/65">{act.location}</li>
-                        )}
-                      </ul>
-                      {isPersonalTraining && act.trainer!.specialties.length > 0 && (
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          {act.trainer!.specialties.slice(0, 3).map((s) => (
+                      <div className="mb-2 flex flex-wrap items-center gap-3">
+                        <h2 className="text-2xl font-bold text-white">{title}</h2>
+                        {activity.type ? (
+                          <span className="rounded-full border border-white/12 bg-white/10 px-3 py-1 text-xs font-semibold text-white/75">
+                            {activity.type}
+                          </span>
+                        ) : null}
+                      </div>
+
+                      <div className="mb-3 text-sm font-medium uppercase tracking-[0.16em] text-white/55">
+                        {partner?.name}
+                      </div>
+
+                      <div className="mb-4 flex flex-wrap gap-2">
+                        <span className="rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs text-white/80">
+                          {formatDate(activity.startDate || activity.date)}
+                        </span>
+                        <span className="rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs text-white/80">
+                          {formatTime(activity)}
+                        </span>
+                        {duration ? (
+                          <span className="rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs text-white/80">
+                            {duration} min
+                          </span>
+                        ) : null}
+                        <span className="rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs text-white/80">
+                          {credits} créditos
+                        </span>
+                        {typeof availableSpots === "number" ? (
+                          <span className="rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs text-white/80">
+                            {availableSpots} vagas disponíveis
+                          </span>
+                        ) : null}
+                      </div>
+
+                      {location ? (
+                        <p className="mb-3 text-sm text-white/72">{location}</p>
+                      ) : null}
+
+                      {activity.description ? (
+                        <p className="max-w-3xl text-sm leading-7 text-white/65">{activity.description}</p>
+                      ) : null}
+
+                      {Array.isArray(activity.tags) && activity.tags.length > 0 ? (
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          {activity.tags.map((tag) => (
                             <span
-                              key={s}
-                              className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-medium text-white/80"
+                              key={tag}
+                              className="rounded-full border border-blue-300/15 bg-blue-400/10 px-3 py-1 text-xs font-medium text-blue-100"
                             >
-                              {s}
+                              {tag}
                             </span>
                           ))}
                         </div>
-                      )}
+                      ) : null}
                     </div>
-                    <div className="flex shrink-0 flex-wrap items-center gap-3">
-                      <PrimaryButton
-                        variant="primary"
-                        className="min-w-[140px]"
-                        onClick={() => handleReservarClick(act)}
-                        disabled={availableSpots <= 0}
+
+                    <div className="flex min-w-[220px] flex-col gap-3">
+                      <button
+                        type="button"
+                        onClick={() => handleReserve(activityId)}
+                        disabled={!activityId || reservingId === activityId}
+                        className="rounded-full bg-gradient-to-r from-[#2b69ff] via-[#3485ff] to-[#46b6ff] px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(58,112,255,0.35)] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        {availableSpots <= 0 ? "Esgotado" : "Reservar"}
-                      </PrimaryButton>
+                        {reservingId === activityId ? "A reservar..." : "Reservar"}
+                      </button>
+
                       <Link
-                        href={`/activities/categorias/${slug}/parceiros/${partnerId}/atividades/${act.id}`}
-                        className="text-sm font-medium text-white/80 underline-offset-2 hover:text-white hover:underline"
+                        href={`/activities/${activityId}`}
+                        className="rounded-full border border-white/15 bg-white/10 px-6 py-3 text-center text-sm font-semibold text-white/90 transition hover:bg-white/15"
                       >
                         Ver detalhes
                       </Link>
@@ -370,128 +320,7 @@ export default function PartnerActivitiesPage() {
                   </div>
                 </GlassCard>
               );
-              })
-            )}
-          </div>
-        </section>
-        )}
-
-        {(partner.address ?? partner.city ?? partner.googleMapsUrl) && (
-          <section className="mt-10">
-            <h2 className="mb-4 text-lg font-semibold text-white">
-              📍 Localização
-            </h2>
-            <GlassCard
-              variant="dark"
-              padding="lg"
-              className="rounded-2xl border border-white/12 bg-white/5 shadow-lg shadow-black/10 backdrop-blur-xl"
-            >
-              {partner.address && (
-                <p className="font-medium text-white">{partner.address}</p>
-              )}
-              {partner.city && (
-                <p className="mt-1 text-sm text-white/75">{partner.city}</p>
-              )}
-              {partner.latitude != null && partner.longitude != null && (
-                <div className="mt-4 h-[210px] w-full overflow-hidden rounded-xl border border-white/10 bg-white/5">
-                  <iframe
-                    title={`Mapa: ${partner.name}`}
-                    src={`https://www.google.com/maps?q=${partner.latitude},${partner.longitude}&z=15&output=embed`}
-                    className="h-full w-full border-0"
-                    allowFullScreen
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                  />
-                </div>
-              )}
-              {(partner.googleMapsUrl ?? (partner.latitude != null && partner.longitude != null)) && (
-                <a
-                  href={
-                    partner.googleMapsUrl ??
-                    `https://www.google.com/maps/search/?api=1&query=${partner.latitude},${partner.longitude}`
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-4 inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/15 hover:border-white/30 active:scale-[0.98]"
-                >
-                  Abrir no Google Maps
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                </a>
-              )}
-            </GlassCard>
-          </section>
-        )}
-
-        <div className="mt-10">
-          <Link
-            href={`/activities/categorias/${slug}`}
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-white/80 transition hover:text-white"
-          >
-            ← Voltar aos parceiros
-          </Link>
-        </div>
-
-        {gymReservation && (
-          <GymEntryQRModal
-            partner={partner}
-            reservation={gymReservation}
-            onClose={() => setGymReservation(null)}
-          />
-        )}
-
-        {padelReservarActivity && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="padel-players-title"
-          >
-            <div
-              className="absolute inset-0 bg-[#0b1e4d]/80 backdrop-blur-sm"
-              onClick={() => setPadelReservarActivity(null)}
-              aria-hidden
-            />
-            <div className="relative z-10 w-full max-w-sm rounded-2xl border border-white/12 bg-white/[0.08] p-6 shadow-2xl backdrop-blur-xl">
-              <h2 id="padel-players-title" className="text-lg font-semibold text-white">
-                Número de jogadores
-              </h2>
-              <p className="mt-1 text-sm text-white/70">
-                Escolhe quantos jogadores para esta reserva.
-              </p>
-              <div className="mt-5 flex flex-wrap gap-2">
-                {[1, 2, 3, 4].map((n) => (
-                  <button
-                    key={n}
-                    type="button"
-                    onClick={() => setPadelPlayerCount(n)}
-                    className={`rounded-xl border px-5 py-3 text-sm font-medium transition ${
-                      padelPlayerCount === n
-                        ? "border-blue-400/50 bg-blue-500/20 text-white"
-                        : "border-white/15 bg-white/5 text-white hover:bg-white/10 hover:border-white/25"
-                    }`}
-                  >
-                    {n}
-                  </button>
-                ))}
-              </div>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <PrimaryButton
-                  variant="primary"
-                  onClick={() => handleReservar(padelReservarActivity, padelPlayerCount)}
-                >
-                  Confirmar reserva
-                </PrimaryButton>
-                <button
-                  type="button"
-                  onClick={() => setPadelReservarActivity(null)}
-                  className="rounded-full border border-white/22 bg-white/6 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-                >
-                  Cancelar
-                </button>
-              </div>
-            </div>
+            })}
           </div>
         )}
       </div>

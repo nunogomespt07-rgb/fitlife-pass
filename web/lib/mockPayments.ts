@@ -159,6 +159,7 @@ export const MOCK_PAYMENT_METHODS: PaymentMethod[] = [
 
 export const MOCK_CREDIT_PACKS: CreditPack[] = [
   { id: "pack-10", credits: 10, price: 10, label: "10 créditos" },
-  { id: "pack-20", credits: 20, price: 18, label: "20 créditos" },
+  /** Pacote médio (evitar valor 20 como “saldo” implícito em demos) */
+  { id: "pack-16", credits: 16, price: 17, label: "16 créditos" },
   { id: "pack-50", credits: 50, price: 40, label: "50 créditos" },
 ];

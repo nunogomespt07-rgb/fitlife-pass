@@ -56,10 +56,10 @@ export default function DashboardReservasPage() {
     setCancelId(id);
   }
 
-  function handleConfirmCancel() {
+  async function handleConfirmCancel() {
     if (!cancelId) return;
     setCancelError(null);
-    const result = cancelReservation(cancelId);
+    const result = await cancelReservation(cancelId);
     setCancelId(null);
     if (result.success) {
       setSuccessMessage("Reserva cancelada com sucesso");

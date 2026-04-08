@@ -1,5 +1,4 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { getToken } from "next-auth/jwt";
 
 const BACKOFFICE_COOKIE = "fitlife_backoffice";
 const ADMIN_COOKIE = "fitlife_admin";
@@ -98,10 +97,15 @@ async function verifyAdminCookie(raw: string | undefined): Promise<boolean> {
   }
 }
 
+/**
+ * Customer `/dashboard` is NOT gated here with NextAuth JWT.
+ * App auth for customers uses `localStorage` token (client); middleware cannot read it.
+ * Do not redirect to /auth based on `getToken()` — that would block email/password signup
+ * and JWT login (no NextAuth session cookie yet).
+ */
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Partner Backoffice protection (demo but server-enforced)
   if (pathname.startsWith("/backoffice")) {
     if (pathname.startsWith("/backoffice/login")) return NextResponse.next();
     const session = await verifyBackofficeCookie(req.cookies.get(BACKOFFICE_COOKIE)?.value);
@@ -114,28 +118,13 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Admin backoffice protection (demo PIN cookie)
   if (pathname.startsWith("/admin")) {
     if (pathname.startsWith("/admin/login")) return NextResponse.next();
     const cookieValue = req.cookies.get(ADMIN_COOKIE)?.value;
     const ok = await verifyAdminCookie(cookieValue);
-    console.log("[admin middleware]", { pathname, cookiePresent: !!cookieValue, ok });
     if (!ok) {
       const url = req.nextUrl.clone();
       url.pathname = "/admin/login";
-      url.searchParams.set("next", pathname);
-      console.log("[admin middleware] redirect to login", { reason: !cookieValue ? "no cookie" : "verify failed" });
-      return NextResponse.redirect(url);
-    }
-    return NextResponse.next();
-  }
-
-  // Customer dashboard protection (NextAuth primary)
-  if (pathname.startsWith("/dashboard")) {
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-    if (!token) {
-      const url = req.nextUrl.clone();
-      url.pathname = "/auth";
       url.searchParams.set("next", pathname);
       return NextResponse.redirect(url);
     }
@@ -146,6 +135,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/backoffice/:path*", "/admin/:path*"],
+  matcher: ["/backoffice/:path*", "/admin/:path*"],
 };
-

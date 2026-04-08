@@ -1,9 +1,28 @@
 "use client";
 
+/**
+ * Listagem de clientes: o browser chama apenas rotas Next (`/api/admin/customers/*`).
+ * O servidor Next faz proxy para Express (GET /admin/customers, /admin/customers/metrics)
+ * com BACKEND_API_URL ou NEXT_PUBLIC_API_URL + ADMIN_API_SECRET — sem Mongo no Next.
+ */
+
 import { useEffect, useState } from "react";
 import GlassCard from "@/app/components/ui/GlassCard";
 
+function AdminSpinner({ label }: { label: string }) {
+  return (
+    <div className="mt-2 flex items-center gap-2 text-sm text-white/65" role="status">
+      <span
+        className="inline-block h-5 w-5 shrink-0 animate-spin rounded-full border-2 border-white/20 border-t-emerald-400/90"
+        aria-hidden
+      />
+      <span>{label}</span>
+    </div>
+  );
+}
+
 type CustomerItem = {
+  id?: string;
   userEmail: string;
   fullName: string | null;
   email: string;
@@ -36,9 +55,62 @@ type MetricsRes = {
   withoutPlan: number;
 };
 
+function normalizeListPayload(data: Record<string, unknown> | null, fallbackPage: number, fallbackPageSize: number): ListRes {
+  if (!data) {
+    return {
+      items: [],
+      total: 0,
+      page: fallbackPage,
+      pageSize: fallbackPageSize,
+      totalPages: 1,
+    };
+  }
+  const items = Array.isArray(data.items)
+    ? (data.items as CustomerItem[])
+    : Array.isArray(data.customers)
+      ? (data.customers as CustomerItem[])
+      : [];
+  const pagination = data?.pagination as Record<string, unknown> | undefined;
+  const limit =
+    typeof pagination?.limit === "number"
+      ? pagination.limit
+      : typeof data?.pageSize === "number"
+        ? (data.pageSize as number)
+        : fallbackPageSize;
+  const total =
+    typeof pagination?.total === "number"
+      ? pagination.total
+      : typeof data?.total === "number"
+        ? (data.total as number)
+        : items.length;
+  const pages =
+    typeof pagination?.pages === "number"
+      ? pagination.pages
+      : typeof data?.totalPages === "number"
+        ? (data.totalPages as number)
+        : Math.max(1, Math.ceil(total / limit));
+  const pg =
+    typeof pagination?.page === "number"
+      ? pagination.page
+      : typeof data?.page === "number"
+        ? (data.page as number)
+        : fallbackPage;
+  return {
+    items,
+    total,
+    page: pg,
+    pageSize: limit,
+    totalPages: pages,
+  };
+}
+
 export default function AdminClientesPage() {
   const [metrics, setMetrics] = useState<MetricsRes | null>(null);
+  const [metricsLoading, setMetricsLoading] = useState(true);
+  const [metricsError, setMetricsError] = useState<string | null>(null);
   const [list, setList] = useState<ListRes | null>(null);
+  const [listLoading, setListLoading] = useState(true);
+  const [listError, setListError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [search, setSearch] = useState("");
@@ -61,33 +133,109 @@ export default function AdminClientesPage() {
   const enc = (e: string) => encodeURIComponent(e.trim().toLowerCase());
 
   useEffect(() => {
-    fetch("/api/admin/customers/metrics")
-      .then((r) => (r.ok ? r.json() : null))
-      .then(setMetrics)
-      .catch(() => setMetrics(null));
+    let cancelled = false;
+    (async () => {
+      setMetricsLoading(true);
+      setMetricsError(null);
+      try {
+        const r = await fetch("/api/admin/customers/metrics", { credentials: "include" });
+        const raw = await r.json().catch(() => null);
+        if (cancelled) return;
+        if (!r.ok) {
+          setMetrics(null);
+          setMetricsError(
+            typeof raw?.message === "string" ? raw.message : `Erro ao carregar métricas (${r.status})`
+          );
+          return;
+        }
+        const m =
+          raw &&
+          typeof raw === "object" &&
+          raw !== null &&
+          "metrics" in raw &&
+          raw.metrics &&
+          typeof raw.metrics === "object"
+            ? (raw.metrics as MetricsRes)
+            : (raw as MetricsRes);
+        setMetrics(m);
+      } catch (e) {
+        if (!cancelled) {
+          setMetrics(null);
+          setMetricsError(e instanceof Error ? e.message : "Falha de rede");
+        }
+      } finally {
+        if (!cancelled) setMetricsLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
-    const params = new URLSearchParams();
-    params.set("page", String(page));
-    params.set("pageSize", String(pageSize));
-    if (search) params.set("search", search);
-    if (planFilter) params.set("plan", planFilter);
-    if (sort) params.set("sort", sort);
-    if (dateFrom) params.set("dateFrom", dateFrom);
-    if (dateTo) params.set("dateTo", dateTo);
-    if (country) params.set("country", country);
-    if (city) params.set("city", city);
-    if (creditsMin !== "") params.set("creditsMin", creditsMin);
-    if (creditsMax !== "") params.set("creditsMax", creditsMax);
-    if (reservationsMin !== "") params.set("reservationsMin", reservationsMin);
-    if (statusFilter) params.set("status", statusFilter);
-    if (activityFilter) params.set("activity", activityFilter);
-    fetch(`/api/admin/customers/list?${params}`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then(setList)
-      .catch(() => setList(null));
-  }, [page, pageSize, search, planFilter, sort, dateFrom, dateTo, country, city, creditsMin, creditsMax, reservationsMin, statusFilter, activityFilter, refetch]);
+    let cancelled = false;
+    (async () => {
+      setListLoading(true);
+      setListError(null);
+      try {
+        const params = new URLSearchParams();
+        params.set("page", String(page));
+        params.set("pageSize", String(pageSize));
+        params.set("limit", String(pageSize));
+        if (search) params.set("search", search);
+        if (planFilter) params.set("plan", planFilter);
+        if (sort) params.set("sort", sort);
+        if (dateFrom) params.set("dateFrom", dateFrom);
+        if (dateTo) params.set("dateTo", dateTo);
+        if (country) params.set("country", country);
+        if (city) params.set("city", city);
+        if (creditsMin !== "") params.set("creditsMin", creditsMin);
+        if (creditsMax !== "") params.set("creditsMax", creditsMax);
+        if (reservationsMin !== "") params.set("reservationsMin", reservationsMin);
+        if (statusFilter) params.set("status", statusFilter);
+        if (activityFilter) params.set("activity", activityFilter);
+        const r = await fetch(`/api/admin/customers?${params}`, { credentials: "include" });
+        const raw = (await r.json().catch(() => null)) as Record<string, unknown> | null;
+        if (cancelled) return;
+        if (!r.ok) {
+          const msg =
+            raw && typeof raw === "object" && "message" in raw && typeof (raw as { message?: unknown }).message === "string"
+              ? (raw as { message: string }).message
+              : `Erro ao carregar clientes (${r.status})`;
+          setListError(msg);
+          setList(normalizeListPayload(null, page, pageSize));
+          return;
+        }
+        setList(normalizeListPayload(raw, page, pageSize));
+      } catch (e) {
+        if (!cancelled) {
+          setListError(e instanceof Error ? e.message : "Falha de rede");
+          setList(normalizeListPayload(null, page, pageSize));
+        }
+      } finally {
+        if (!cancelled) setListLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    page,
+    pageSize,
+    search,
+    planFilter,
+    sort,
+    dateFrom,
+    dateTo,
+    country,
+    city,
+    creditsMin,
+    creditsMax,
+    reservationsMin,
+    statusFilter,
+    activityFilter,
+    refetch,
+  ]);
 
   const activeFilters =
     [planFilter, dateFrom, dateTo, country, city, creditsMin, creditsMax, reservationsMin, statusFilter, activityFilter].filter(Boolean).length;
@@ -96,7 +244,11 @@ export default function AdminClientesPage() {
     <div className="space-y-6">
       <GlassCard variant="app" padding="lg" className="admin-card border-white/15">
         <p className="admin-kpi-label">Base de dados de clientes</p>
-        {metrics != null ? (
+        {metricsLoading ? (
+          <AdminSpinner label="A carregar métricas…" />
+        ) : metricsError ? (
+          <p className="mt-2 text-sm text-red-300/90">{metricsError}</p>
+        ) : metrics != null ? (
           <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm text-white/75">
             <span>Total: <strong className="text-white/90">{metrics.totalUsers}</strong></span>
             <span>Hoje: <strong className="text-white/90">{metrics.newToday}</strong></span>
@@ -106,7 +258,7 @@ export default function AdminClientesPage() {
             <span>Sem plano: <strong className="text-white/90">{metrics.withoutPlan}</strong></span>
           </div>
         ) : (
-          <p className="mt-2 text-sm text-white/60">A carregar…</p>
+          <p className="mt-2 text-sm text-white/60">Sem dados.</p>
         )}
       </GlassCard>
 
@@ -274,9 +426,27 @@ export default function AdminClientesPage() {
                 </tr>
               </thead>
               <tbody>
-                {list?.items?.length ? (
+                {listLoading ? (
+                  <tr>
+                    <td colSpan={12} className="admin-empty py-8">
+                      <div className="flex items-center justify-center gap-2 text-white/70">
+                        <span
+                          className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-emerald-400/90"
+                          aria-hidden
+                        />
+                        <span>A carregar clientes…</span>
+                      </div>
+                    </td>
+                  </tr>
+                ) : listError ? (
+                  <tr>
+                    <td colSpan={12} className="admin-empty text-red-300/90">
+                      {listError}
+                    </td>
+                  </tr>
+                ) : list?.items?.length ? (
                   list.items.map((c) => (
-                    <tr key={c.email}>
+                    <tr key={c.id ?? c.email}>
                       <td className="font-medium text-white/92">{c.fullName ?? "—"}</td>
                       <td className="text-white/85">{c.email}</td>
                       <td className="text-white/75">{c.phone ?? "—"}</td>
@@ -365,7 +535,9 @@ export default function AdminClientesPage() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={12} className="admin-empty">Nenhum cliente encontrado.</td>
+                    <td colSpan={12} className="admin-empty">
+                      Nenhum cliente encontrado (lista vazia na base de dados).
+                    </td>
                   </tr>
                 )}
               </tbody>

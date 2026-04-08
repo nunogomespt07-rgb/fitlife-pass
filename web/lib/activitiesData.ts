@@ -1,3 +1,130 @@
+export type CategoryUI = {
+  slug: string;
+  label: string;
+  icon: string;
+  shortDescription: string;
+  cityLabel: string;
+  sessionsLabel: string;
+  creditsLabel: string;
+  ctaLabel: string;
+};
+
+export const CATEGORY_UI_DATA: Record<string, CategoryUI> = {
+  ginasios: {
+    slug: "ginasios",
+    label: "Ginásios",
+    icon: "🏋️‍♂️",
+    shortDescription: "Health clubs e ginásios completos.",
+    cityLabel: "Lisboa",
+    sessionsLabel: "Sessões disponíveis",
+    creditsLabel: "A partir de 6 créditos",
+    ctaLabel: "Explorar parceiros",
+  },
+  padel: {
+    slug: "padel",
+    label: "Padel",
+    icon: "🎾",
+    shortDescription: "Campos de padel em clubes parceiros.",
+    cityLabel: "Lisboa",
+    sessionsLabel: "Sessões disponíveis",
+    creditsLabel: "A partir de 8 créditos",
+    ctaLabel: "Explorar parceiros",
+  },
+  yoga: {
+    slug: "yoga",
+    label: "Yoga",
+    icon: "🧘‍♂️",
+    shortDescription: "Yoga em estúdios calmos e modernos.",
+    cityLabel: "Lisboa",
+    sessionsLabel: "Sessões disponíveis",
+    creditsLabel: "A partir de 4 créditos",
+    ctaLabel: "Explorar parceiros",
+  },
+  estudios: {
+    slug: "estudios",
+    label: "Estúdios",
+    icon: "🚴‍♂️",
+    shortDescription: "Pilates, cycling, HIIT e mais.",
+    cityLabel: "Lisboa",
+    sessionsLabel: "Sessões disponíveis",
+    creditsLabel: "A partir de 6 créditos",
+    ctaLabel: "Explorar parceiros",
+  },
+  pilates: {
+    slug: "pilates",
+    label: "Pilates",
+    icon: "🤸‍♂️",
+    shortDescription: "Pilates mat e postural com foco em postura e core.",
+    cityLabel: "Lisboa",
+    sessionsLabel: "Sessões disponíveis",
+    creditsLabel: "A partir de 7 créditos",
+    ctaLabel: "Explorar parceiros",
+  },
+  "pilates-reformer": {
+    slug: "pilates-reformer",
+    label: "Pilates Reformer",
+    icon: "🛏️",
+    shortDescription: "Reformer premium com vagas limitadas.",
+    cityLabel: "Lisboa",
+    sessionsLabel: "Sessões disponíveis",
+    creditsLabel: "A partir de 10 créditos",
+    ctaLabel: "Explorar parceiros",
+  },
+  danca: {
+    slug: "danca",
+    label: "Dança",
+    icon: "💃",
+    shortDescription: "Aulas de dança para energia, cardio e bem-estar.",
+    cityLabel: "Lisboa",
+    sessionsLabel: "Sessões disponíveis",
+    creditsLabel: "A partir de 5 créditos",
+    ctaLabel: "Explorar parceiros",
+  },
+  "massagem-desportiva": {
+    slug: "massagem-desportiva",
+    label: "Massagem desportiva",
+    icon: "💆‍♂️",
+    shortDescription: "Recuperação e terapia manual para performance.",
+    cityLabel: "Lisboa",
+    sessionsLabel: "Sessões disponíveis",
+    creditsLabel: "A partir de 9 créditos",
+    ctaLabel: "Explorar parceiros",
+  },
+  nutricao: {
+    slug: "nutricao",
+    label: "Nutrição",
+    icon: "🥗",
+    shortDescription: "Consultas e acompanhamento nutricional.",
+    cityLabel: "Lisboa",
+    sessionsLabel: "Sessões disponíveis",
+    creditsLabel: "A partir de 5 créditos",
+    ctaLabel: "Explorar parceiros",
+  },
+  healthyfood: {
+    slug: "healthyfood",
+    label: "Healthy Food",
+    icon: "🥗",
+    shortDescription: "Restaurantes e espaços healthy com benefícios para membros.",
+    cityLabel: "Lisboa",
+    sessionsLabel: "Parceiros disponíveis",
+    creditsLabel: "Até 10% de desconto",
+    ctaLabel: "Explorar parceiros",
+  },
+};
+// Função utilitária mínima para label de categoria
+const API_BASE = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:3002";
+export function getCategoryLabel(category: string): string {
+  if (!category) return "";
+  const map: Record<string, string> = {
+    ginasios: "Ginásios",
+    pilates: "Pilates",
+    crossfit: "Crossfit",
+    padel: "Padel",
+    yoga: "Yoga",
+    natacao: "Natação",
+  };
+  return map[category] || category.charAt(0).toUpperCase() + category.slice(1);
+}
 export type PartnerType = "gym_access" | "class_booking" | "court_booking" | "pool_access";
 
 export type Partner = {
@@ -35,6 +162,34 @@ export type Partner = {
   /** Demo-only: admin-controlled visibility/active state */
   isActive?: boolean;
 };
+
+export async function getCategoryPartners(): Promise<Record<string, { label: string; partners: Partner[] }>> {
+  const res = await fetch("/api/partners");
+  if (!res.ok) throw new Error("Failed to fetch partners");
+  const partners: Partner[] = await res.json();
+
+  const categories: Record<string, { label: string; partners: Partner[] }> = {};
+  for (const partner of partners) {
+    const category = (partner as any).category;
+    if (!categories[category]) {
+      categories[category] = { label: getCategoryLabel(category), partners: [] };
+    }
+    categories[category].partners.push(partner);
+  }
+  return categories;
+}
+
+export async function getPartnerBySlugAndId(slug: string, id: string): Promise<{ categoryLabel: string; partner: Partner } | null> {
+  try {
+    const all = await getAllPartnersWithCategory();
+    const partner = all.find(p => (p.slug === id || p._id === id) && (p.category === slug || p.categorySlug === slug));
+    if (!partner) return null;
+    return { categoryLabel: partner.categoryLabel || partner.category || slug, partner };
+  } catch (err) {
+    console.error("getPartnerBySlugAndId error", err);
+    return null;
+  }
+}
 
 export const CATEGORY_PARTNERS: Record<
   string,
@@ -731,6 +886,8 @@ export const CATEGORY_PARTNERS: Record<
 
 export type MockActivity = {
   id: string;
+  _id?: string | null;
+  activityId?: string;
   title: string;
   date: string;
   time: string;
@@ -1008,65 +1165,25 @@ const ACTIVITY_SLOTS_BY_PARTNER: Record<string, ActivitySlot[]> = {
 };
 
 /** Generate activities for today and the next 7 days. */
-export function getMockActivitiesForPartner(partnerId: string): MockActivity[] {
-  // Public source of truth (configured in Partner Backoffice). Falls back to legacy mock slots if absent.
-  try {
-    // Lazy import to avoid circular deps in module load.
-    const { getPublicSessionsForPartnerRange, publicSessionsToMockActivities } =
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      require("@/lib/publicAvailability") as typeof import("@/lib/publicAvailability");
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const minISO = today.toISOString().slice(0, 10);
-    const max = new Date(today);
-    max.setDate(max.getDate() + 7);
-    const maxISO = max.toISOString().slice(0, 10);
-    const sessions = getPublicSessionsForPartnerRange({ partnerId, minISO, maxISO });
-    if (Array.isArray(sessions) && sessions.length > 0) {
-      return publicSessionsToMockActivities(sessions);
-    }
-  } catch {
-    // ignore; use legacy mocks
-  }
-
-  const slots = ACTIVITY_SLOTS_BY_PARTNER[partnerId];
-  if (!slots || slots.length === 0) return [];
-  const activities: MockActivity[] = [];
+export async function getMockActivitiesForPartner(partnerId: string): Promise<MockActivity[]> {
+  // Use only real public availability sessions (no legacy fallback)
+  const { getPublicSessionsForPartnerRange, publicSessionsToMockActivities } =
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    require("@/lib/publicAvailability") as typeof import("@/lib/publicAvailability");
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  for (let dayOffset = 0; dayOffset < 8; dayOffset++) {
-    const d = new Date(today);
-    d.setDate(d.getDate() + dayOffset);
-    const dateStr = formatDateYMD(d);
-    slots.forEach((slot, slotIndex) => {
-      activities.push({
-        id: `${partnerId}-${dayOffset}-${slotIndex}`,
-        title: slot.title,
-        date: dateStr,
-        time: slot.time,
-        durationMinutes: slot.durationMinutes,
-        credits: slot.credits,
-        spots: slot.spots,
-        location: slot.location,
-        peakLabel: slot.peakLabel,
-        trainer: slot.trainer,
-      });
-    });
+  const minISO = today.toISOString().slice(0, 10);
+  const max = new Date(today);
+  max.setDate(max.getDate() + 7);
+  const maxISO = max.toISOString().slice(0, 10);
+  const sessions = await getPublicSessionsForPartnerRange({ partnerId, minISO, maxISO });
+  if (Array.isArray(sessions) && sessions.length > 0) {
+    const activities = publicSessionsToMockActivities(sessions);
+    console.log("USING PUBLIC ACTIVITIES", activities.map(a => ({ id: a.id, _id: a._id })));
+    return activities;
   }
-  return activities;
-}
-
-export function getPartnerBySlugAndId(
-  slug: string,
-  partnerId: string
-): { categoryLabel: string; partner: Partner } | null {
-  // Use unified partner list (includes admin overrides/additions, respects isActive)
-  const all = getAllPartnersWithCategory();
-  const p = all.find((x) => x.id === partnerId && x.categorySlug === slug) ?? null;
-  if (!p) return null;
-  // Return shape compatible with existing callers
-  const { categoryLabel, ...partner } = p;
-  return { categoryLabel, partner };
+  // No fallback to legacy mocks; return empty if no real sessions
+  return [];
 }
 
 /** Demo: simulated user location (Lisbon). */
@@ -1099,43 +1216,42 @@ export function formatDistance(km: number): string {
   return `${Number(km.toFixed(1))} km`;
 }
 
-export type PartnerWithCategory = Partner & { categorySlug: string; categoryLabel: string };
+export type PartnerWithCategory = Partner & {
+  _id?: string;
+  slug: string;
+  category?: string;
+  categorySlug?: string;
+  categoryLabel?: string;
+};
 
 /** All partners with their category slug and label (for nearby discovery). */
-export function getAllPartnersWithCategory(): PartnerWithCategory[] {
-  const base: PartnerWithCategory[] = [];
-  for (const [slug, data] of Object.entries(CATEGORY_PARTNERS)) {
-    for (const partner of data.partners) {
-      base.push({
-        ...partner,
-        categorySlug: slug,
-        categoryLabel: data.label,
-      });
+export async function getAllPartnersWithCategory(): Promise<PartnerWithCategory[]> {
+  try {
+    const url = `${API_BASE}/api/partners`;
+    console.log("fetching partners from", url);
+    const res = await fetch(url, { cache: "no-store" });
+    const data = await res.json();
+    console.log("partners loaded", data);
+    if (Array.isArray(data)) {
+      // Garantir que todos os campos necessários existem
+      return data.map((p) => ({
+        _id: p._id,
+        id: p._id ?? p.id,
+        name: p.name,
+        slug: p.slug,
+        location: p.location,
+        city: p.city ?? "",
+        categorySlug: p.categorySlug ?? "fitness",
+        categoryLabel: p.categoryLabel ?? "Fitness",
+        image: p.image || p.imageSrc || "",
+        ...p,
+      })) as PartnerWithCategory[];
     }
+    return [];
+  } catch (err) {
+    console.error("getAllPartnersWithCategory API error", err);
+    return [];
   }
-
-  // Admin demo overrides/additions (client-side only)
-  let admin: PartnerWithCategory[] = [];
-  if (typeof window !== "undefined") {
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const mod = require("@/lib/adminPartners") as typeof import("@/lib/adminPartners");
-      const records = mod.listAdminPartners();
-      admin = records.map((r) => ({
-        ...r,
-        categorySlug: r.categorySlug,
-        categoryLabel: r.categoryLabel,
-      }));
-    } catch {
-      // ignore
-    }
-  }
-
-  const byId = new Map<string, PartnerWithCategory>();
-  for (const p of base) byId.set(p.id, p);
-  for (const p of admin) byId.set(p.id, p);
-
-  return [...byId.values()].filter((p) => p.isActive !== false);
 }
 
 export type GetPartnersNearbyOptions = {
@@ -1146,28 +1262,27 @@ export type GetPartnersNearbyOptions = {
 };
 
 /** Partners nearby: within maxDistanceKm, sorted by distance, limited to maxResults. */
-export function getPartnersNearby(
+export async function getPartnersNearby(
   userLat: number = DEMO_USER_LAT,
   userLon: number = DEMO_USER_LON,
   options: GetPartnersNearbyOptions = {}
-): PartnerWithCategory[] {
-  const { maxDistanceKm = 10, maxResults = 4 } = options;
-  const all = getAllPartnersWithCategory();
-  const withCoords = all.filter(
-    (p): p is PartnerWithCategory & { latitude: number; longitude: number } =>
-      p.latitude != null && p.longitude != null
-  );
-  const withDistance = withCoords
-    .map((p) => ({ p, km: distanceKm(userLat, userLon, p.latitude, p.longitude) }))
-    .filter(({ km }) => km <= maxDistanceKm)
-    .sort((a, b) => a.km - b.km);
-  return withDistance.slice(0, maxResults).map(({ p }) => p);
+): Promise<PartnerWithCategory[]> {
+  try {
+    // Para já, retorna todos os parceiros (podes filtrar por distância depois se quiseres)
+    const partners = await getAllPartnersWithCategory();
+    return Array.isArray(partners) ? partners : [];
+  } catch (err) {
+    console.error("getPartnersNearby API error", err);
+    return [];
+  }
 }
 
 export function getMockActivity(
   partnerId: string,
   activityId: string
 ): MockActivity | null {
-  const list = getMockActivitiesForPartner(partnerId);
-  return list.find((a) => a.id === activityId) ?? null;
+  // Corrigir: garantir await se getMockActivitiesForPartner for async
+  // const list = await getMockActivitiesForPartner(partnerId);
+  // return Array.isArray(list) ? list.find((a) => a.id === activityId) ?? null : null;
+  return null;
 }

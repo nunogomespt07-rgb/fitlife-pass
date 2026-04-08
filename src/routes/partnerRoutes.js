@@ -1,61 +1,96 @@
 const express = require("express");
 const router = express.Router();
+const Partner = require("../models/Partner");
 
-const Booking = require("../models/Booking");
-
-function isProd() {
-  return String(process.env.NODE_ENV || "").toLowerCase() === "production";
-}
-
-// POST /partner/checkin
-// Body: { token: "..." }
-router.post("/checkin", async (req, res) => {
+/**
+ * GET /partners
+ * Lista todos os parceiros
+ */
+router.get("/", async (req, res) => {
   try {
-    const { token } = req.body;
+    const partners = await Partner.find().lean();
 
-    if (!token) {
-      return res.status(400).json({ message: "Token em falta" });
-    }
-
-    // procurar a reserva pelo token
-    const booking = await Booking.findOne({ checkInToken: token });
-
-    if (!booking) {
-      return res.status(404).json({ message: "Token inválido" });
-    }
-
-    // expirou?
-    if (booking.checkInExpiresAt && new Date(booking.checkInExpiresAt) < new Date()) {
-      return res.status(400).json({ message: "Token expirado" });
-    }
-
-    // já foi usado?
-    if (booking.status === "checked_in") {
-      return res.status(400).json({ message: "Token já usado (check-in já feito)" });
-    }
-
-    // marcar check-in
-    booking.status = "checked_in";
-
-    // opcional mas recomendado: inutilizar o token para não reutilizarem
-    booking.checkInToken = null;
-    booking.checkInExpiresAt = null;
-
-    await booking.save();
-
-    return res.status(200).json({
-      message: "Check-in efetuado com sucesso ✅",
-      bookingId: booking._id,
-      status: booking.status,
-    });
+    return res.json(partners);
   } catch (err) {
-    return res
-      .status(500)
-      .json(
-        isProd()
-          ? { message: "Erro interno" }
-          : { message: "Erro interno", error: err?.message ?? String(err) }
-      );
+    console.error("Erro ao buscar partners:", err);
+    return res.status(500).json({
+      message: "Erro interno",
+      error: err.message || String(err),
+    });
+  }
+});
+
+/**
+ * GET /partners/with-category
+ * Lista parceiros com categoryLabel (para frontend)
+ */
+router.get("/with-category", async (req, res) => {
+  try {
+    const partners = await Partner.find().lean();
+
+    const mapped = partners.map((p) => ({
+      _id: p._id,
+      id: p._id, // fallback
+      name: p.name,
+      slug: p.slug,
+      location: p.location,
+      city: p.city || "",
+      categorySlug: p.categorySlug || "fitness",
+      categoryLabel: p.categoryLabel || "Fitness",
+      image: p.image || p.imageSrc || "",
+    }));
+
+    return res.json(mapped);
+  } catch (err) {
+    console.error("Erro ao buscar partners com categoria:", err);
+    return res.status(500).json({
+      message: "Erro interno",
+      error: err.message || String(err),
+    });
+  }
+});
+
+/**
+ * GET /partners/:id
+ * Buscar partner por ID
+ */
+router.get("/:id", async (req, res) => {
+  try {
+    const partner = await Partner.findById(req.params.id).lean();
+
+    if (!partner) {
+      return res.status(404).json({ message: "Partner não encontrado" });
+    }
+
+    return res.json(partner);
+  } catch (err) {
+    console.error("Erro ao buscar partner:", err);
+    return res.status(500).json({
+      message: "Erro interno",
+      error: err.message || String(err),
+    });
+  }
+});
+
+/**
+ * GET /partners/:slug/:id
+ * (rota usada no frontend tipo /atividades/... )
+ */
+router.get("/:slug/:id", async (req, res) => {
+  try {
+    const partner = await Partner.findById(req.params.id).lean();
+
+    if (!partner) {
+      return res.status(404).json({ message: "Partner não encontrado" });
+    }
+
+    return res.json(partner);
+  } catch (err) {
+    console.error("Erro ao buscar partner por slug/id:", err);
+    return res.status(500).json({
+      message: "Erro interno",
+      error: err.message || String(err),
+    });
   }
 });
 

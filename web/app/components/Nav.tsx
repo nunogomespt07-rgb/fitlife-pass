@@ -2,11 +2,22 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { createContext, useContext, useState, useEffect, useRef, useMemo } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+} from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useNotifications } from "@/app/context/NotificationsContext";
 import { useMockReservations } from "@/app/context/MockReservationsContext";
-import { getStoredUser, getStoredUserDisplayName, setStoredUser } from "@/lib/storedUser";
+import {
+  getStoredUser,
+  getStoredUserDisplayName,
+  setStoredUser,
+} from "@/lib/storedUser";
 import { apiFetch } from "@/lib/api";
 import { getAllPartnersWithCategory } from "@/lib/activitiesData";
 import { RESTAURANTS } from "@/lib/restaurantsData";
@@ -16,10 +27,17 @@ export const MobileSearchOpenContext = createContext<{
   setIsMobileSearchOpen: (v: boolean) => void;
 }>({ isMobileSearchOpen: false, setIsMobileSearchOpen: () => {} });
 
-export function MobileSearchProvider({ children }: { children: React.ReactNode }) {
+export function MobileSearchProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+
   return (
-    <MobileSearchOpenContext.Provider value={{ isMobileSearchOpen, setIsMobileSearchOpen }}>
+    <MobileSearchOpenContext.Provider
+      value={{ isMobileSearchOpen, setIsMobileSearchOpen }}
+    >
       {children}
     </MobileSearchOpenContext.Provider>
   );
@@ -42,28 +60,31 @@ export default function Nav() {
   const router = useRouter();
   const { data: session } = useSession();
   const { unreadCount } = useNotifications();
-  const { credits, creditsReady } = useMockReservations();
+  const { credits, creditsReady, planName, planReady } = useMockReservations();
+
   const [hasToken, setHasToken] = useState(false);
   const [user, setUser] = useState<StoredUser>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const { isMobileSearchOpen, setIsMobileSearchOpen } = useContext(MobileSearchOpenContext);
+  const { isMobileSearchOpen, setIsMobileSearchOpen } = useContext(
+    MobileSearchOpenContext
+  );
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const mobileSearchInputRef = useRef<HTMLInputElement | null>(null);
-  const mobileSearchPanelRef = useRef<HTMLDivElement | null>(null);
   const mobileMenuPanelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    setHasToken(!!token || !!session?.user);
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+    setHasToken(Boolean(token) || Boolean(session?.user));
+
     const stored = readStoredUser();
     const sessionEmail = session?.user?.email?.trim().toLowerCase() ?? "";
     const storedEmail = stored?.email?.trim().toLowerCase() ?? "";
 
-    // If we have an active NextAuth session, it is the source of truth.
-    // Never allow a stale stored user to override a different Google account.
     if (session?.user) {
       if (stored && storedEmail && sessionEmail && storedEmail !== sessionEmail) {
         try {
@@ -72,6 +93,7 @@ export default function Nav() {
           // ignore
         }
       }
+
       const nameFromSession = session.user.name?.trim();
       const newUser = {
         id: (session.user as { id?: string }).id ?? (session.user.email ?? ""),
@@ -80,16 +102,18 @@ export default function Nav() {
         subscriptionPlanId: null as string | null,
         subscriptionPlanName: null as string | null,
       };
+
       setUser(newUser);
-      // IMPORTANT: never overwrite profile fields (DOB/country/phone, etc.) from a partial session.
-      // Merge identity into stored user instead of replacing the full object.
+
       try {
         setStoredUser({
           id: newUser.id,
           name: newUser.name,
           email: newUser.email,
         });
-      } catch {}
+      } catch {
+        // ignore
+      }
     } else if (stored) {
       setUser(stored);
     } else {
@@ -100,14 +124,20 @@ export default function Nav() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (!session?.user?.email) return;
+
     const existingToken = localStorage.getItem("token");
     if (existingToken) return;
 
     const email = String(session.user.email).trim().toLowerCase();
     if (!email) return;
 
-    const name = session.user.name ? String(session.user.name).trim() : email.split("@")[0];
-    const image = "image" in session.user ? (session.user as { image?: string | null }).image ?? null : null;
+    const name = session.user.name
+      ? String(session.user.name).trim()
+      : email.split("@")[0];
+    const image =
+      "image" in session.user
+        ? ((session.user as { image?: string | null }).image ?? null)
+        : null;
 
     apiFetch<unknown>("/auth/oauth/google", {
       method: "POST",
@@ -115,6 +145,7 @@ export default function Nav() {
     })
       .then((raw) => {
         if (!raw || typeof raw !== "object") return;
+
         const data = raw as Record<string, unknown>;
         const token =
           (typeof data.token === "string" && data.token) ||
@@ -124,6 +155,7 @@ export default function Nav() {
           typeof (data.data as Record<string, unknown>).token === "string"
             ? ((data.data as Record<string, unknown>).token as string)
             : "");
+
         if (token) {
           localStorage.setItem("token", token);
           setHasToken(true);
@@ -132,51 +164,54 @@ export default function Nav() {
       .catch(() => {});
   }, [session]);
 
-  /* Outside click only closes dropdown UI; must never trigger logout. */
   useEffect(() => {
     if (!dropdownOpen) return;
+
     function handleClickOutside(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setDropdownOpen(false);
       }
     }
+
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, [dropdownOpen]);
 
-  // Desktop search: Escape to close & clear
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
       if (e.key === "Escape") {
         setSearchQuery("");
       }
     }
+
     document.addEventListener("keydown", handleKey);
     return () => document.removeEventListener("keydown", handleKey);
   }, []);
 
-  // Mobile search: autofocus input when opened
   useEffect(() => {
     if (!isMobileSearchOpen) return;
+
     const id = window.setTimeout(() => {
       mobileSearchInputRef.current?.focus();
     }, 50);
+
     return () => window.clearTimeout(id);
   }, [isMobileSearchOpen]);
 
-  // Lock body scroll while mobile search is open
   useEffect(() => {
     if (!isMobileSearchOpen) return;
+
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+
     return () => {
       document.body.style.overflow = previousOverflow;
     };
   }, [isMobileSearchOpen]);
 
-  /* Mobile account menu: close on outside tap only; must never trigger logout. */
   useEffect(() => {
     if (!isMobileMenuOpen) return;
+
     function handleClickOutside(e: MouseEvent | TouchEvent) {
       if (
         mobileMenuPanelRef.current &&
@@ -185,8 +220,10 @@ export default function Nav() {
         setIsMobileMenuOpen(false);
       }
     }
+
     document.addEventListener("mousedown", handleClickOutside);
     document.addEventListener("touchstart", handleClickOutside);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("touchstart", handleClickOutside);
@@ -203,9 +240,8 @@ export default function Nav() {
     pathname.startsWith("/onboarding");
 
   const isPublicRoute =
-    pathname === "/" ||
-    isAuthRoute ||
-    pathname.startsWith("/legal");
+    pathname === "/" || isAuthRoute || pathname.startsWith("/legal");
+
   const isOnboardingOrRegister = isAuthRoute;
   const showAuthenticatedUI = hasToken && !isPublicRoute;
 
@@ -218,35 +254,65 @@ export default function Nav() {
     getStoredUserDisplayName() ||
     user?.name?.trim().split(/\s+/)[0] ||
     "";
+
   const firstName = displayName || "Utilizador";
   const avatarLetter = (firstName.charAt(0) || "U").toUpperCase();
-  const storedForPlan = getStoredUser();
-  const planName = storedForPlan?.subscriptionPlanName ?? user?.subscriptionPlanName ?? null;
-  const planLabel = planName ? `Plano ${planName.replace(/^FitLife\s+/i, "")}` : null;
-  const mobilePlanLabel = planName ? planName.replace(/^FitLife\s+/i, "").trim() : "Sem plano";
-  const mobileCreditsLabel =
-    creditsReady && typeof credits === "number" ? `${credits} crédito${credits === 1 ? "" : "s"}` : "";
-  const mobilePlanCreditsText =
-    mobileCreditsLabel ? `${mobilePlanLabel} · ${mobileCreditsLabel}` : mobilePlanLabel;
+
+  const normalizedPlanName = planName
+    ? planName.replace(/^FitLife\s+/i, "").trim()
+    : null;
+
+  const planLabel = !planReady ? null : normalizedPlanName ?? "Sem plano";
+
+  const mobilePlanLabel = !planReady ? "..." : normalizedPlanName ?? "Sem plano";
+
+  const mobileCreditsLabel = !creditsReady
+    ? "..."
+    : typeof credits === "number"
+    ? `${credits} crédito${credits === 1 ? "" : "s"}`
+    : "0 créditos";
+
+  const mobilePlanCreditsText = `${mobilePlanLabel} · ${mobileCreditsLabel}`;
+
 
   function normalize(str: string | undefined | null): string {
     if (!str) return "";
-    return str
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
+    return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   }
 
+  // Move useState to top level
+  const [partners, setPartners] = useState<any[]>([]);
+
+
+  useEffect(() => {
+    let alive = true;
+
+    const loadPartners = async () => {
+      try {
+        const data = await getAllPartnersWithCategory();
+        if (alive) setPartners(Array.isArray(data) ? data.map((p: any) => ({
+          id: `act-${p.categorySlug}-${p._id ?? p.id}`,
+          name: p.name,
+          category: p.categoryLabel,
+          city: p.city ?? "",
+          location: p.location ?? "",
+          href: `/activities/categorias/${p.categorySlug}/parceiros/${p._id ?? p.id}`,
+          kind: "activity" as const,
+        })) : []);
+      } catch (err) {
+        console.error("Erro a carregar partners:", err);
+        if (alive) setPartners([]);
+      }
+    };
+
+    loadPartners();
+
+    return () => {
+      alive = false;
+    };
+  }, []);
+
   const allSearchItems = useMemo(() => {
-    const partners = getAllPartnersWithCategory().map((p) => ({
-      id: `act-${p.categorySlug}-${p.id}`,
-      name: p.name,
-      category: p.categoryLabel,
-      city: p.city ?? "",
-      location: p.location ?? "",
-      href: `/activities/categorias/${p.categorySlug}/parceiros/${p.id}`,
-      kind: "activity" as const,
-    }));
     const restaurants = RESTAURANTS.map((r) => ({
       id: `rest-${r.id}`,
       name: r.name,
@@ -256,20 +322,17 @@ export default function Nav() {
       href: `/activities/categorias/healthy-food/restaurantes/${r.id}`,
       kind: "restaurant" as const,
     }));
+
     return [...partners, ...restaurants];
-  }, []);
+  }, [partners]);
 
   const filteredSearchItems = useMemo(() => {
     const q = normalize(searchQuery);
     if (!q) return [];
+
     return allSearchItems
       .filter((item) => {
-        const haystack = [
-          item.name,
-          item.category,
-          item.city,
-          item.location,
-        ]
+        const haystack = [item.name, item.category, item.city, item.location]
           .map(normalize)
           .join(" ");
         return haystack.includes(q);
@@ -278,19 +341,18 @@ export default function Nav() {
   }, [allSearchItems, searchQuery]);
 
   const showSearchResults =
-    searchQuery.length > 0 &&
-    filteredSearchItems.length > 0;
+    searchQuery.length > 0 && filteredSearchItems.length > 0;
 
-  /** Only ever called from explicit "Sair" button click. Do not trigger from outside-click, menu close, or navigation. */
   const handleLogout = () => {
     if (typeof window !== "undefined") {
       localStorage.removeItem("token");
       localStorage.removeItem("fitlife-user");
-      /* Do NOT remove fitlife-unified-reservations-{userId} or fitlife-purchased-credits-{userId}: credits and reservations persist for correct balance on re-login. */
     }
+
     setHasToken(false);
     setUser(null);
     setDropdownOpen(false);
+
     signOut({ callbackUrl: "/" }).then(() => router.push("/"));
   };
 
@@ -353,8 +415,10 @@ export default function Nav() {
               </button>
             </div>
           </div>
+
           <div className="flex-1 overflow-y-auto px-4 pb-[max(28px,env(safe-area-inset-bottom))] pt-2">
-            {searchQuery.trim().length === 0 ? null : filteredSearchItems.length === 0 ? (
+            {searchQuery.trim().length === 0 ? null : filteredSearchItems.length ===
+              0 ? (
               <div className="rounded-[28px] border border-white/[0.08] bg-[rgba(255,255,255,0.03)] px-5 py-5 text-white/70 shadow-[0_16px_40px_rgba(0,0,0,0.22)]">
                 Sem resultados
               </div>
@@ -376,7 +440,9 @@ export default function Nav() {
                     </div>
                     <div className="mt-1 text-sm text-white/60">
                       {item.category}
-                      {item.city || item.location ? ` · ${item.city || item.location}` : ""}
+                      {item.city || item.location
+                        ? ` · ${item.city || item.location}`
+                        : ""}
                     </div>
                   </button>
                 ))}
@@ -419,6 +485,7 @@ export default function Nav() {
                 <circle cx="11" cy="11" r="7" />
                 <line x1="16.65" y1="16.65" x2="21" y2="21" />
               </svg>
+
               <input
                 ref={searchInputRef}
                 type="search"
@@ -429,6 +496,7 @@ export default function Nav() {
                 placeholder="Pesquisar parceiros (Lisboa, Yoga, Terra...)"
                 className="w-full bg-transparent text-xs text-white/90 placeholder:text-white/50 focus:outline-none"
               />
+
               {searchQuery && (
                 <button
                   type="button"
@@ -441,6 +509,7 @@ export default function Nav() {
                   Limpar
                 </button>
               )}
+
               {showSearchResults && (
                 <div className="absolute left-0 top-full z-40 mt-1 w-full rounded-2xl border border-white/14 bg-[#020617]/90 py-1.5 text-sm shadow-[0_18px_40px_rgba(15,23,42,0.7)] backdrop-blur-2xl">
                   {filteredSearchItems.length === 0 ? (
@@ -461,7 +530,9 @@ export default function Nav() {
                             }}
                             className="flex w-full flex-col items-start px-3.5 py-2 text-left text-xs text-white/90 transition hover:bg-white/10"
                           >
-                            <span className="font-medium truncate">{item.name}</span>
+                            <span className="font-medium truncate">
+                              {item.name}
+                            </span>
                             <span className="mt-0.5 text-[11px] text-white/65">
                               {item.category}
                               {item.city || item.location ? (
@@ -482,41 +553,49 @@ export default function Nav() {
           )}
         </div>
 
-        {/* Right side – nav links + actions */}
         <div className="mobileHeaderRight ml-auto flex items-center gap-2.5 sm:gap-4">
           {showAuthenticatedUI && !isOnboardingOrRegister && !isAuthRoute && (
             <Link
               href="/activities"
-              className={`hidden md:inline-flex ${navLinkBase} ${isActive("/activities") ? navLinkActive : ""}`}
+              className={`hidden md:inline-flex ${navLinkBase} ${
+                isActive("/activities") ? navLinkActive : ""
+              }`}
             >
               Atividades
             </Link>
           )}
+
           {showAuthenticatedUI && (
             <div className="hidden items-center gap-2.5 md:flex">
               <Link
                 href="/dashboard/perfil"
-                className={`${navLinkBase} ${isActive("/dashboard/perfil") ? navLinkActive : ""}`}
+                className={`${navLinkBase} ${
+                  isActive("/dashboard/perfil") ? navLinkActive : ""
+                }`}
               >
                 Perfil
               </Link>
               <Link
                 href="/dashboard/reservas"
-                className={`${navLinkBase} ${isActive("/dashboard/reservas") ? navLinkActive : ""}`}
+                className={`${navLinkBase} ${
+                  isActive("/dashboard/reservas") ? navLinkActive : ""
+                }`}
               >
                 Reservas
               </Link>
               <Link
                 href="/dashboard/qr-codes"
-                className={`${navLinkBase} ${isActive("/dashboard/qr-codes") ? navLinkActive : ""}`}
+                className={`${navLinkBase} ${
+                  isActive("/dashboard/qr-codes") ? navLinkActive : ""
+                }`}
               >
                 Check-in
               </Link>
             </div>
           )}
+
           {showAuthenticatedUI ? (
             <>
-              {/* Mobile-only header actions: search + bell + avatar */}
               <div className="flex items-center gap-2.5 sm:hidden">
                 <button
                   type="button"
@@ -542,12 +621,15 @@ export default function Nav() {
                   </svg>
                 </button>
 
-                {/* Mobile bell */}
                 <button
                   type="button"
                   onClick={() => router.push("/dashboard/notifications")}
                   className="relative shrink-0 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 shadow-sm backdrop-blur-md transition hover:bg-white/10"
-                  aria-label={unreadCount > 0 ? `${unreadCount} notificações por ler` : "Notificações"}
+                  aria-label={
+                    unreadCount > 0
+                      ? `${unreadCount} notificações por ler`
+                      : "Notificações"
+                  }
                 >
                   <svg
                     className="h-5 w-5"
@@ -565,15 +647,13 @@ export default function Nav() {
                   {unreadCount > 0 && <span className="notificationBadge" />}
                 </button>
 
-                {(planLabel !== null || credits !== undefined) && (
-                  <span
-                    className="max-[360px]:hidden min-w-0 max-w-[150px] truncate whitespace-nowrap text-[12px] font-medium tracking-tight text-white/70 tabular-nums"
-                    title={mobilePlanCreditsText}
-                    aria-label={mobilePlanCreditsText}
-                  >
-                    {mobilePlanCreditsText}
-                  </span>
-                )}
+                <span
+                  className="max-[360px]:hidden min-w-0 max-w-[150px] truncate whitespace-nowrap text-[12px] font-medium tracking-tight text-white/70 tabular-nums"
+                  title={mobilePlanCreditsText}
+                  aria-label={mobilePlanCreditsText}
+                >
+                  {mobilePlanCreditsText}
+                </span>
 
                 <button
                   type="button"
@@ -594,14 +674,17 @@ export default function Nav() {
                 </button>
               </div>
 
-              {/* Desktop / tablet actions – existing dropdown, bell, plan badge, avatar */}
               <div className="relative ml-1 sm:ml-2 hidden sm:block" ref={dropdownRef}>
                 <div className="flex items-center gap-[10px] sm:gap-4">
                   <button
                     type="button"
                     onClick={() => router.push("/dashboard/notifications")}
                     className="notificationButton relative shrink-0 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 shadow-sm backdrop-blur-md transition hover:bg-white/10"
-                    aria-label={unreadCount > 0 ? `${unreadCount} notificações por ler` : "Notificações"}
+                    aria-label={
+                      unreadCount > 0
+                        ? `${unreadCount} notificações por ler`
+                        : "Notificações"
+                    }
                   >
                     <svg
                       className="h-5 w-5"
@@ -618,10 +701,9 @@ export default function Nav() {
                     </svg>
                     {unreadCount > 0 && <span className="notificationBadge" />}
                   </button>
+
                   {(planLabel !== null || (creditsReady && credits !== undefined)) && (
-                    <span
-                      className="hidden sm:inline-flex items-center gap-2.5 rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-[11px] font-medium tracking-tight text-white/90"
-                    >
+                    <span className="hidden sm:inline-flex items-center gap-2.5 rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-[11px] font-medium tracking-tight text-white/90">
                       <span className="font-semibold text-white/95">
                         {planLabel ?? "Sem plano"}
                       </span>
@@ -631,6 +713,7 @@ export default function Nav() {
                       </span>
                     </span>
                   )}
+
                   <button
                     type="button"
                     onClick={() => setDropdownOpen((o) => !o)}
@@ -644,9 +727,13 @@ export default function Nav() {
                     >
                       {avatarLetter}
                     </span>
-                    <span className="hidden sm:inline max-w-[140px] truncate text-white">{firstName}</span>
+                    <span className="hidden sm:inline max-w-[140px] truncate text-white">
+                      {firstName}
+                    </span>
                     <svg
-                      className={`h-3.5 w-3.5 shrink-0 text-white/50 transition duration-200 ${dropdownOpen ? "rotate-180" : ""}`}
+                      className={`h-3.5 w-3.5 shrink-0 text-white/50 transition duration-200 ${
+                        dropdownOpen ? "rotate-180" : ""
+                      }`}
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -660,6 +747,7 @@ export default function Nav() {
                     </svg>
                   </button>
                 </div>
+
                 {dropdownOpen && (
                   <div
                     className="absolute right-0 top-full mt-2 min-w-[220px] rounded-2xl border border-white/[0.12] bg-[#020617]/80 py-1.5 shadow-[0_18px_40px_rgba(15,23,42,0.7)] backdrop-blur-3xl"

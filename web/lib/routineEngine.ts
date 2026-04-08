@@ -29,6 +29,7 @@ export type RoutineSessionCandidate = {
   dateISO: string; // YYYY-MM-DD
   time: string; // HH:MM
   credits: number;
+  activitySpots?: number;
   score: number;
   meta?: { peakLabel?: string; trainerName?: string; trainerSpecialties?: string[] };
 };
@@ -219,6 +220,7 @@ function candidateFromMockActivity(
     dateISO: activityDateToISO(act.date),
     time: act.time,
     credits: act.credits,
+    activitySpots: act.spots,
     score: 0,
     meta:
       peakLabel || act.trainer?.name
@@ -245,6 +247,7 @@ function gymCandidateForPartner(categorySlug: string, partner: PartnerWithCatego
     partnerLat: partner.latitude,
     partnerLon: partner.longitude,
     activityTitle: "Ginásio",
+    activityId: getMockActivitiesForPartner(partner.id)[0]?.id,
     location: partner.location,
     dateISO,
     time,
@@ -253,8 +256,7 @@ function gymCandidateForPartner(categorySlug: string, partner: PartnerWithCatego
   };
 }
 
-export function buildRoutineCandidates(prefs: RoutinePreferences): RoutineSessionCandidate[] {
-  const partners = getAllPartnersWithCategory();
+  const partners = await getAllPartnersWithCategory();
   const preferredCategories = new Set(
     prefs.preferredActivityTypes.flatMap((t) => normalizeTypeToCategorySlug(t))
   );

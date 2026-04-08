@@ -70,13 +70,13 @@ export default function QRCodesPage() {
     };
   }, [session]);
 
-  function handleCancel(id: string) {
+  async function handleCancel(id: string) {
     const r = reservations.find((x) => x.id === id);
     if (!r) return;
     setCancelLoadingId(id);
     setSuccessMessage("");
     setErrorMessage("");
-    const result = cancelReservation(id);
+    const result = await cancelReservation(id);
     setCancelLoadingId(null);
     if (result.success) {
       const refundMsg =

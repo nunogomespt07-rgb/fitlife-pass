@@ -1,5 +1,26 @@
 import type { Partner, PartnerWithCategory } from "@/lib/activitiesData";
-import { CATEGORY_PARTNERS } from "@/lib/activitiesData";
+
+const VALID_CATEGORY_SLUGS = [
+  "ginasios",
+  "yoga",
+  "pilates",
+  "padel",
+  "spinning",
+  "personal-training",
+  "nutricao",
+  "massagem-desportiva",
+];
+
+const CATEGORY_LABELS: Record<string, string> = {
+  ginasios: "Ginásios",
+  yoga: "Yoga",
+  pilates: "Pilates",
+  padel: "Padel",
+  spinning: "Spinning",
+  "personal-training": "Personal Training",
+  nutricao: "Nutrição",
+  "massagem-desportiva": "Massagem Desportiva",
+};
 
 export type AdminPartnerRecord = PartnerWithCategory & {
   /** Demo-only visibility flag controlled by admin */
@@ -67,11 +88,11 @@ export function deleteAdminPartner(partnerId: string): void {
 }
 
 export function isValidCategorySlug(slug: string): boolean {
-  return Object.prototype.hasOwnProperty.call(CATEGORY_PARTNERS, slug);
+  return VALID_CATEGORY_SLUGS.includes(slug);
 }
 
 export function getCategoryLabel(slug: string): string {
-  return CATEGORY_PARTNERS[slug]?.label ?? slug;
+  return CATEGORY_LABELS[slug] ?? slug;
 }
 
 export function normalizePartnerDraft(draft: Partial<AdminPartnerRecord>): AdminPartnerRecord | null {

@@ -10,7 +10,8 @@ exports.getBalance = async (req, res) => {
     const user = await User.findById(req.userId).select("credits");
     if (!user) return res.status(404).json({ message: "Utilizador não encontrado" });
 
-    return res.json({ credits: user.credits });
+    const c = user.credits != null ? Number(user.credits) : 0;
+    return res.json({ credits: Math.max(0, Math.floor(Number.isFinite(c) ? c : 0)) });
   } catch (err) {
     return res
       .status(500)

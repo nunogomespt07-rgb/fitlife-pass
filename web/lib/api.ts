@@ -1,8 +1,21 @@
+import type { ActivitySnapshotPayload } from "@/lib/normalize";
+import { createReservation } from "@/lib/reservationFlow";
+
+export type { ActivitySnapshotPayload };
+
+/**
+ * Rota Next (App Router) que faz proxy para Express `POST /reservations`.
+ * Nunca usar `/reservations` no browser — isso bate no origin do Next e devolve "Cannot POST /reservations".
+ */
+export const API_RESERVATIONS_CREATE_PATH = "/api/reservations" as const;
+
 export async function apiFetch<T = unknown>(
   path: string,
   init?: RequestInit
 ): Promise<T> {
   const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
+  const token =
+  typeof window !== "undefined" ? localStorage.getItem("token") : null;
   const isProd = process.env.NODE_ENV === "production";
   // If base is set, always use it. If not set, allow relative URLs (dev/local).
   if (isProd && !base) {
@@ -11,13 +24,19 @@ export async function apiFetch<T = unknown>(
   if (isProd && /localhost|127\.0\.0\.1/i.test(base)) {
     throw new Error("NEXT_PUBLIC_API_URL must not point to localhost in production");
   }
-  const url = base
-    ? `${base}${path.startsWith("/") ? path : `/${path}`}`
-    : path.startsWith("/")
-      ? path
-      : `/${path}`;
-
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const trimmed = path.trim();
+  const normalizedPath = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+  /**
+   * Rotas /api/* são handlers do Next (proxy/server routes) e devem ser sempre same-origin.
+   * Evita apontar /api/reservations para o backend diretamente (erro "Cannot POST /api/reservations").
+   */
+  // Same-origin Next: nunca prefixar /api/* com NEXT_PUBLIC_API_URL (não enviar para backend externo).
+  const useNextApiRoute = normalizedPath.startsWith("/api/");
+  const url = useNextApiRoute
+    ? normalizedPath
+    : base
+      ? `${base}${normalizedPath}`
+      : normalizedPath;
 
   const headers = new Headers(init?.headers || {});
   if (token) {
@@ -27,7 +46,11 @@ export async function apiFetch<T = unknown>(
     headers.set("Content-Type", "application/json");
   }
 
-  if (typeof window !== "undefined") {
+  if (
+    typeof window !== "undefined" &&
+    process.env.NODE_ENV === "development" &&
+    process.env.NEXT_PUBLIC_DEBUG_AUTH === "1"
+  ) {
     console.log("AUTH DEBUG", {
       tokenExists: Boolean(token),
       tokenPrefix: token ? token.slice(0, 12) : null,
@@ -120,21 +143,38 @@ export async function getApiActivityById(id: string): Promise<ApiActivity | null
   }
 }
 
+export type PostApiBookingResponse = {
+  success?: boolean;
+  message: string;
+  booking?: unknown;
+  user?: { id?: string; credits?: number };
+  credits?: number;
+  /** Saldo antes do débito (Express POST /reservations ou /api/bookings). */
+  creditsBefore?: number;
+  debited?: number;
+  creditsAfter?: number;
+  remainingCredits?: number;
+  wallet?: {
+    userId: string;
+    creditsBefore: number;
+    creditsAfter: number;
+    debited: number;
+  };
+  reservation?: unknown;
+};
+
+/** Cria reserva com débito transacional no Express (proxy Next → POST /reservations). */
 export async function postApiBooking(
   activityId: string,
-  token: string
-): Promise<{ message: string; remainingCredits: number }> {
-  const data = await apiFetch<{ message: string; remainingCredits: number }>(
-    "/api/bookings",
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ activityId }),
-    }
-  );
-  return data;
+  token: string,
+  options?: { activitySnapshot?: ActivitySnapshotPayload }
+): Promise<PostApiBookingResponse> {
+  const data = await createReservation({
+    activityId,
+    token,
+    activitySnapshot: options?.activitySnapshot,
+  });
+  return data as PostApiBookingResponse;
 }
 
 export type MeUser = {
@@ -151,6 +191,40 @@ export async function getMe(token: string): Promise<MeUser> {
   return data;
 }
 
+/** Saldo real no Mongo (após reset mensal no servidor, se aplicável). */
+export async function fetchCreditsBalance(): Promise<{ credits: number }> {
+  const data = await apiFetch<{ credits?: number }>("/credits/balance", {
+    cache: "no-store",
+  });
+  const c = data?.credits;
+  if (typeof c !== "number" || !Number.isFinite(c)) {
+    throw new Error("Resposta de /credits/balance sem credits numérico");
+  }
+  return { credits: Math.max(0, Math.floor(c)) };
+}
+
+/** Perfil completo — mesmo payload que GET /api/user (proxy Next → backend). */
+export async function fetchCurrentUserProfile(): Promise<Record<string, unknown>> {
+  const data = await apiFetch<Record<string, unknown>>("/users/me", {
+    cache: "no-store",
+  });
+  return data && typeof data === "object" ? data : {};
+}
+
+/** PATCH /users/me (backend Mongo). */
+export async function patchCurrentUser(
+  body: Record<string, unknown>
+): Promise<Record<string, unknown>> {
+  console.log("[API] patchCurrentUser called", body);
+  const data = await apiFetch<Record<string, unknown>>("/users/me", {
+    method: "PATCH",
+    cache: "no-store",
+    body: JSON.stringify(body),
+  });
+  console.log("[API] patchCurrentUser response", data);
+  return data && typeof data === "object" ? data : {};
+}
+
 export type ApiBooking = {
   _id: string;
   activity: ApiActivity;
@@ -160,17 +234,31 @@ export type ApiBooking = {
   createdAt?: string;
 };
 
-export async function getApiBookings(token: string): Promise<ApiBooking[]> {
-  const data = await apiFetch<ApiBooking[]>("/api/bookings", {
+/** Reservas do utilizador autenticado (Mongo). Proxy Next → Express GET /reservations/my. */
+export async function getMyReservations(token: string): Promise<ApiBooking[]> {
+  const data = await apiFetch<ApiBooking[]>("/api/reservations/my", {
     headers: { Authorization: `Bearer ${token}` },
   });
   return Array.isArray(data) ? data : [];
+}
+
+/** @deprecated Prefer getMyReservations — usa GET /api/reservations/my. */
+export async function getApiBookings(token: string): Promise<ApiBooking[]> {
+  return getMyReservations(token);
 }
 
 export type CancelBookingResponse = {
   message: string;
   restoredCredits: number;
   remainingCredits: number;
+  creditsBefore?: number;
+  creditsAfter?: number;
+  wallet?: {
+    creditsBefore: number;
+    creditsAfter: number;
+    debited?: number;
+    restored?: number;
+  };
 };
 
 export async function deleteApiBooking(
@@ -204,7 +292,13 @@ export async function getActivityById(id: string): Promise<Activity | null> {
 export async function login(
   email: string,
   password: string
-): Promise<{ token: string; user: { id: string; name: string; email: string } }> {
+): Promise<{
+  token: string;
+  user: { id: string; name: string; email: string; credits?: number; plan?: string | null };
+  /** When present, server-reported wallet balance (optional). */
+  credits?: number;
+  plan?: string | null;
+}> {
   const raw = await apiFetch<unknown>("/auth/login", {
     method: "POST",
     body: JSON.stringify({ email, password }),
@@ -227,24 +321,44 @@ export async function login(
     })();
 
   const userObj = (obj.user && typeof obj.user === "object" ? obj.user : null) as
-    | { id?: unknown; name?: unknown; email?: unknown }
+    | { id?: unknown; name?: unknown; email?: unknown; credits?: unknown }
     | null;
 
   const user = {
     id: typeof userObj?.id === "string" ? userObj.id : "",
     name: typeof userObj?.name === "string" ? userObj.name : "",
     email: typeof userObj?.email === "string" ? userObj.email : email,
+    credits:
+      typeof userObj?.credits === "number" && Number.isFinite(userObj.credits)
+        ? Math.max(0, Math.floor(userObj.credits))
+        : undefined,
+    plan: userObj && "plan" in userObj ? (userObj as { plan?: string | null }).plan ?? null : undefined,
   };
+
+  let credits: number | undefined;
+  if (typeof obj.credits === "number" && Number.isFinite(obj.credits)) {
+    credits = Math.max(0, Math.floor(obj.credits));
+  } else if (typeof userObj?.credits === "number" && Number.isFinite(userObj.credits)) {
+    credits = Math.max(0, Math.floor(userObj.credits));
+  }
+
+  const plan =
+    user.plan !== undefined
+      ? user.plan
+      : userObj && "plan" in userObj
+        ? ((userObj as { plan?: string | null }).plan ?? null)
+        : undefined;
 
   if (!token) {
     throw new Error("Login sem token (token/jwt/accessToken ausente)");
   }
 
-  if (typeof window !== "undefined") {
-    localStorage.setItem("token", token);
-  }
+  /**
+   * Não gravar token aqui: o fluxo de UI (completeJwtSession) grava token + credits em sequência.
+   * Gravar só o token antes dos créditos fazia o contexto/refetch ler LS inconsistente no mesmo tick.
+   */
 
-  return { token, user };
+  return { token, user, credits, plan };
 }
 
 /** Change password. Backend should implement POST /auth/change-password with { currentPassword, newPassword } and Authorization: Bearer <token>. */
